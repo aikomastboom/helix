@@ -926,9 +926,6 @@ impl EditorView {
             return;
         }
 
-        // Immediately initialize a savepoint
-        doc_mut!(editor).savepoint();
-
         editor.last_completion = None;
         self.last_insert.1.push(InsertEvent::TriggerCompletion);
 
@@ -947,23 +944,53 @@ impl EditorView {
     }
 
     pub fn handle_idle_timeout(&mut self, cx: &mut crate::compositor::Context) -> EventResult {
-        if self.completion.is_some()
-            || !cx.editor.config().auto_completion
-            || doc!(cx.editor).mode != Mode::Insert
-        {
+        use commands::insert::is_server_trigger_char;
+        use helix_core::chars::char_is_word;
+
+        let config = cx.editor.config();
+        let (view, doc) = current!(cx.editor);
+        if doc.mode != Mode::Insert || !config.auto_completion {
             return EventResult::Ignored(None);
         }
 
-        let mut cx = commands::Context {
+        let is_trigger = || -> bool {
+            let text = doc.text().slice(..);
+            let cursor = doc.selection(view.id).primary().cursor(text);
+
+            let mut iter = text.chars_at(cursor);
+            iter.reverse();
+            let last_char = match iter.next() {
+                Some(c) => c,
+                None => return false,
+            };
+            if is_server_trigger_char(doc, last_char) {
+                return true;
+            }
+            if !char_is_word(last_char) {
+                return false;
+            }
+            for _ in 1..config.completion_trigger_len {
+                match iter.next() {
+                    Some(c) if char_is_word(c) || is_server_trigger_char(doc, c) => {}
+                    _ => return false,
+                }
+            }
+            true
+        };
+
+        if !is_trigger() {
+            return EventResult::Ignored(None);
+        }
+
+        self.clear_completion(cx.editor);
+        commands::completion(&mut commands::Context {
             register: None,
             editor: cx.editor,
             jobs: cx.jobs,
             count: None,
             callback: None,
             on_next_key_callback: None,
-        };
-        crate::commands::insert::idle_completion(&mut cx);
-
+        });
         EventResult::Consumed(None)
     }
 }
@@ -1197,7 +1224,7 @@ impl Component for EditorView {
                 EventResult::Consumed(None)
             }
             Event::Key(key) => {
-                cx.editor.reset_idle_timer();
+                cx.editor.clear_idle_timer();
                 let mut key = KeyEvent::from(key);
                 canonicalize_key(&mut key);
 
@@ -1249,7 +1276,8 @@ impl Component for EditorView {
                                 if let Some(completion) = &mut self.completion {
                                     completion.update(&mut cx);
                                     if completion.is_empty() {
-                                        self.clear_completion(cx.editor);
+                                        self.completion = None;
+                                        doc_mut!(cx.editor).savepoint = None;
                                     }
                                 }
                             }
@@ -1295,7 +1323,7 @@ impl Component for EditorView {
                     }
                     (Mode::Insert, Mode::Normal) => {
                         // if exiting insert mode, remove completion
-                        self.completion = None;
+                        self.clear_completion(cx.editor);
                     }
                     _ => (),
                 }
