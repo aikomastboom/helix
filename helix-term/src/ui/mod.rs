@@ -1,5 +1,6 @@
 mod completion;
 pub(crate) mod editor;
+mod explore;
 mod info;
 mod markdown;
 pub mod menu;
@@ -9,9 +10,11 @@ mod popup;
 mod prompt;
 mod spinner;
 mod text;
+mod tree;
 
 pub use completion::Completion;
 pub use editor::EditorView;
+pub use explore::Explorer;
 pub use markdown::Markdown;
 pub use menu::Menu;
 pub use picker::{FileLocation, FilePicker, Picker};
@@ -19,6 +22,7 @@ pub use popup::Popup;
 pub use prompt::{Prompt, PromptEvent};
 pub use spinner::{ProgressSpinners, Spinner};
 pub use text::Text;
+pub use tree::{Tree, TreeItem, TreeOp};
 
 use helix_core::regex::Regex;
 use helix_core::regex::RegexBuilder;

@@ -72,6 +72,12 @@ diagnostic = { modifiers = ["underlined"] }
 "ui.menu" = { fg = "white", bg = "gray" }
 "ui.menu.selected" = { fg = "black", bg = "blue" }
 
+"ui.explorer.file" = { fg = "white" }
+"ui.explorer.dir" = { fg = "blue" }
+"ui.explorer.exe" = { fg = "white" }
+"ui.explorer.focus" = { modifiers = ["reversed"] }
+"ui.explorer.unfocus" = { bg = "light-gray" }
+
 [palette]
 
 yellow = "#E5C07B"

@@ -258,6 +258,8 @@ pub fn default() -> HashMap<Mode, Keymap> {
             "k" => hover,
             "r" => rename_symbol,
             "?" => command_palette,
+            "e" => toggle_or_focus_explorer,
+            "E" => open_explorer_recursion,
         },
         "z" => { "View"
             "z" | "c" => align_view_center,
