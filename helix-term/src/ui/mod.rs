@@ -24,6 +24,7 @@ use helix_core::regex::Regex;
 use helix_core::regex::RegexBuilder;
 use helix_view::{Document, Editor, View};
 
+use std::fs;
 use std::path::PathBuf;
 
 pub fn prompt(
@@ -183,6 +184,36 @@ pub fn file_picker(root: PathBuf, config: &helix_view::editor::Config) -> FilePi
             cx.editor
                 .open(path.into(), action)
                 .expect("editor.open failed");
+        },
+        |_editor, path| Some((path.clone(), None)),
+    )
+}
+
+/// Based on find-file on doom emacs (SPC . or SPC f f).
+pub fn find_file_picker(dir: PathBuf, config: &helix_view::editor::Config) -> FilePicker<PathBuf> {
+    // switch to Result::flatten later
+    let files: Vec<_> = match fs::read_dir(&dir) {
+        Ok(dir) => dir
+            .flat_map(|entry| entry.map(|entry| entry.path()))
+            .collect(),
+        Err(_) => Vec::new(),
+    };
+    let config = config.clone();
+    FilePicker::new(
+        files,
+        move |path| {
+            let suffix = if path.is_dir() { "/" } else { "" };
+            path.strip_prefix(&dir).unwrap_or(path).to_string_lossy() + suffix
+        },
+        move |cx, path, action| {
+            if path.is_dir() {
+                let _picker = find_file_picker(path.to_path_buf(), &config);
+                todo!("recurse picker, probably need to change how handle_event close_fn works");
+            } else {
+                cx.editor
+                    .open(path.into(), action)
+                    .expect("editor.open failed");
+            }
         },
         |_editor, path| Some((path.clone(), None)),
     )

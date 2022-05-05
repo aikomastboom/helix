@@ -34,19 +34,6 @@ pub const MIN_AREA_WIDTH_FOR_PREVIEW: u16 = 72;
 /// Biggest file size to preview in bytes
 pub const MAX_FILE_SIZE_FOR_PREVIEW: u64 = 10 * 1024 * 1024;
 
-/// File path and range of lines (used to align and highlight lines)
-pub type FileLocation = (PathBuf, Option<(usize, usize)>);
-
-pub struct FilePicker<T> {
-    picker: Picker<T>,
-    pub truncate_start: bool,
-    /// Caches paths to documents
-    preview_cache: HashMap<PathBuf, CachedPreview>,
-    read_buffer: Vec<u8>,
-    /// Given an item in the picker, return the file path and line number to display.
-    file_fn: Box<dyn Fn(&Editor, &T) -> Option<FileLocation>>,
-}
-
 pub enum CachedPreview {
     Document(Box<Document>),
     Binary,
@@ -82,6 +69,19 @@ impl Preview<'_, '_> {
             },
         }
     }
+}
+
+/// File path and range of lines (used to align and highlight lines)
+pub type FileLocation = (PathBuf, Option<(usize, usize)>);
+
+pub struct FilePicker<T> {
+    picker: Picker<T>,
+    pub truncate_start: bool,
+    /// Caches paths to documents
+    preview_cache: HashMap<PathBuf, CachedPreview>,
+    read_buffer: Vec<u8>,
+    /// Given an item in the picker, return the file path and line number to display.
+    file_fn: Box<dyn Fn(&Editor, &T) -> Option<FileLocation>>,
 }
 
 impl<T> FilePicker<T> {
