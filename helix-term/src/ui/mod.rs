@@ -4,7 +4,7 @@ mod info;
 mod markdown;
 pub mod menu;
 pub mod overlay;
-mod picker;
+pub mod picker;
 mod popup;
 mod prompt;
 mod spinner;
@@ -20,6 +20,7 @@ pub use prompt::{Prompt, PromptEvent};
 pub use spinner::{ProgressSpinners, Spinner};
 pub use text::Text;
 
+use crate::compositor::{Compositor, EventResult};
 use helix_core::regex::Regex;
 use helix_core::regex::RegexBuilder;
 use helix_view::{Document, Editor, View};
@@ -180,10 +181,13 @@ pub fn file_picker(root: PathBuf, config: &helix_view::editor::Config) -> FilePi
             // format_fn
             path.strip_prefix(&root).unwrap_or(path).to_string_lossy()
         },
-        move |cx, path: &PathBuf, action| {
-            cx.editor
-                .open(path.into(), action)
-                .expect("editor.open failed");
+        move |cx, path, action| {
+            if let Some(path) = path {
+                cx.editor
+                    .open(path.into(), action)
+                    .expect("editor.open failed");
+            }
+            picker::close_picker()
         },
         |_editor, path| Some((path.clone(), None)),
     )
@@ -206,14 +210,23 @@ pub fn find_file_picker(dir: PathBuf, config: &helix_view::editor::Config) -> Fi
             path.strip_prefix(&dir).unwrap_or(path).to_string_lossy() + suffix
         },
         move |cx, path, action| {
-            if path.is_dir() {
-                let _picker = find_file_picker(path.to_path_buf(), &config);
-                todo!("recurse picker, probably need to change how handle_event close_fn works");
-            } else {
-                cx.editor
-                    .open(path.into(), action)
-                    .expect("editor.open failed");
+            if let Some(path) = path {
+                if path.is_dir() {
+                    let picker = find_file_picker(path.to_path_buf(), &config);
+                    return EventResult::Consumed(Some(Box::new(
+                        |compositor: &mut Compositor, _| {
+                            // remove the layer
+                            compositor.last_picker = compositor.pop();
+                            compositor.push(Box::new(overlay::overlayed(picker)));
+                        },
+                    )));
+                } else {
+                    cx.editor
+                        .open(path.into(), action)
+                        .expect("editor.open failed");
+                }
             }
+            picker::close_picker()
         },
         |_editor, path| Some((path.clone(), None)),
     )

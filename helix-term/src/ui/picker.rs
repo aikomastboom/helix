@@ -34,6 +34,14 @@ pub const MIN_AREA_WIDTH_FOR_PREVIEW: u16 = 72;
 /// Biggest file size to preview in bytes
 pub const MAX_FILE_SIZE_FOR_PREVIEW: u64 = 10 * 1024 * 1024;
 
+/// Helper function to close compositor for [`Picker`] `callback_fn`.
+pub fn close_picker() -> EventResult {
+    EventResult::Consumed(Some(Box::new(|compositor: &mut Compositor, _| {
+        // remove the layer
+        compositor.last_picker = compositor.pop();
+    })))
+}
+
 pub enum CachedPreview {
     Document(Box<Document>),
     Binary,
@@ -88,7 +96,7 @@ impl<T> FilePicker<T> {
     pub fn new(
         options: Vec<T>,
         format_fn: impl Fn(&T) -> Cow<str> + 'static,
-        callback_fn: impl Fn(&mut Context, &T, Action) + 'static,
+        callback_fn: impl Fn(&mut Context, Option<&T>, Action) -> EventResult + 'static,
         preview_fn: impl Fn(&Editor, &T) -> Option<FileLocation> + 'static,
     ) -> Self {
         let truncate_start = true;
@@ -303,14 +311,14 @@ pub struct Picker<T> {
     pub truncate_start: bool,
 
     format_fn: Box<dyn Fn(&T) -> Cow<str>>,
-    callback_fn: Box<dyn Fn(&mut Context, &T, Action)>,
+    callback_fn: Box<dyn Fn(&mut Context, Option<&T>, Action) -> EventResult>,
 }
 
 impl<T> Picker<T> {
     pub fn new(
         options: Vec<T>,
         format_fn: impl Fn(&T) -> Cow<str> + 'static,
-        callback_fn: impl Fn(&mut Context, &T, Action) + 'static,
+        callback_fn: impl Fn(&mut Context, Option<&T>, Action) -> EventResult + 'static,
     ) -> Self {
         let prompt = Prompt::new(
             "".into(),
@@ -494,11 +502,6 @@ impl<T: 'static> Component for Picker<T> {
             _ => return EventResult::Ignored(None),
         };
 
-        let close_fn = EventResult::Consumed(Some(Box::new(|compositor: &mut Compositor, _| {
-            // remove the layer
-            compositor.last_picker = compositor.pop();
-        })));
-
         match key_event.into() {
             shift!(Tab) | key!(Up) | ctrl!('p') => {
                 self.move_by(1, Direction::Backward);
@@ -519,25 +522,16 @@ impl<T: 'static> Component for Picker<T> {
                 self.to_end();
             }
             key!(Esc) | ctrl!('c') => {
-                return close_fn;
+                return close_picker();
             }
             key!(Enter) => {
-                if let Some(option) = self.selection() {
-                    (self.callback_fn)(cx, option, Action::Replace);
-                }
-                return close_fn;
+                return (self.callback_fn)(cx, self.selection(), Action::Replace);
             }
             ctrl!('s') => {
-                if let Some(option) = self.selection() {
-                    (self.callback_fn)(cx, option, Action::HorizontalSplit);
-                }
-                return close_fn;
+                return (self.callback_fn)(cx, self.selection(), Action::HorizontalSplit);
             }
             ctrl!('v') => {
-                if let Some(option) = self.selection() {
-                    (self.callback_fn)(cx, option, Action::VerticalSplit);
-                }
-                return close_fn;
+                return (self.callback_fn)(cx, self.selection(), Action::VerticalSplit);
             }
             ctrl!(' ') => {
                 self.save_filter(cx);

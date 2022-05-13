@@ -2,7 +2,7 @@ use super::{Context, Editor};
 use crate::{
     compositor::{self, Compositor},
     job::{Callback, Jobs},
-    ui::{self, overlay::overlayed, FilePicker, Picker, Popup, Prompt, PromptEvent, Text},
+    ui::{self, overlay::overlayed, picker, FilePicker, Picker, Popup, Prompt, PromptEvent, Text},
 };
 use helix_core::syntax::{DebugArgumentValue, DebugConfigCompletion};
 use helix_dap::{self as dap, Client};
@@ -52,7 +52,12 @@ fn thread_picker(
                     )
                     .into()
                 },
-                move |cx, thread, _action| callback_fn(cx.editor, thread),
+                move |cx, thread, _action| {
+                    if let Some(thread) = thread {
+                        callback_fn(cx.editor, thread)
+                    }
+                    picker::close_picker()
+                },
                 move |editor, thread| {
                     let frames = editor.debugger.as_ref()?.stack_frames.get(&thread.id)?;
                     let frame = frames.get(0)?;
@@ -245,16 +250,19 @@ pub fn dap_launch(cx: &mut Context) {
         templates,
         |template| template.name.as_str().into(),
         |cx, template, _action| {
-            let completions = template.completion.clone();
-            let name = template.name.clone();
-            let callback = Box::pin(async move {
-                let call: Callback = Box::new(move |_editor, compositor| {
-                    let prompt = debug_parameter_prompt(completions, name, Vec::new());
-                    compositor.push(Box::new(prompt));
+            if let Some(template) = template {
+                let completions = template.completion.clone();
+                let name = template.name.clone();
+                let callback = Box::pin(async move {
+                    let call: Callback = Box::new(move |_editor, compositor| {
+                        let prompt = debug_parameter_prompt(completions, name, Vec::new());
+                        compositor.push(Box::new(prompt));
+                    });
+                    Ok(call)
                 });
-                Ok(call)
-            });
-            cx.jobs.callback(callback);
+                cx.jobs.callback(callback);
+            }
+            picker::close_picker()
         },
     ))));
 }
@@ -654,19 +662,25 @@ pub fn dap_switch_stack_frame(cx: &mut Context) {
         frames,
         |frame| frame.name.as_str().into(), // TODO: include thread_states in the label
         move |cx, frame, _action| {
-            let debugger = debugger!(cx.editor);
-            // TODO: this should be simpler to find
-            let pos = debugger.stack_frames[&thread_id]
-                .iter()
-                .position(|f| f.id == frame.id);
-            debugger.active_frame = pos;
+            if let Some(frame) = frame {
+                let debugger = match &mut cx.editor.debugger {
+                    Some(debugger) => debugger,
+                    None => return picker::close_picker(),
+                };
+                // TODO: this should be simpler to find
+                let pos = debugger.stack_frames[&thread_id]
+                    .iter()
+                    .position(|f| f.id == frame.id);
+                debugger.active_frame = pos;
 
-            let frame = debugger.stack_frames[&thread_id]
-                .get(pos.unwrap_or(0))
-                .cloned();
-            if let Some(frame) = &frame {
-                jump_to_stack_frame(cx.editor, frame);
+                let frame = debugger.stack_frames[&thread_id]
+                    .get(pos.unwrap_or(0))
+                    .cloned();
+                if let Some(frame) = &frame {
+                    jump_to_stack_frame(cx.editor, frame);
+                }
             }
+            picker::close_picker()
         },
         move |_editor, frame| {
             frame
