@@ -133,20 +133,22 @@ impl Component for FindFilePicker {
             compositor.last_picker = compositor.pop();
         })));
 
+        let findfile_fn = |path: &Path| {
+            let picker = FindFilePicker::new(path.to_path_buf());
+            EventResult::Consumed(Some(Box::new(|compositor: &mut Compositor, _| {
+                // remove the layer
+                compositor.last_picker = compositor.pop();
+                compositor.push(Box::new(overlay::overlayed(picker)));
+            })))
+        };
+
         // different from FilePicker callback_fn as in second option is an
         // Option<T> and returns EventResult
         let callback_fn =
             move |cx: &mut Context, picker: &FilePicker<PathBuf>, dir: &PathBuf, action| {
                 if let Some(path) = picker.picker.selection() {
                     if path.is_dir() {
-                        let picker = FindFilePicker::new(path.to_path_buf());
-                        return EventResult::Consumed(Some(Box::new(
-                            |compositor: &mut Compositor, _| {
-                                // remove the layer
-                                compositor.last_picker = compositor.pop();
-                                compositor.push(Box::new(overlay::overlayed(picker)));
-                            },
-                        )));
+                        return findfile_fn(path);
                     } else {
                         cx.editor
                             .open(path.into(), action)
@@ -162,6 +164,10 @@ impl Component for FindFilePicker {
             };
 
         match key_event.into() {
+            ctrl!('h') | key!(Backspace) if self.picker.picker.prompt.line().is_empty() => {
+                let parent = self.dir.parent().unwrap_or(&self.dir);
+                findfile_fn(parent)
+            }
             key!(Enter) => (callback_fn)(cx, &self.picker, &self.dir, Action::Replace),
             ctrl!('s') => (callback_fn)(cx, &self.picker, &self.dir, Action::HorizontalSplit),
             ctrl!('v') => (callback_fn)(cx, &self.picker, &self.dir, Action::VerticalSplit),
