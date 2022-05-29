@@ -91,7 +91,7 @@ impl FindFilePicker {
             Err(_) => Vec::new(),
         };
         let dir1 = dir.clone();
-        let picker = FilePicker::new(
+        let mut picker = FilePicker::new(
             files,
             move |path| {
                 let suffix = if path.is_dir() { "/" } else { "" };
@@ -101,6 +101,17 @@ impl FindFilePicker {
             |_cx, _path, _action| {}, // we use custom callback_fn
             |_editor, path| Some((path.clone(), None)),
         );
+        // TODO: truncate prompt dir if prompt area too small and current dir too long
+        let current_dir = std::env::current_dir().expect("couldn't determine current directory");
+        let dir1 = dir.clone();
+        let prompt = dir1
+            .strip_prefix(current_dir)
+            .unwrap_or(&dir1)
+            .to_string_lossy()
+            .into_owned()
+            + "/";
+        *picker.picker.prompt.prompt_mut() = Cow::Owned(prompt);
+        picker.picker.prompt.prompt_style_fn = Box::new(|theme| Some(theme.get("blue")));
         FindFilePicker { picker, dir }
     }
 }
