@@ -44,7 +44,7 @@ use movement::Movement;
 use crate::{
     args,
     compositor::{self, Component, Compositor},
-    ui::{self, overlay::overlayed, picker, FilePicker, Picker, Popup, Prompt, PromptEvent},
+    ui::{self, overlay::overlayed, FilePicker, Picker, Popup, Prompt, PromptEvent},
 };
 
 use crate::job::{self, Job, Jobs};
@@ -1849,30 +1849,27 @@ fn global_search(cx: &mut Context) {
                             relative_path.into()
                         }
                     },
-                    move |cx, result, action| {
-                        if let Some((line_num, path)) = result {
-                            match cx.editor.open(path.into(), action) {
-                                Ok(_) => {}
-                                Err(e) => {
-                                    cx.editor.set_error(format!(
-                                        "Failed to open file '{}': {}",
-                                        path.display(),
-                                        e
-                                    ));
-                                    return picker::close_picker();
-                                }
+                    move |cx, (line_num, path), action| {
+                        match cx.editor.open(path.into(), action) {
+                            Ok(_) => {}
+                            Err(e) => {
+                                cx.editor.set_error(format!(
+                                    "Failed to open file '{}': {}",
+                                    path.display(),
+                                    e
+                                ));
+                                return;
                             }
-
-                            let line_num = *line_num;
-                            let (view, doc) = current!(cx.editor);
-                            let text = doc.text();
-                            let start = text.line_to_char(line_num);
-                            let end = text.line_to_char((line_num + 1).min(text.len_lines()));
-
-                            doc.set_selection(view.id, Selection::single(start, end));
-                            align_view(doc, view, Align::Center);
                         }
-                        picker::close_picker()
+
+                        let line_num = *line_num;
+                        let (view, doc) = current!(cx.editor);
+                        let text = doc.text();
+                        let start = text.line_to_char(line_num);
+                        let end = text.line_to_char((line_num + 1).min(text.len_lines()));
+
+                        doc.set_selection(view.id, Selection::single(start, end));
+                        align_view(doc, view, Align::Center);
                     },
                     |_editor, (line_num, path)| Some((path.clone(), Some((*line_num, *line_num)))),
                 );
@@ -2209,10 +2206,7 @@ fn buffer_picker(cx: &mut Context) {
             .collect(),
         BufferMeta::format,
         |cx, meta, action| {
-            if let Some(meta) = meta {
-                cx.editor.switch(meta.id, action);
-            }
-            picker::close_picker()
+            cx.editor.switch(meta.id, action);
         },
         |editor, meta| {
             let doc = &editor.documents.get(&meta.id)?;
@@ -2272,18 +2266,15 @@ pub fn command_palette(cx: &mut Context) {
                     },
                 },
                 move |cx, command, _action| {
-                    if let Some(command) = command {
-                        let mut ctx = Context {
-                            register: None,
-                            count: std::num::NonZeroUsize::new(1),
-                            editor: cx.editor,
-                            callback: None,
-                            on_next_key_callback: None,
-                            jobs: cx.jobs,
-                        };
-                        command.execute(&mut ctx);
-                    }
-                    picker::close_picker()
+                    let mut ctx = Context {
+                        register: None,
+                        count: std::num::NonZeroUsize::new(1),
+                        editor: cx.editor,
+                        callback: None,
+                        on_next_key_callback: None,
+                        jobs: cx.jobs,
+                    };
+                    command.execute(&mut ctx);
                 },
             );
             compositor.push(Box::new(overlayed(picker)));

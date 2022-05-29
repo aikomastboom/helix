@@ -11,7 +11,7 @@ use helix_view::editor::Action;
 
 use crate::{
     compositor::{self, Compositor},
-    ui::{self, overlay::overlayed, picker, FileLocation, FilePicker, Popup, PromptEvent},
+    ui::{self, overlay::overlayed, FileLocation, FilePicker, Popup, PromptEvent},
 };
 
 use std::borrow::Cow;
@@ -85,26 +85,23 @@ fn sym_picker(
             }
         },
         move |cx, symbol, action| {
-            if let Some(symbol) = symbol {
-                if current_path2.as_ref() == Some(&symbol.location.uri) {
-                    push_jump(cx.editor);
-                } else {
-                    let path = symbol.location.uri.to_file_path().unwrap();
-                    cx.editor.open(path, action).expect("editor.open failed");
-                }
-
-                let (view, doc) = current!(cx.editor);
-
-                if let Some(range) =
-                    lsp_range_to_range(doc.text(), symbol.location.range, offset_encoding)
-                {
-                    // we flip the range so that the cursor sits on the start of the symbol
-                    // (for example start of the function).
-                    doc.set_selection(view.id, Selection::single(range.head, range.anchor));
-                    align_view(doc, view, Align::Center);
-                }
+            if current_path2.as_ref() == Some(&symbol.location.uri) {
+                push_jump(cx.editor);
+            } else {
+                let path = symbol.location.uri.to_file_path().unwrap();
+                cx.editor.open(path, action).expect("editor.open failed");
             }
-            picker::close_picker()
+
+            let (view, doc) = current!(cx.editor);
+
+            if let Some(range) =
+                lsp_range_to_range(doc.text(), symbol.location.range, offset_encoding)
+            {
+                // we flip the range so that the cursor sits on the start of the symbol
+                // (for example start of the function).
+                doc.set_selection(view.id, Selection::single(range.head, range.anchor));
+                align_view(doc, view, Align::Center);
+            }
         },
         move |_editor, symbol| Some(location_to_file_location(&symbol.location)),
     )
@@ -486,10 +483,7 @@ fn goto_impl(
                     format!("{}:{}", file, line).into()
                 },
                 move |cx, location, action| {
-                    if let Some(location) = location {
-                        jump_to_location(cx.editor, location, offset_encoding, action);
-                    }
-                    picker::close_picker()
+                    jump_to_location(cx.editor, location, offset_encoding, action)
                 },
                 move |_editor, location| Some(location_to_file_location(location)),
             );
