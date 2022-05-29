@@ -78,6 +78,7 @@ pub type FileLocation = (PathBuf, Option<(usize, usize)>);
 // Specialized version of [`FilePicker`] with some custom support to allow directory navigation.
 pub struct FindFilePicker {
     picker: FilePicker<PathBuf>,
+    dir: PathBuf,
 }
 
 impl FindFilePicker {
@@ -89,16 +90,18 @@ impl FindFilePicker {
                 .collect(),
             Err(_) => Vec::new(),
         };
+        let dir1 = dir.clone();
         let picker = FilePicker::new(
             files,
             move |path| {
                 let suffix = if path.is_dir() { "/" } else { "" };
-                path.strip_prefix(&dir).unwrap_or(path).to_string_lossy() + suffix
+                let path = path.strip_prefix(&dir1).unwrap_or(path).to_string_lossy();
+                path + suffix
             },
             |_cx, _path, _action| {}, // we use custom callback_fn
             |_editor, path| Some((path.clone(), None)),
         );
-        FindFilePicker { picker }
+        FindFilePicker { picker, dir }
     }
 }
 
@@ -121,32 +124,36 @@ impl Component for FindFilePicker {
 
         // different from FilePicker callback_fn as in second option is an
         // Option<T> and returns EventResult
-        let callback_fn = move |cx: &mut Context, path: Option<&PathBuf>, action| {
-            if let Some(path) = path {
-                if path.is_dir() {
-                    let picker = FindFilePicker::new(path.to_path_buf());
-                    return EventResult::Consumed(Some(Box::new(
-                        |compositor: &mut Compositor, _| {
-                            // remove the layer
-                            compositor.last_picker = compositor.pop();
-                            compositor.push(Box::new(overlay::overlayed(picker)));
-                        },
-                    )));
+        let callback_fn =
+            move |cx: &mut Context, picker: &FilePicker<PathBuf>, dir: &PathBuf, action| {
+                if let Some(path) = picker.picker.selection() {
+                    if path.is_dir() {
+                        let picker = FindFilePicker::new(path.to_path_buf());
+                        return EventResult::Consumed(Some(Box::new(
+                            |compositor: &mut Compositor, _| {
+                                // remove the layer
+                                compositor.last_picker = compositor.pop();
+                                compositor.push(Box::new(overlay::overlayed(picker)));
+                            },
+                        )));
+                    } else {
+                        cx.editor
+                            .open(path.into(), action)
+                            .expect("editor.open failed");
+                    }
                 } else {
+                    let filename = picker.picker.prompt.line();
                     cx.editor
-                        .open(path.into(), action)
+                        .open(dir.join(filename), action)
                         .expect("editor.open failed");
                 }
-            }
-            close_fn
-        };
+                close_fn
+            };
 
         match key_event.into() {
-            key!(Enter) => (callback_fn)(cx, self.picker.picker.selection(), Action::Replace),
-            ctrl!('s') => {
-                (callback_fn)(cx, self.picker.picker.selection(), Action::HorizontalSplit)
-            }
-            ctrl!('v') => (callback_fn)(cx, self.picker.picker.selection(), Action::VerticalSplit),
+            key!(Enter) => (callback_fn)(cx, &self.picker, &self.dir, Action::Replace),
+            ctrl!('s') => (callback_fn)(cx, &self.picker, &self.dir, Action::HorizontalSplit),
+            ctrl!('v') => (callback_fn)(cx, &self.picker, &self.dir, Action::VerticalSplit),
             _ => self.picker.handle_event(event, cx),
         }
     }
