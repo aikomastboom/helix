@@ -2149,7 +2149,7 @@ fn find_file_picker(cx: &mut Context) {
     let cwd = doc_parent
         .or_else(|| std::env::current_dir().ok())
         .unwrap_or_else(|| PathBuf::from("./"));
-    let picker = ui::find_file_picker(cwd, &cx.editor.config());
+    let picker = ui::find_file_picker(cwd);
     cx.push_layer(Box::new(overlayed(picker)));
 }
 

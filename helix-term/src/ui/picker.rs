@@ -18,11 +18,12 @@ use std::{
     borrow::Cow,
     cmp::Reverse,
     collections::HashMap,
+    fs,
     io::Read,
     path::{Path, PathBuf},
 };
 
-use crate::ui::{Prompt, PromptEvent};
+use crate::ui::{overlay, Prompt, PromptEvent};
 use helix_core::{movement::Direction, Position};
 use helix_view::{
     editor::Action,
@@ -73,6 +74,83 @@ impl Preview<'_, '_> {
 
 /// File path and range of lines (used to align and highlight lines)
 pub type FileLocation = (PathBuf, Option<(usize, usize)>);
+
+// Specialized version of [`FilePicker`] with some custom support to allow directory navigation.
+pub struct FindFilePicker {
+    picker: FilePicker<PathBuf>,
+}
+
+impl FindFilePicker {
+    pub fn new(dir: PathBuf) -> FindFilePicker {
+        // switch to Result::flatten later
+        let files: Vec<_> = match fs::read_dir(&dir) {
+            Ok(dir) => dir
+                .flat_map(|entry| entry.map(|entry| entry.path()))
+                .collect(),
+            Err(_) => Vec::new(),
+        };
+        let picker = FilePicker::new(
+            files,
+            move |path| {
+                let suffix = if path.is_dir() { "/" } else { "" };
+                path.strip_prefix(&dir).unwrap_or(path).to_string_lossy() + suffix
+            },
+            |_cx, _path, _action| {}, // we use custom callback_fn
+            |_editor, path| Some((path.clone(), None)),
+        );
+        FindFilePicker { picker }
+    }
+}
+
+impl Component for FindFilePicker {
+    fn render(&mut self, area: Rect, surface: &mut Surface, cx: &mut Context) {
+        self.picker.render(area, surface, cx);
+    }
+
+    fn handle_event(&mut self, event: Event, cx: &mut Context) -> EventResult {
+        let key_event = match event {
+            Event::Key(event) => event,
+            Event::Resize(..) => return EventResult::Consumed(None),
+            _ => return EventResult::Ignored(None),
+        };
+
+        let close_fn = EventResult::Consumed(Some(Box::new(|compositor: &mut Compositor, _| {
+            // remove the layer
+            compositor.last_picker = compositor.pop();
+        })));
+
+        // different from FilePicker callback_fn as in second option is an
+        // Option<T> and returns EventResult
+        let callback_fn = move |cx: &mut Context, path: Option<&PathBuf>, action| {
+            if let Some(path) = path {
+                if path.is_dir() {
+                    let picker = FindFilePicker::new(path.to_path_buf());
+                    return EventResult::Consumed(Some(Box::new(
+                        |compositor: &mut Compositor, _| {
+                            // remove the layer
+                            compositor.last_picker = compositor.pop();
+                            compositor.push(Box::new(overlay::overlayed(picker)));
+                        },
+                    )));
+                } else {
+                    cx.editor
+                        .open(path.into(), action)
+                        .expect("editor.open failed");
+                }
+            }
+            close_fn
+        };
+
+        match key_event.into() {
+            key!(Enter) => (callback_fn)(cx, self.picker.picker.selection(), Action::Replace),
+            ctrl!('s') => {
+                (callback_fn)(cx, self.picker.picker.selection(), Action::HorizontalSplit)
+            }
+            ctrl!('v') => (callback_fn)(cx, self.picker.picker.selection(), Action::VerticalSplit),
+            _ => self.picker.handle_event(event, cx),
+        }
+    }
+}
 
 pub struct FilePicker<T> {
     picker: Picker<T>,
