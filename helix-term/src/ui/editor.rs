@@ -1325,6 +1325,12 @@ impl Component for EditorView {
         }
         cx.editor.resize(editor_area); // -1 from bottom for commandline
 
+        if let Some(explore) = self.explorer.as_mut() {
+            if !explore.content.is_focus() && config.explorer.is_embed() {
+                explore.content.render(area, surface, cx);
+            }
+        }
+
         for (view, is_focused) in cx.editor.tree.views() {
             let doc = cx.editor.document(view.doc).unwrap();
             self.render_view(cx.editor, doc, view, area, surface, is_focused);
@@ -1406,10 +1412,12 @@ impl Component for EditorView {
         }
 
         if let Some(explore) = self.explorer.as_mut() {
-            if config.explorer.is_embed() {
-                explore.content.render(area, surface, cx);
-            } else if explore.content.is_focus() {
-                explore.render(area, surface, cx);
+            if explore.content.is_focus() {
+                if config.explorer.is_embed() {
+                    explore.content.render(area, surface, cx);
+                } else {
+                    explore.render(area, surface, cx);
+                }
             }
         }
     }
