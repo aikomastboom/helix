@@ -501,6 +501,7 @@ pub struct Editor {
     pub macro_recording: Option<(char, Vec<KeyEvent>)>,
     pub theme: Theme,
     pub language_servers: helix_lsp::Registry,
+    pub vcs_providers: helix_vcs::Registry,
 
     pub debugger: Option<dap::Client>,
     pub debugger_events: SelectAll<UnboundedReceiverStream<dap::Payload>>,
@@ -555,7 +556,6 @@ impl Editor {
         syn_loader: Arc<syntax::Loader>,
         config: Box<dyn DynAccess<Config>>,
     ) -> Self {
-        let language_servers = helix_lsp::Registry::new();
         let conf = config.load();
         let auto_pairs = (&conf.auto_pairs).into();
 
@@ -570,7 +570,8 @@ impl Editor {
             selected_register: None,
             macro_recording: None,
             theme: theme_loader.default(),
-            language_servers,
+            language_servers: helix_lsp::Registry::new(),
+            vcs_providers: helix_vcs::Registry::new(),
             debugger: None,
             debugger_events: SelectAll::new(),
             breakpoints: HashMap::new(),
@@ -831,7 +832,8 @@ impl Editor {
             let mut doc = Document::open(&path, None, Some(self.syn_loader.clone()))?;
 
             let _ = Self::launch_language_server(&mut self.language_servers, &mut doc);
-
+            doc.set_version_control(self.vcs_providers.discover_from_path(&path));
+            doc.diff_with_vcs();
             self.new_document(doc)
         };
 

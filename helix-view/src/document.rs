@@ -1,12 +1,15 @@
 use anyhow::{anyhow, bail, Context, Error};
 use helix_core::auto_pairs::AutoPairs;
+use helix_core::diff::compare_ropes;
+use helix_vcs::LineDiffs;
 use serde::de::{self, Deserialize, Deserializer};
 use serde::Serialize;
-use std::cell::Cell;
+use std::cell::{Cell, RefCell};
 use std::collections::HashMap;
 use std::fmt::Display;
 use std::future::Future;
 use std::path::{Path, PathBuf};
+use std::rc::Rc;
 use std::str::FromStr;
 use std::sync::Arc;
 
@@ -120,6 +123,12 @@ pub struct Document {
 
     diagnostics: Vec<Diagnostic>,
     language_server: Option<Arc<helix_lsp::Client>>,
+
+    version_control: Option<Rc<RefCell<helix_vcs::Git>>>,
+    /// The changes that should be applied to the current text in the doc
+    /// to get the diff base (eg. checked in version of the file in git).
+    diff_changes: Option<ChangeSet>,
+    line_diffs: LineDiffs,
 }
 
 use std::{fmt, mem};
@@ -360,6 +369,9 @@ impl Document {
             last_saved_revision: 0,
             modified_since_accessed: false,
             language_server: None,
+            version_control: None,
+            diff_changes: None,
+            line_diffs: LineDiffs::new(),
         }
     }
 
@@ -629,6 +641,50 @@ impl Document {
         self.language_server = language_server;
     }
 
+    pub fn set_version_control(&mut self, vcs: Option<Rc<RefCell<helix_vcs::Git>>>) {
+        self.version_control = vcs;
+    }
+
+    pub fn diff_with_vcs(&mut self) {
+        let mut vcs = self
+            .version_control
+            .as_ref()
+            .and_then(|v| v.try_borrow_mut().ok());
+        let diff_base = self
+            .path()
+            .and_then(|path| vcs.as_mut()?.read_file_from_head(path));
+        if let Some(diff_base) = diff_base {
+            let changes = compare_ropes(diff_base, self.text()).changes().clone();
+            let changes = changes.invert(diff_base);
+            self.diff_changes = Some(changes);
+            drop(vcs);
+            self.diff_with_base();
+        }
+    }
+
+    pub fn diff_with_base(&mut self) {
+        let changes = match &self.diff_changes {
+            Some(c) => c,
+            None => return,
+        };
+        self.line_diffs.clear();
+
+        for (from, to, replacement) in changes.changes_iter() {
+            let from_line = self.text().char_to_line(from);
+            let to_line = self.text().char_to_line(to);
+            let mut mark_with = |diff_tag| {
+                for line_idx in from_line..=to_line {
+                    self.line_diffs.entry(line_idx).or_insert(diff_tag);
+                }
+            };
+            match replacement {
+                None if from_line == to_line => mark_with(helix_vcs::LineDiff::Modified),
+                None => mark_with(helix_vcs::LineDiff::Added),
+                Some(_) => mark_with(helix_vcs::LineDiff::Deleted),
+            }
+        }
+    }
+
     /// Select text within the [`Document`].
     pub fn set_selection(&mut self, view_id: ViewId, selection: Selection) {
         // TODO: use a transaction?
@@ -665,12 +721,32 @@ impl Document {
 
         if !transaction.changes().is_empty() {
             self.version += 1;
+            let reverted_tx = transaction.invert(&old_doc);
+
+            // Consider H to be the text of the file in git HEAD, and B₁ to be
+            // the text when buffer initially loads. H → B₁ is the changeset
+            // that describes the diff between HEAD and buffer text. Inverting
+            // this produces B₁ → H, which is initially saved to `diff_changes`.
+            // In the next edit, buffer text changes to B₂. The transaction
+            // describes the change B₁ → B₂. Inverting this gives B₂ → B₁.
+            // Composing this with the saved `diff_changes` gives us
+            // (B₂ → B₁) → (B₁ → H) = B₂ → H. Whenever examining a change X₁ → X₂,
+            // we need to know the contents of the text at state X₁ to know where
+            // to apply the operations in the changeset. The advantage of inverting and
+            // composing this way instead of simply composing (which would give
+            // us H → B₂ in this example) is that we no longer need the HEAD text
+            // and we can instead use the current text in the buffer.
+            if let Some(changes) = self.diff_changes.take() {
+                let reverted_changes = reverted_tx.changes().clone();
+                let changes = reverted_changes.compose(changes);
+                self.diff_changes = Some(changes);
+                self.diff_with_base();
+            }
 
             // generate revert to savepoint
             if self.savepoint.is_some() {
                 take_with(&mut self.savepoint, |prev_revert| {
-                    let revert = transaction.invert(&old_doc);
-                    Some(revert.compose(prev_revert.unwrap()))
+                    Some(reverted_tx.compose(prev_revert.unwrap()))
                 });
             }
 
@@ -873,6 +949,10 @@ impl Document {
     pub fn language_server(&self) -> Option<&helix_lsp::Client> {
         let server = self.language_server.as_deref()?;
         server.is_initialized().then(|| server)
+    }
+
+    pub fn line_diffs(&self) -> &LineDiffs {
+        &self.line_diffs
     }
 
     #[inline]
