@@ -108,8 +108,12 @@ impl FindFilePicker {
             .strip_prefix(current_dir)
             .unwrap_or(&dir1)
             .to_string_lossy()
-            .into_owned()
-            + "/";
+            .into_owned();
+        let prompt = match prompt.as_str() {
+            "/" => "/".to_owned(),
+            "" => "./".to_owned(),
+            _ => prompt + "/",
+        };
         *picker.picker.prompt.prompt_mut() = Cow::Owned(prompt);
         picker.picker.prompt.prompt_style_fn = Box::new(|theme| Some(theme.get("blue")));
         FindFilePicker { picker, dir }
