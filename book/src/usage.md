@@ -19,7 +19,7 @@ If there is a selected register before invoking a change or delete command, the 
 ### Special Registers
 
 | Register character | Contains              |
-| ---                | ---                   |
+|--------------------|-----------------------|
 | `/`                | Last search           |
 | `:`                | Last executed command |
 | `"`                | Last yanked text      |
@@ -134,7 +134,7 @@ Currently supported: `word`, `surround`, `function`, `class`, `parameter`.
 - `mi` - Select inside the object (`vi` in vim, `<alt-i>` in kakoune)
 
 | Key after `mi` or `ma` | Textobject selected      |
-| ---                    | ---                      |
+|------------------------|--------------------------|
 | `w`                    | Word                     |
 | `W`                    | WORD                     |
 | `(`, `[`, `'`, etc     | Specified surround pairs |

@@ -53,7 +53,7 @@ are listed below. The `[palette]` section in the config file takes precedence
 over it and is merged into the default palette.
 
 | Color Name      |
-| ---             |
+|-----------------|
 | `black`         |
 | `red`           |
 | `green`         |
@@ -77,17 +77,17 @@ The following values may be used as modifiers.
 
 Less common modifiers might not be supported by your terminal emulator.
 
-| Modifier       |
-| ---            |
-| `bold`         |
-| `dim`          |
-| `italic`       |
-| `underlined`   |
-| `slow_blink`   |
-| `rapid_blink`  |
-| `reversed`     |
-| `hidden`       |
-| `crossed_out`  |
+| Modifier      |
+|---------------|
+| `bold`        |
+| `dim`         |
+| `italic`      |
+| `underlined`  |
+| `slow_blink`  |
+| `rapid_blink` |
+| `reversed`    |
+| `hidden`      |
+| `crossed_out` |
 
 ### Scopes
 
@@ -205,40 +205,40 @@ These scopes are used for theming the editor interface.
       - `hover` - for hover popup ui
 
 
-| Key                       | Notes                                          |
-| ---                       | ---                                            |
-| `ui.background`           |                                                |
-| `ui.background.separator` | Picker separator below input line              |
-| `ui.cursor`               |                                                |
-| `ui.cursor.insert`        |                                                |
-| `ui.cursor.select`        |                                                |
-| `ui.cursor.match`         | Matching bracket etc.                          |
-| `ui.cursor.primary`       | Cursor with primary selection                  |
-| `ui.linenr`               | Line numbers                                   |
-| `ui.linenr.selected`      | Line number for the line the cursor is on      |
-| `ui.statusline`           | Statusline                                     |
-| `ui.statusline.inactive`  | Statusline (unfocused document)                |
-| `ui.popup`                | Documentation popups (e.g space-k)             |
-| `ui.popup.info`           | Prompt for multiple key options                |
-| `ui.window`               | Border lines separating splits                 |
-| `ui.help`                 | Description box for commands                   |
-| `ui.text`                 | Command prompts, popup text, etc.              |
-| `ui.text.focus`           |                                                |
-| `ui.text.info`            | The key: command text in `ui.popup.info` boxes |
-| `ui.virtual.ruler`        | Ruler columns (see the [`editor.rulers` config][rulers-config])|
-| `ui.virtual.whitespace`   | Visible white-space characters                 |
-| `ui.menu`                 | Code and command completion menus              |
-| `ui.menu.selected`        | Selected autocomplete item                     |
-| `ui.selection`            | For selections in the editing area             |
-| `ui.selection.primary`    |                                                |
-| `warning`                 | Diagnostics warning (gutter)                   |
-| `error`                   | Diagnostics error (gutter)                     |
-| `info`                    | Diagnostics info (gutter)                      |
-| `hint`                    | Diagnostics hint (gutter)                      |
-| `diagnostic`              | Diagnostics fallback style (editing area)      |
-| `diagnostic.hint`         | Diagnostics hint (editing area)                |
-| `diagnostic.info`         | Diagnostics info (editing area)                |
-| `diagnostic.warning`      | Diagnostics warning (editing area)             |
-| `diagnostic.error`        | Diagnostics error (editing area)               |
+| Key                       | Notes                                                           |
+|---------------------------|-----------------------------------------------------------------|
+| `ui.background`           |                                                                 |
+| `ui.background.separator` | Picker separator below input line                               |
+| `ui.cursor`               |                                                                 |
+| `ui.cursor.insert`        |                                                                 |
+| `ui.cursor.select`        |                                                                 |
+| `ui.cursor.match`         | Matching bracket etc.                                           |
+| `ui.cursor.primary`       | Cursor with primary selection                                   |
+| `ui.linenr`               | Line numbers                                                    |
+| `ui.linenr.selected`      | Line number for the line the cursor is on                       |
+| `ui.statusline`           | Statusline                                                      |
+| `ui.statusline.inactive`  | Statusline (unfocused document)                                 |
+| `ui.popup`                | Documentation popups (e.g space-k)                              |
+| `ui.popup.info`           | Prompt for multiple key options                                 |
+| `ui.window`               | Border lines separating splits                                  |
+| `ui.help`                 | Description box for commands                                    |
+| `ui.text`                 | Command prompts, popup text, etc.                               |
+| `ui.text.focus`           |                                                                 |
+| `ui.text.info`            | The key: command text in `ui.popup.info` boxes                  |
+| `ui.virtual.ruler`        | Ruler columns (see the [`editor.rulers` config][rulers-config]) |
+| `ui.virtual.whitespace`   | Visible white-space characters                                  |
+| `ui.menu`                 | Code and command completion menus                               |
+| `ui.menu.selected`        | Selected autocomplete item                                      |
+| `ui.selection`            | For selections in the editing area                              |
+| `ui.selection.primary`    |                                                                 |
+| `warning`                 | Diagnostics warning (gutter)                                    |
+| `error`                   | Diagnostics error (gutter)                                      |
+| `info`                    | Diagnostics info (gutter)                                       |
+| `hint`                    | Diagnostics hint (gutter)                                       |
+| `diagnostic`              | Diagnostics fallback style (editing area)                       |
+| `diagnostic.hint`         | Diagnostics hint (editing area)                                 |
+| `diagnostic.info`         | Diagnostics info (editing area)                                 |
+| `diagnostic.warning`      | Diagnostics warning (editing area)                              |
+| `diagnostic.error`        | Diagnostics error (editing area)                                |
 
 [rulers-config]: ./configuration.md#editor-section
