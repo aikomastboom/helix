@@ -18,11 +18,12 @@ use std::{
     borrow::Cow,
     cmp::Reverse,
     collections::HashMap,
+    fs,
     io::Read,
     path::{Path, PathBuf},
 };
 
-use crate::ui::{Prompt, PromptEvent};
+use crate::ui::{overlay, Prompt, PromptEvent};
 use helix_core::{movement::Direction, Position};
 use helix_view::{
     editor::Action,
@@ -33,19 +34,6 @@ use helix_view::{
 pub const MIN_AREA_WIDTH_FOR_PREVIEW: u16 = 72;
 /// Biggest file size to preview in bytes
 pub const MAX_FILE_SIZE_FOR_PREVIEW: u64 = 10 * 1024 * 1024;
-
-/// File path and range of lines (used to align and highlight lines)
-pub type FileLocation = (PathBuf, Option<(usize, usize)>);
-
-pub struct FilePicker<T> {
-    picker: Picker<T>,
-    pub truncate_start: bool,
-    /// Caches paths to documents
-    preview_cache: HashMap<PathBuf, CachedPreview>,
-    read_buffer: Vec<u8>,
-    /// Given an item in the picker, return the file path and line number to display.
-    file_fn: Box<dyn Fn(&Editor, &T) -> Option<FileLocation>>,
-}
 
 pub enum CachedPreview {
     Document(Box<Document>),
@@ -82,6 +70,124 @@ impl Preview<'_, '_> {
             },
         }
     }
+}
+
+/// File path and range of lines (used to align and highlight lines)
+pub type FileLocation = (PathBuf, Option<(usize, usize)>);
+
+// Specialized version of [`FilePicker`] with some custom support to allow directory navigation.
+pub struct FindFilePicker {
+    picker: FilePicker<PathBuf>,
+    dir: PathBuf,
+}
+
+impl FindFilePicker {
+    pub fn new(dir: PathBuf) -> FindFilePicker {
+        // switch to Result::flatten later
+        let files: Vec<_> = match fs::read_dir(&dir) {
+            Ok(dir) => dir
+                .flat_map(|entry| entry.map(|entry| entry.path()))
+                .collect(),
+            Err(_) => Vec::new(),
+        };
+        let dir1 = dir.clone();
+        let mut picker = FilePicker::new(
+            files,
+            move |path| {
+                let suffix = if path.is_dir() { "/" } else { "" };
+                let path = path.strip_prefix(&dir1).unwrap_or(path).to_string_lossy();
+                path + suffix
+            },
+            |_cx, _path, _action| {}, // we use custom callback_fn
+            |_editor, path| Some((path.clone(), None)),
+        );
+        // TODO: truncate prompt dir if prompt area too small and current dir too long
+        let current_dir = std::env::current_dir().expect("couldn't determine current directory");
+        let dir1 = dir.clone();
+        let prompt = dir1
+            .strip_prefix(current_dir)
+            .unwrap_or(&dir1)
+            .to_string_lossy()
+            .into_owned();
+        let prompt = match prompt.as_str() {
+            "/" => "/".to_owned(),
+            "" => "./".to_owned(),
+            _ => prompt + "/",
+        };
+        *picker.picker.prompt.prompt_mut() = Cow::Owned(prompt);
+        picker.picker.prompt.prompt_style_fn = Box::new(|theme| Some(theme.get("blue")));
+        FindFilePicker { picker, dir }
+    }
+}
+
+impl Component for FindFilePicker {
+    fn render(&mut self, area: Rect, surface: &mut Surface, cx: &mut Context) {
+        self.picker.render(area, surface, cx);
+    }
+
+    fn handle_event(&mut self, event: Event, cx: &mut Context) -> EventResult {
+        let key_event = match event {
+            Event::Key(event) => event,
+            Event::Resize(..) => return EventResult::Consumed(None),
+            _ => return EventResult::Ignored(None),
+        };
+
+        let close_fn = EventResult::Consumed(Some(Box::new(|compositor: &mut Compositor, _| {
+            // remove the layer
+            compositor.last_picker = compositor.pop();
+        })));
+
+        let findfile_fn = |path: &Path| {
+            let picker = FindFilePicker::new(path.to_path_buf());
+            EventResult::Consumed(Some(Box::new(|compositor: &mut Compositor, _| {
+                // remove the layer
+                compositor.last_picker = compositor.pop();
+                compositor.push(Box::new(overlay::overlayed(picker)));
+            })))
+        };
+
+        // different from FilePicker callback_fn as in second option is an
+        // Option<T> and returns EventResult
+        let callback_fn =
+            move |cx: &mut Context, picker: &FilePicker<PathBuf>, dir: &PathBuf, action| {
+                if let Some(path) = picker.picker.selection() {
+                    if path.is_dir() {
+                        return findfile_fn(path);
+                    } else {
+                        cx.editor
+                            .open(path.into(), action)
+                            .expect("editor.open failed");
+                    }
+                } else {
+                    let filename = picker.picker.prompt.line();
+                    cx.editor
+                        .open(dir.join(filename), action)
+                        .expect("editor.open failed");
+                }
+                close_fn
+            };
+
+        match key_event.into() {
+            ctrl!('h') | key!(Backspace) if self.picker.picker.prompt.line().is_empty() => {
+                let parent = self.dir.parent().unwrap_or(&self.dir);
+                findfile_fn(parent)
+            }
+            key!(Enter) => (callback_fn)(cx, &self.picker, &self.dir, Action::Replace),
+            ctrl!('s') => (callback_fn)(cx, &self.picker, &self.dir, Action::HorizontalSplit),
+            ctrl!('v') => (callback_fn)(cx, &self.picker, &self.dir, Action::VerticalSplit),
+            _ => self.picker.handle_event(event, cx),
+        }
+    }
+}
+
+pub struct FilePicker<T> {
+    picker: Picker<T>,
+    pub truncate_start: bool,
+    /// Caches paths to documents
+    preview_cache: HashMap<PathBuf, CachedPreview>,
+    read_buffer: Vec<u8>,
+    /// Given an item in the picker, return the file path and line number to display.
+    file_fn: Box<dyn Fn(&Editor, &T) -> Option<FileLocation>>,
 }
 
 impl<T> FilePicker<T> {

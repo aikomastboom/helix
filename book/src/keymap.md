@@ -233,6 +233,7 @@ This layer is a kludge of mappings, mostly pickers.
 | Key | Description                                                             | Command                             |
 |-----|-------------------------------------------------------------------------|-------------------------------------|
 | `f` | Open file picker                                                        | `file_picker`                       |
+| `.` | Open find file picker                                                   | `find_file_picker`                  |
 | `b` | Open buffer picker                                                      | `buffer_picker`                     |
 | `k` | Show documentation for item under cursor in a [popup](#popup) (**LSP**) | `hover`                             |
 | `s` | Open document symbol picker (**LSP**)                                   | `symbol_picker`                     |
@@ -334,19 +335,20 @@ you to selectively add search terms to your selections.
 
 Keys to use within picker. Remapping currently not supported.
 
-| Key                  | Description       |
-|----------------------|-------------------|
-| `Up`, `Ctrl-p`       | Previous entry    |
-| `PageUp`, `Ctrl-u`   | Page up           |
-| `Down`, `Ctrl-n`     | Next entry        |
-| `PageDown`, `Ctrl-d` | Page down         |
-| `Home`               | Go to first entry |
-| `End`                | Go to last entry  |
-| `Ctrl-space`         | Filter options    |
-| `Enter`              | Open selected     |
-| `Ctrl-s`             | Open horizontally |
-| `Ctrl-v`             | Open vertically   |
-| `Escape`, `Ctrl-c`   | Close picker      |
+| Key                     | Description                                           |
+|-------------------------|-------------------------------------------------------|
+| `Up`, `Ctrl-p`          | Previous entry                                        |
+| `PageUp`, `Ctrl-u`      | Page up                                               |
+| `Down`, `Ctrl-n`        | Next entry                                            |
+| `PageDown`, `Ctrl-d`    | Page down                                             |
+| `Home`                  | Go to first entry                                     |
+| `End`                   | Go to last entry                                      |
+| `Ctrl-space`            | Filter options                                        |
+| `Enter`                 | Open selected    (also creates new file in find-file) |
+| `Ctrl-s`                | Open horizontally                                     |
+| `Ctrl-v`                | Open vertically                                       |
+| `Escape`, `Ctrl-c`      | Close picker                                          |
+| `Backspace` (find-file) | Goto parent directory                                 |
 
 # Prompt
 

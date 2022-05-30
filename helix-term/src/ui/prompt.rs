@@ -11,8 +11,8 @@ use helix_core::{
     unicode::segmentation::GraphemeCursor, unicode::width::UnicodeWidthStr, Position,
 };
 use helix_view::{
-    graphics::{CursorKind, Margin, Rect},
-    Editor,
+    graphics::{CursorKind, Margin, Rect, Style},
+    Editor, Theme,
 };
 
 pub type Completion = (RangeFrom<usize>, Cow<'static, str>);
@@ -29,6 +29,7 @@ pub struct Prompt {
     completion_fn: Box<dyn FnMut(&Editor, &str) -> Vec<Completion>>,
     callback_fn: Box<dyn FnMut(&mut Context, &str, PromptEvent)>,
     pub doc_fn: Box<dyn Fn(&str) -> Option<Cow<str>>>,
+    pub prompt_style_fn: Box<dyn Fn(&Theme) -> Option<Style>>,
     next_char_handler: Option<PromptCharHandler>,
 }
 
@@ -80,6 +81,7 @@ impl Prompt {
             completion_fn: Box::new(completion_fn),
             callback_fn: Box::new(callback_fn),
             doc_fn: Box::new(|_| None),
+            prompt_style_fn: Box::new(|_| None),
             next_char_handler: None,
         }
     }
@@ -332,6 +334,10 @@ impl Prompt {
     pub fn exit_selection(&mut self) {
         self.selection = None;
     }
+
+    pub fn prompt_mut(&mut self) -> &mut Cow<'static, str> {
+        &mut self.prompt
+    }
 }
 
 const BASE_WIDTH: u16 = 30;
@@ -339,7 +345,8 @@ const BASE_WIDTH: u16 = 30;
 impl Prompt {
     pub fn render_prompt(&self, area: Rect, surface: &mut Surface, cx: &mut Context) {
         let theme = &cx.editor.theme;
-        let prompt_color = theme.get("ui.text");
+        let prompt_input_color = theme.get("ui.text");
+        let prompt_color = (self.prompt_style_fn)(theme).unwrap_or(prompt_input_color);
         let completion_color = theme.get("ui.menu");
         let selected_color = theme.get("ui.menu.selected");
         // completion
@@ -446,7 +453,7 @@ impl Prompt {
             area.x + self.prompt.len() as u16,
             area.y + line,
             &self.line,
-            prompt_color,
+            prompt_input_color,
         );
     }
 }
