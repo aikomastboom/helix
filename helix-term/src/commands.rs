@@ -260,7 +260,7 @@ impl MappableCommand {
         command_mode, "Enter command mode",
         file_picker, "Open file picker",
         file_picker_in_current_directory, "Open file picker at current working directory",
-        find_file_picker, "Find file",
+        find_file_picker, "Open find file picker",
         code_action, "Perform code action",
         buffer_picker, "Open buffer picker",
         symbol_picker, "Open symbol picker",
