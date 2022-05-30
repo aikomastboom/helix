@@ -33,7 +33,7 @@ use helix_view::{
 
 // based on exa but not sure where to put this
 /// More readable aliases for the permission bits exposed by libc.
-#[allow(trivial_numeric_casts)]
+#[cfg(unix)]
 mod modes {
     // The `libc::mode_t` type’s actual type varies, but the value returned
     // from `metadata.permissions().mode()` is always `u32`.
@@ -56,7 +56,11 @@ mod modes {
     pub const SETUID: Mode = libc::S_ISUID as Mode;
 }
 
+#[cfg(not(unix))]
+mod modes {}
+
 // based on exa but not sure where to put this
+#[cfg(unix)]
 mod fields {
     use super::modes;
     use std::fmt;
@@ -267,6 +271,9 @@ mod fields {
     }
 }
 
+#[cfg(not(unix))]
+mod fields {}
+
 pub const MIN_AREA_WIDTH_FOR_PREVIEW: u16 = 72;
 /// Biggest file size to preview in bytes
 pub const MAX_FILE_SIZE_FOR_PREVIEW: u64 = 10 * 1024 * 1024;
@@ -335,17 +342,21 @@ impl FindFilePicker {
                 let suffix = if path.is_dir() { "/" } else { "" };
                 let metadata = fs::metadata(&*path).unwrap();
                 let path = path.strip_prefix(&dir1).unwrap_or(path).to_string_lossy();
-                let filetype = fields::filetype(&metadata);
-                let permissions = fields::permissions(&metadata);
-                let size = format!("{}", fields::size(&metadata));
-                Cow::Owned(format!(
-                    "{:<22} {}{} {:>6}",
-                    path + suffix, // TODO this should check for size and handle truncation
-                    filetype,
-                    permissions,
-                    size,
-                    // TODO add absolute/relative time? may need to handle truncation
-                ))
+                if cfg!(unix) {
+                    let filetype = fields::filetype(&metadata);
+                    let permissions = fields::permissions(&metadata);
+                    let size = format!("{}", fields::size(&metadata));
+                    Cow::Owned(format!(
+                        "{:<22} {}{} {:>6}",
+                        path + suffix, // TODO this should check for size and handle truncation
+                        filetype,
+                        permissions,
+                        size,
+                        // TODO add absolute/relative time? may need to handle truncation
+                    ))
+                } else {
+                    path + suffix
+                }
             },
             |_cx, _path, _action| {}, // we use custom callback_fn
             |_editor, path| Some((path.clone(), None)),
