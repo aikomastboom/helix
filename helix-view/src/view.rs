@@ -66,12 +66,6 @@ impl JumpList {
     }
 }
 
-const GUTTERS: &[(Gutter, usize)] = &[
-    (gutter::git_diff, 1),
-    (gutter::diagnostics_or_breakpoints, 1),
-    (gutter::line_number, 5),
-];
-
 pub struct View {
     pub id: ViewId,
     pub offset: Position,
@@ -106,6 +100,7 @@ impl View {
         use crate::editor::GutterType;
         for gutter_type in &gutter_types {
             match gutter_type {
+                GutterType::GitDiff => gutters.push((gutter::git_diff, 1)),
                 GutterType::Diagnostics => gutters.push((gutter::diagnostics_or_breakpoints, 1)),
                 GutterType::LineNumbers => gutters.push((gutter::line_numbers, 5)),
             }

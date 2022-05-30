@@ -314,6 +314,8 @@ impl std::str::FromStr for LineNumber {
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum GutterType {
+    /// Show Git differences
+    GitDiff,
     /// Show diagnostics and other features like breakpoints
     Diagnostics,
     /// Show line numbers
@@ -325,9 +327,10 @@ impl std::str::FromStr for GutterType {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
+            "git-diff" => Ok(Self::GitDiff),
             "diagnostics" => Ok(Self::Diagnostics),
             "line-numbers" => Ok(Self::LineNumbers),
-            _ => anyhow::bail!("Gutter type can only be `diagnostics` or `line-numbers`."),
+            _ => anyhow::bail!("Gutter type can only be `diagnostics`, `line-numbers` or `git-diff`."),
         }
     }
 }
@@ -437,7 +440,7 @@ impl Default for Config {
                 vec!["sh".to_owned(), "-c".to_owned()]
             },
             line_number: LineNumber::Absolute,
-            gutters: vec![GutterType::Diagnostics, GutterType::LineNumbers],
+            gutters: vec![GutterType::Diagnostics, GutterType::LineNumbers, GutterType::GitDiff],
             middle_click_paste: true,
             auto_pairs: AutoPairConfig::default(),
             auto_completion: true,
