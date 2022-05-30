@@ -1,3 +1,14 @@
+# 22.05-aiko (2022-05-30)
+
+- https://github.com/helix-editor/helix/pull/2377 https://github.com/cossonfork/helix/tree/tree_explore
+- https://github.com/helix-editor/helix/pull/1623 https://github.com/sudormrfbin/helix/tree/git-diff-sign
+- https://github.com/helix-editor/helix/pull/2412 https://github.com/pickfire/helix/tree/find-file
+
+- while typing in :themes command this happened (on master branch before merging in above PRs)
+
+      thread 'main' panicked at 'assertion failed: self.is_char_boundary(n)', /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/alloc/src/string.rs:1725:29
+      note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
 # 22.05 (2022-05-28)
 
 An even bigger shout out than usual to all the contributors - we had a whopping
