@@ -31,6 +31,249 @@ use helix_view::{
     Document, Editor,
 };
 
+// based on exa but not sure where to put this
+/// More readable aliases for the permission bits exposed by libc.
+#[cfg(unix)]
+mod modes {
+    // The `libc::mode_t` type’s actual type varies, but the value returned
+    // from `metadata.permissions().mode()` is always `u32`.
+    pub type Mode = u32;
+
+    pub const USER_READ: Mode = libc::S_IRUSR as Mode;
+    pub const USER_WRITE: Mode = libc::S_IWUSR as Mode;
+    pub const USER_EXECUTE: Mode = libc::S_IXUSR as Mode;
+
+    pub const GROUP_READ: Mode = libc::S_IRGRP as Mode;
+    pub const GROUP_WRITE: Mode = libc::S_IWGRP as Mode;
+    pub const GROUP_EXECUTE: Mode = libc::S_IXGRP as Mode;
+
+    pub const OTHER_READ: Mode = libc::S_IROTH as Mode;
+    pub const OTHER_WRITE: Mode = libc::S_IWOTH as Mode;
+    pub const OTHER_EXECUTE: Mode = libc::S_IXOTH as Mode;
+
+    pub const STICKY: Mode = libc::S_ISVTX as Mode;
+    pub const SETGID: Mode = libc::S_ISGID as Mode;
+    pub const SETUID: Mode = libc::S_ISUID as Mode;
+}
+
+#[cfg(not(unix))]
+mod modes {}
+
+// based on exa but not sure where to put this
+#[cfg(unix)]
+mod fields {
+    use super::modes;
+    use std::fmt;
+    use std::fs::Metadata;
+    use std::os::unix::fs::{FileTypeExt, MetadataExt};
+
+    /// The file’s base type, which gets displayed in the very first column of the
+    /// details output.
+    ///
+    /// This type is set entirely by the filesystem, rather than relying on a
+    /// file’s contents. So “link” is a type, but “image” is just a type of
+    /// regular file. (See the `filetype` module for those checks.)
+    ///
+    /// Its ordering is used when sorting by type.
+    #[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone)]
+    pub enum Type {
+        Directory,
+        File,
+        Link,
+        Pipe,
+        Socket,
+        CharDevice,
+        BlockDevice,
+        Special,
+    }
+
+    pub fn filetype(metadata: &Metadata) -> Type {
+        let filetype = metadata.file_type();
+        if metadata.is_file() {
+            Type::File
+        } else if metadata.is_dir() {
+            Type::Directory
+        } else if filetype.is_fifo() {
+            Type::Pipe
+        } else if filetype.is_symlink() {
+            Type::Link
+        } else if filetype.is_char_device() {
+            Type::CharDevice
+        } else if filetype.is_block_device() {
+            Type::BlockDevice
+        } else if filetype.is_socket() {
+            Type::Socket
+        } else {
+            Type::Special
+        }
+    }
+
+    impl fmt::Display for Type {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            write!(
+                f,
+                "{}",
+                match self {
+                    Type::Directory => 'd',
+                    Type::File => '.',
+                    Type::Link => 'l',
+                    Type::Pipe => '|',
+                    Type::Socket => 's',
+                    Type::CharDevice => 'c',
+                    Type::BlockDevice => 'b',
+                    Type::Special => '?',
+                }
+            )
+        }
+    }
+
+    /// The file’s Unix permission bitfield, with one entry per bit.
+    #[derive(Copy, Clone)]
+    pub struct Permissions {
+        pub user_read: bool,
+        pub user_write: bool,
+        pub user_execute: bool,
+
+        pub group_read: bool,
+        pub group_write: bool,
+        pub group_execute: bool,
+
+        pub other_read: bool,
+        pub other_write: bool,
+        pub other_execute: bool,
+
+        pub sticky: bool,
+        pub setgid: bool,
+        pub setuid: bool,
+    }
+
+    pub fn permissions(metadata: &Metadata) -> Permissions {
+        let bits = metadata.mode();
+        let has_bit = |bit| bits & bit == bit;
+        Permissions {
+            user_read: has_bit(modes::USER_READ),
+            user_write: has_bit(modes::USER_WRITE),
+            user_execute: has_bit(modes::USER_EXECUTE),
+
+            group_read: has_bit(modes::GROUP_READ),
+            group_write: has_bit(modes::GROUP_WRITE),
+            group_execute: has_bit(modes::GROUP_EXECUTE),
+
+            other_read: has_bit(modes::OTHER_READ),
+            other_write: has_bit(modes::OTHER_WRITE),
+            other_execute: has_bit(modes::OTHER_EXECUTE),
+
+            sticky: has_bit(modes::STICKY),
+            setgid: has_bit(modes::SETGID),
+            setuid: has_bit(modes::SETUID),
+        }
+    }
+
+    impl fmt::Display for Permissions {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            let bit = |bit, char| if bit { char } else { "-" };
+            write!(
+                f,
+                "{}{}{}{}{}{}{}{}{}",
+                bit(self.user_read, "r"),
+                bit(self.user_write, "w"),
+                bit(self.user_execute, "x"),
+                bit(self.group_read, "r"),
+                bit(self.group_write, "w"),
+                bit(self.group_execute, "x"),
+                bit(self.other_read, "r"),
+                bit(self.other_write, "w"),
+                bit(self.other_execute, "x"),
+            )
+        }
+    }
+
+    /// A file’s size, in bytes. This is usually formatted by the `number_prefix`
+    /// crate into something human-readable.
+    #[derive(Copy, Clone)]
+    pub enum Size {
+        /// This file has a defined size.
+        Some(u64),
+
+        /// This file has no size, or has a size but we aren’t interested in it.
+        ///
+        /// Under Unix, directory entries that aren’t regular files will still
+        /// have a file size. For example, a directory will just contain a list of
+        /// its files as its “contents” and will be specially flagged as being a
+        /// directory, rather than a file. However, seeing the “file size” of this
+        /// data is rarely useful — I can’t think of a time when I’ve seen it and
+        /// learnt something. So we discard it and just output “-” instead.
+        ///
+        /// See this answer for more: http://unix.stackexchange.com/a/68266
+        None,
+
+        /// This file is a block or character device, so instead of a size, print
+        /// out the file’s major and minor device IDs.
+        ///
+        /// This is what ls does as well. Without it, the devices will just have
+        /// file sizes of zero.
+        DeviceIDs(DeviceIDs),
+    }
+
+    /// The major and minor device IDs that gets displayed for device files.
+    ///
+    /// You can see what these device numbers mean:
+    /// - <http://www.lanana.org/docs/device-list/>
+    /// - <http://www.lanana.org/docs/device-list/devices-2.6+.txt>
+    #[derive(Copy, Clone)]
+    pub struct DeviceIDs {
+        pub major: u8,
+        pub minor: u8,
+    }
+
+    /// This file’s size, if it’s a regular file.
+    ///
+    /// For directories, no size is given. Although they do have a size on
+    /// some filesystems, I’ve never looked at one of those numbers and gained
+    /// any information from it. So it’s going to be hidden instead.
+    ///
+    /// Block and character devices return their device IDs, because they
+    /// usually just have a file size of zero.
+    pub fn size(metadata: &Metadata) -> Size {
+        let filetype = metadata.file_type();
+        if metadata.is_dir() {
+            Size::None
+        } else if filetype.is_char_device() || filetype.is_block_device() {
+            let device_ids = metadata.rdev().to_be_bytes();
+
+            // In C-land, getting the major and minor device IDs is done with
+            // preprocessor macros called `major` and `minor` that depend on
+            // the size of `dev_t`, but we just take the second-to-last and
+            // last bytes.
+            Size::DeviceIDs(DeviceIDs {
+                major: device_ids[6],
+                minor: device_ids[7],
+            })
+        } else {
+            Size::Some(metadata.len())
+        }
+    }
+
+    impl fmt::Display for Size {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            use number_prefix::NumberPrefix;
+            match self {
+                Size::Some(s) => match NumberPrefix::decimal(*s as f64) {
+                    NumberPrefix::Standalone(n) => write!(f, "{}", n),
+                    NumberPrefix::Prefixed(p, n) => write!(f, "{:.1}{}", n, p),
+                },
+                Size::None => write!(f, "-"),
+                Size::DeviceIDs(DeviceIDs { major, minor }) => {
+                    write!(f, "{},{}", major, minor)
+                }
+            }
+        }
+    }
+}
+
+#[cfg(not(unix))]
+mod fields {}
+
 pub const MIN_AREA_WIDTH_FOR_PREVIEW: u16 = 72;
 /// Biggest file size to preview in bytes
 pub const MAX_FILE_SIZE_FOR_PREVIEW: u64 = 10 * 1024 * 1024;
@@ -93,10 +336,27 @@ impl FindFilePicker {
         let dir1 = dir.clone();
         let mut picker = FilePicker::new(
             files,
+            // TODO: prevent this from running within score function that skews
+            // the score, and only calculate it once during initialization
             move |path| {
                 let suffix = if path.is_dir() { "/" } else { "" };
+                let metadata = fs::metadata(&*path).unwrap();
                 let path = path.strip_prefix(&dir1).unwrap_or(path).to_string_lossy();
-                path + suffix
+                if cfg!(unix) {
+                    let filetype = fields::filetype(&metadata);
+                    let permissions = fields::permissions(&metadata);
+                    let size = format!("{}", fields::size(&metadata));
+                    Cow::Owned(format!(
+                        "{:<22} {}{} {:>6}",
+                        path + suffix, // TODO this should check for size and handle truncation
+                        filetype,
+                        permissions,
+                        size,
+                        // TODO add absolute/relative time? may need to handle truncation
+                    ))
+                } else {
+                    path + suffix
+                }
             },
             |_cx, _path, _action| {}, // we use custom callback_fn
             |_editor, path| Some((path.clone(), None)),
