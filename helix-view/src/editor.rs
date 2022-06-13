@@ -502,6 +502,7 @@ pub struct Editor {
     pub selected_register: Option<char>,
     pub registers: Registers,
     pub macro_recording: Option<(char, Vec<KeyEvent>)>,
+    pub macro_replaying: Vec<char>,
     pub theme: Theme,
     pub language_servers: helix_lsp::Registry,
     pub vcs_providers: helix_vcs::Registry,
@@ -572,6 +573,7 @@ impl Editor {
             count: None,
             selected_register: None,
             macro_recording: None,
+            macro_replaying: Vec::new(),
             theme: theme_loader.default(),
             language_servers: helix_lsp::Registry::new(),
             vcs_providers: helix_vcs::Registry::new(),
@@ -751,7 +753,7 @@ impl Editor {
 
                     // Remove the scratch buffer from any jumplists
                     for (view, _) in self.tree.views_mut() {
-                        view.jumps.remove(&id)
+                        view.remove_document(&id);
                     }
                 } else {
                     let jump = (view.doc, doc.selection(view.id).clone());
@@ -885,8 +887,7 @@ impl Editor {
             .tree
             .views_mut()
             .filter_map(|(view, _focus)| {
-                // remove the document from jump list of all views
-                view.jumps.remove(&doc_id);
+                view.remove_document(&doc_id);
 
                 if view.doc == doc_id {
                     // something was previously open in the view, switch to previous doc
