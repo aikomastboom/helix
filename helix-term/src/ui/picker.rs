@@ -65,6 +65,7 @@ mod fields {
     use super::modes;
     use std::fmt;
     use std::fs::Metadata;
+    #[cfg(unix)]
     use std::os::unix::fs::{FileTypeExt, MetadataExt};
 
     /// The file’s base type, which gets displayed in the very first column of the
@@ -87,6 +88,7 @@ mod fields {
         Special,
     }
 
+    #[cfg(unix)]
     pub fn filetype(metadata: &Metadata) -> Type {
         let filetype = metadata.file_type();
         if metadata.is_file() {
@@ -106,6 +108,11 @@ mod fields {
         } else {
             Type::Special
         }
+    }
+
+    #[cfg(not(unix))]
+    pub fn filetype(metadata: &Metadata) -> Type {
+        unreachable!()
     }
 
     impl fmt::Display for Type {
@@ -147,6 +154,7 @@ mod fields {
         pub setuid: bool,
     }
 
+    #[cfg(unix)]
     pub fn permissions(metadata: &Metadata) -> Permissions {
         let bits = metadata.mode();
         let has_bit = |bit| bits & bit == bit;
@@ -167,6 +175,11 @@ mod fields {
             setgid: has_bit(modes::SETGID),
             setuid: has_bit(modes::SETUID),
         }
+    }
+
+    #[cfg(not(unix))]
+    pub fn permissions(metadata: &Metadata) -> Permissions {
+        unreachable!()
     }
 
     impl fmt::Display for Permissions {
@@ -234,6 +247,7 @@ mod fields {
     ///
     /// Block and character devices return their device IDs, because they
     /// usually just have a file size of zero.
+    #[cfg(unix)]
     pub fn size(metadata: &Metadata) -> Size {
         let filetype = metadata.file_type();
         if metadata.is_dir() {
@@ -252,6 +266,11 @@ mod fields {
         } else {
             Size::Some(metadata.len())
         }
+    }
+
+    #[cfg(not(unix))]
+    pub fn size(metadata: &Metadata) -> Size {
+        unreachable!()
     }
 
     impl fmt::Display for Size {
