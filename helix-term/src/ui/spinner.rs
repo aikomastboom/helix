@@ -2,6 +2,7 @@ use std::{collections::HashMap, time::Instant};
 
 #[derive(Default, Debug)]
 pub struct ProgressSpinners {
+    default: Spinner,
     inner: HashMap<usize, Spinner>,
 }
 
@@ -11,7 +12,14 @@ impl ProgressSpinners {
     }
 
     pub fn get_or_create(&mut self, id: usize) -> &mut Spinner {
-        self.inner.entry(id).or_insert_with(Spinner::default)
+        self.inner.entry(id).or_insert_with(|| self.default.clone())
+    }
+
+    pub fn new(default: Spinner) -> Self {
+        Self {
+            default,
+            inner: HashMap::new(),
+        }
     }
 }
 
@@ -21,9 +29,9 @@ impl Default for Spinner {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Spinner {
-    frames: Vec<&'static str>,
+    frames: Vec<char>,
     count: usize,
     start: Option<Instant>,
     interval: u64,
@@ -32,7 +40,8 @@ pub struct Spinner {
 impl Spinner {
     /// Creates a new spinner with `frames` and `interval`.
     /// Expects the frames count and interval to be greater than 0.
-    pub fn new(frames: Vec<&'static str>, interval: u64) -> Self {
+    pub fn new(framestring: &str, interval: u64) -> Self {
+        let frames: Vec<char> = framestring.chars().collect();
         let count = frames.len();
         assert!(count > 0);
         assert!(interval > 0);
@@ -46,22 +55,25 @@ impl Spinner {
     }
 
     pub fn dots(interval: u64) -> Self {
-        Self::new(vec!["⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"], interval)
+        Self::new("⣾⣽⣻⢿⡿⣟⣯⣷", interval)
     }
 
     pub fn start(&mut self) {
         self.start = Some(Instant::now());
     }
 
-    pub fn frame(&self) -> Option<&str> {
-        let idx = (self
-            .start
-            .map(|time| Instant::now().duration_since(time))?
-            .as_millis()
-            / self.interval as u128) as usize
-            % self.count;
-
-        self.frames.get(idx).copied()
+    pub fn frame(&self) -> Option<String> {
+        let idx = if self.count > 1 {
+            (self
+                .start
+                .map(|time| Instant::now().duration_since(time))?
+                .as_millis()
+                / self.interval as u128) as usize
+                % self.count
+        } else {
+            self.start.and(Some(0))?
+        };
+        Some(self.frames.get(idx)?.to_string())
     }
 
     pub fn stop(&mut self) {
