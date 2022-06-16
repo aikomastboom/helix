@@ -45,6 +45,8 @@ hidden = false
 | `auto-info` | Whether to display infoboxes | `true` |
 | `true-color` | Set to `true` to override automatic detection of terminal truecolor support in the event of a false negative. | `false` |
 | `rulers` | List of column positions at which to display the rulers. Can be overridden by language specific `rulers` in `languages.toml` file. | `[]` |
+| `spinner` | A string comprising the characters to be used in order for the progress spinner[^1]. | `"⣾⣽⣻⢿⡿⣟⣯⣷"` |
+| `spinner-interval` | The minimum number of milliseconds to advance the progress spinner[^1] frame. | `80` |
 
 ### `[editor.lsp]` Section
 
