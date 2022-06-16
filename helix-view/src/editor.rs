@@ -156,6 +156,10 @@ pub struct Config {
     pub rulers: Vec<u16>,
     #[serde(default)]
     pub whitespace: WhitespaceConfig,
+    /// String of custom spinner frames, one per char
+    pub spinner: String,
+    /// Interval (in ms) for spinner frame change
+    pub spinner_interval: u64,
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
@@ -391,6 +395,8 @@ impl Default for Config {
             lsp: LspConfig::default(),
             rulers: Vec::new(),
             whitespace: WhitespaceConfig::default(),
+            spinner: "⣾⣽⣻⢿⡿⣟⣯⣷".to_string(),
+            spinner_interval: 80,
         }
     }
 }
