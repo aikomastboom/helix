@@ -85,7 +85,10 @@ impl Application {
         ));
 
         let true_color = config.editor.true_color || crate::true_color();
-        let spinner = Spinner::new(&config.editor.spinner, config.editor.spinner_interval);
+        let spinner = Spinner::new(
+            config.editor.spinner.clone(),
+            config.editor.spinner_interval,
+        );
         let theme = config
             .theme
             .as_ref()

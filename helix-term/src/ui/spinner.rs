@@ -1,5 +1,7 @@
 use std::{collections::HashMap, time::Instant};
 
+use helix_view::editor::BRAILLE_SPINNER_STRINGS;
+
 #[derive(Default, Debug)]
 pub struct ProgressSpinners {
     default: Spinner,
@@ -31,7 +33,7 @@ impl Default for Spinner {
 
 #[derive(Clone, Debug)]
 pub struct Spinner {
-    frames: Vec<char>,
+    frames: Vec<String>,
     count: usize,
     start: Option<Instant>,
     interval: u64,
@@ -40,8 +42,7 @@ pub struct Spinner {
 impl Spinner {
     /// Creates a new spinner with `frames` and `interval`.
     /// Expects the frames count and interval to be greater than 0.
-    pub fn new(framestring: &str, interval: u64) -> Self {
-        let frames: Vec<char> = framestring.chars().collect();
+    pub fn new(frames: Vec<String>, interval: u64) -> Self {
         let count = frames.len();
         assert!(count > 0);
         assert!(interval > 0);
@@ -55,14 +56,20 @@ impl Spinner {
     }
 
     pub fn dots(interval: u64) -> Self {
-        Self::new("⣾⣽⣻⢿⡿⣟⣯⣷", interval)
+        Self::new(
+            BRAILLE_SPINNER_STRINGS
+                .into_iter()
+                .map(String::from)
+                .collect(),
+            interval,
+        )
     }
 
     pub fn start(&mut self) {
         self.start = Some(Instant::now());
     }
 
-    pub fn frame(&self) -> Option<String> {
+    pub fn frame(&self) -> Option<&str> {
         let idx = if self.count > 1 {
             (self
                 .start
@@ -73,7 +80,7 @@ impl Spinner {
         } else {
             self.start.and(Some(0))?
         };
-        Some(self.frames.get(idx)?.to_string())
+        self.frames.get(idx).map(|s| s.as_str())
     }
 
     pub fn stop(&mut self) {
