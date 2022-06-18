@@ -159,7 +159,7 @@ pub struct Config {
     #[serde(default)]
     pub whitespace: WhitespaceConfig,
     /// Vector of Strings of custom spinner frames, one per element
-    pub spinner: Vec<String>,
+    pub spinner_frames: Vec<String>,
     /// Interval (in ms) for spinner frame change
     pub spinner_interval: u64,
 }
@@ -397,7 +397,7 @@ impl Default for Config {
             lsp: LspConfig::default(),
             rulers: Vec::new(),
             whitespace: WhitespaceConfig::default(),
-            spinner: BRAILLE_SPINNER_STRINGS
+            spinner_frames: BRAILLE_SPINNER_STRINGS
                 .into_iter()
                 .map(String::from)
                 .collect(),
