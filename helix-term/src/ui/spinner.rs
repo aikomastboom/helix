@@ -41,7 +41,8 @@ pub struct Spinner {
 
 impl Spinner {
     /// Creates a new spinner with `frames` and `interval`.
-    /// Expects the frames count and interval to be greater than 0.
+    /// If either the frames count or interval is zero, create an empty spinner
+    /// that won't display anything.
     pub fn new(frames: Vec<String>, interval: u64) -> Self {
         let count = frames.len();
         if count == 0 || interval == 0 {
