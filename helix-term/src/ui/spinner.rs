@@ -44,8 +44,15 @@ impl Spinner {
     /// Expects the frames count and interval to be greater than 0.
     pub fn new(frames: Vec<String>, interval: u64) -> Self {
         let count = frames.len();
-        assert!(count > 0);
-        assert!(interval > 0);
+        if count == 0 || interval == 0 {
+            // disable the spinner
+            return Self {
+                frames: vec!["".to_string()],
+                count: 1,
+                interval: 80, // this doesn't matter if count == 1
+                start: None,
+            };
+        }
 
         Self {
             frames,
