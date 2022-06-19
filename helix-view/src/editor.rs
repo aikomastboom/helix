@@ -71,6 +71,9 @@ pub struct FilePickerConfig {
     /// Enables ignoring hidden files.
     /// Whether to hide hidden files in file picker and global search results. Defaults to true.
     pub hidden: bool,
+    /// Enables following symlinks.
+    /// Whether to follow symbolic links in file picker and file or directory completions. Defaults to true.
+    pub follow_symlinks: bool,
     /// Enables reading ignore files from parent directories. Defaults to true.
     pub parents: bool,
     /// Enables reading `.ignore` files.
@@ -94,6 +97,7 @@ impl Default for FilePickerConfig {
     fn default() -> Self {
         Self {
             hidden: true,
+            follow_symlinks: true,
             parents: true,
             ignore: true,
             git_ignore: true,
@@ -433,6 +437,7 @@ pub struct Editor {
     pub selected_register: Option<char>,
     pub registers: Registers,
     pub macro_recording: Option<(char, Vec<KeyEvent>)>,
+    pub macro_replaying: Vec<char>,
     pub theme: Theme,
     pub language_servers: helix_lsp::Registry,
 
@@ -503,6 +508,7 @@ impl Editor {
             count: None,
             selected_register: None,
             macro_recording: None,
+            macro_replaying: Vec::new(),
             theme: theme_loader.default(),
             language_servers,
             debugger: None,
@@ -527,6 +533,14 @@ impl Editor {
 
     pub fn config(&self) -> DynGuard<Config> {
         self.config.load()
+    }
+
+    /// Call if the config has changed to let the editor update all
+    /// relevant members.
+    pub fn refresh_config(&mut self) {
+        let config = self.config();
+        self.auto_pairs = (&config.auto_pairs).into();
+        self.reset_idle_timer();
     }
 
     pub fn clear_idle_timer(&mut self) {
@@ -671,11 +685,18 @@ impl Editor {
                         .any(|(_, v)| v.doc == doc.id && v.id != view.id);
 
                 let (view, doc) = current!(self);
+                let view_id = view.id;
+
                 if remove_empty_scratch {
                     // Copy `doc.id` into a variable before calling `self.documents.remove`, which requires a mutable
                     // borrow, invalidating direct access to `doc.id`.
                     let id = doc.id;
                     self.documents.remove(&id);
+
+                    // Remove the scratch buffer from any jumplists
+                    for (view, _) in self.tree.views_mut() {
+                        view.remove_document(&id);
+                    }
                 } else {
                     let jump = (view.doc, doc.selection(view.id).clone());
                     view.jumps.push(jump);
@@ -691,7 +712,6 @@ impl Editor {
                     }
                 }
 
-                let view_id = view.id;
                 self.replace_document_in_view(view_id, id);
 
                 return;
@@ -808,8 +828,7 @@ impl Editor {
             .tree
             .views_mut()
             .filter_map(|(view, _focus)| {
-                // remove the document from jump list of all views
-                view.jumps.remove(&doc_id);
+                view.remove_document(&doc_id);
 
                 if view.doc == doc_id {
                     // something was previously open in the view, switch to previous doc

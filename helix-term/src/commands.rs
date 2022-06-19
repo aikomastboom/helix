@@ -966,19 +966,18 @@ fn goto_file_start(cx: &mut Context) {
     if cx.count.is_some() {
         goto_line(cx);
     } else {
-        push_jump(cx.editor);
         let (view, doc) = current!(cx.editor);
         let text = doc.text().slice(..);
         let selection = doc
             .selection(view.id)
             .clone()
             .transform(|range| range.put_cursor(text, 0, doc.mode == Mode::Select));
+        push_jump(view, doc);
         doc.set_selection(view.id, selection);
     }
 }
 
 fn goto_file_end(cx: &mut Context) {
-    push_jump(cx.editor);
     let (view, doc) = current!(cx.editor);
     let text = doc.text().slice(..);
     let pos = doc.text().len_chars();
@@ -986,6 +985,7 @@ fn goto_file_end(cx: &mut Context) {
         .selection(view.id)
         .clone()
         .transform(|range| range.put_cursor(text, pos, doc.mode == Mode::Select));
+    push_jump(view, doc);
     doc.set_selection(view.id, selection);
 }
 
@@ -1489,7 +1489,7 @@ fn select_regex(cx: &mut Context) {
         Some(reg),
         ui::completers::none,
         move |view, doc, regex, event| {
-            if event != PromptEvent::Update {
+            if !matches!(event, PromptEvent::Update | PromptEvent::Validate) {
                 return;
             }
             let text = doc.text().slice(..);
@@ -1510,7 +1510,7 @@ fn split_selection(cx: &mut Context) {
         Some(reg),
         ui::completers::none,
         move |view, doc, regex, event| {
-            if event != PromptEvent::Update {
+            if !matches!(event, PromptEvent::Update | PromptEvent::Validate) {
                 return;
             }
             let text = doc.text().slice(..);
@@ -1658,7 +1658,7 @@ fn searcher(cx: &mut Context, direction: Direction) {
                 .collect()
         },
         move |view, doc, regex, event| {
-            if event != PromptEvent::Update {
+            if !matches!(event, PromptEvent::Update | PromptEvent::Validate) {
                 return;
             }
             search_impl(
@@ -1965,7 +1965,7 @@ fn shrink_to_line_bounds(cx: &mut Context) {
             // line_to_char gives us the start position of the line, so
             // we need to get the start position of the next line. In
             // the editor, this will correspond to the cursor being on
-            // the EOL whitespace charactor, which is what we want.
+            // the EOL whitespace character, which is what we want.
             let mut end = text.line_to_char((end_line + 1).min(text.len_lines()));
 
             if start != range.from() {
@@ -2496,8 +2496,7 @@ fn try_restore_indent(doc: &mut Document, view_id: ViewId) {
 }
 
 // Store a jump on the jumplist.
-fn push_jump(editor: &mut Editor) {
-    let (view, doc) = current!(editor);
+fn push_jump(view: &mut View, doc: &Document) {
     let jump = (doc.id(), doc.selection(view.id).clone());
     view.jumps.push(jump);
 }
@@ -2508,8 +2507,6 @@ fn goto_line(cx: &mut Context) {
 
 fn goto_line_impl(editor: &mut Editor, count: Option<NonZeroUsize>) {
     if let Some(count) = count {
-        push_jump(editor);
-
         let (view, doc) = current!(editor);
         let max_line = if doc.text().line(doc.text().len_lines() - 1).len_chars() == 0 {
             // If the last line is blank, don't jump to it.
@@ -2524,13 +2521,13 @@ fn goto_line_impl(editor: &mut Editor, count: Option<NonZeroUsize>) {
             .selection(view.id)
             .clone()
             .transform(|range| range.put_cursor(text, pos, doc.mode == Mode::Select));
+
+        push_jump(view, doc);
         doc.set_selection(view.id, selection);
     }
 }
 
 fn goto_last_line(cx: &mut Context) {
-    push_jump(cx.editor);
-
     let (view, doc) = current!(cx.editor);
     let line_idx = if doc.text().line(doc.text().len_lines() - 1).len_chars() == 0 {
         // If the last line is blank, don't jump to it.
@@ -2544,6 +2541,8 @@ fn goto_last_line(cx: &mut Context) {
         .selection(view.id)
         .clone()
         .transform(|range| range.put_cursor(text, pos, doc.mode == Mode::Select));
+
+    push_jump(view, doc);
     doc.set_selection(view.id, selection);
 }
 
@@ -2612,10 +2611,9 @@ fn exit_select_mode(cx: &mut Context) {
 }
 
 fn goto_pos(editor: &mut Editor, pos: usize) {
-    push_jump(editor);
-
     let (view, doc) = current!(editor);
 
+    push_jump(view, doc);
     doc.set_selection(view.id, Selection::point(pos));
     align_view(doc, view, Align::Center);
 }
@@ -2940,7 +2938,7 @@ pub mod insert {
             Transaction::change_by_selection(doc.text(), doc.selection(view.id), |range| {
                 let pos = range.cursor(text);
                 let line_start_pos = text.line_to_char(range.cursor_line(text));
-                // considier to delete by indent level if all characters before `pos` are indent units.
+                // consider to delete by indent level if all characters before `pos` are indent units.
                 let fragment = Cow::from(text.slice(line_start_pos..pos));
                 if !fragment.is_empty() && fragment.chars().all(|ch| ch.is_whitespace()) {
                     if text.get_char(pos.saturating_sub(1)) == Some('\t') {
@@ -3574,7 +3572,7 @@ fn keep_or_remove_selections_impl(cx: &mut Context, remove: bool) {
         Some(reg),
         ui::completers::none,
         move |view, doc, regex, event| {
-            if event != PromptEvent::Update {
+            if !matches!(event, PromptEvent::Update | PromptEvent::Validate) {
                 return;
             }
             let text = doc.text().slice(..);
@@ -3783,12 +3781,15 @@ fn expand_selection(cx: &mut Context) {
             let text = doc.text().slice(..);
 
             let current_selection = doc.selection(view.id);
-
-            // save current selection so it can be restored using shrink_selection
-            view.object_selections.push(current_selection.clone());
-
             let selection = object::expand_selection(syntax, text, current_selection.clone());
-            doc.set_selection(view.id, selection);
+
+            // check if selection is different from the last one
+            if *current_selection != selection {
+                // save current selection so it can be restored using shrink_selection
+                view.object_selections.push(current_selection.clone());
+
+                doc.set_selection(view.id, selection);
+            }
         }
     };
     motion(cx.editor);
@@ -3897,7 +3898,8 @@ fn jump_backward(cx: &mut Context) {
 }
 
 fn save_selection(cx: &mut Context) {
-    push_jump(cx.editor);
+    let (view, doc) = current!(cx.editor);
+    push_jump(view, doc);
     cx.editor.set_status("Selection saved to jumplist");
 }
 
@@ -4441,6 +4443,7 @@ fn shell(cx: &mut compositor::Context, cmd: &str, behavior: &ShellBehavior) {
     if behavior != &ShellBehavior::Ignore {
         let transaction = Transaction::change(doc.text(), changes.into_iter());
         doc.apply(&transaction, view.id);
+        doc.append_changes_to_history(view.id);
     }
 
     // after replace cursor may be out of bounds, do this to
@@ -4627,6 +4630,17 @@ fn record_macro(cx: &mut Context) {
 
 fn replay_macro(cx: &mut Context) {
     let reg = cx.register.unwrap_or('@');
+
+    if cx.editor.macro_replaying.contains(&reg) {
+        cx.editor.set_error(format!(
+            "Cannot replay from register [{}] because already replaying from same register",
+            reg
+        ));
+        return;
+    }
+
+    cx.editor.macro_replaying.push(reg);
+
     let keys: Vec<KeyEvent> = if let Some([keys_str]) = cx.editor.registers.read(reg) {
         match helix_view::input::parse_macro(keys_str) {
             Ok(keys) => keys,
@@ -4648,4 +4662,6 @@ fn replay_macro(cx: &mut Context) {
             }
         }
     }));
+
+    cx.editor.macro_replaying.pop();
 }

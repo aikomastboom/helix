@@ -4,6 +4,7 @@
 | c | ✓ | ✓ | ✓ | `clangd` |
 | c-sharp | ✓ |  |  | `OmniSharp` |
 | cairo | ✓ |  |  |  |
+| clojure | ✓ |  |  | `clojure-lsp` |
 | cmake | ✓ | ✓ | ✓ | `cmake-language-server` |
 | comment | ✓ |  |  |  |
 | cpon | ✓ |  | ✓ |  |
@@ -12,12 +13,13 @@
 | dart | ✓ |  | ✓ | `dart` |
 | devicetree | ✓ |  | ✓ |  |
 | dockerfile | ✓ |  |  | `docker-langserver` |
+| edoc | ✓ |  |  |  |
 | eex | ✓ |  |  |  |
 | ejs | ✓ |  |  |  |
-| elixir | ✓ |  |  | `elixir-ls` |
+| elixir | ✓ | ✓ |  | `elixir-ls` |
 | elm | ✓ |  |  | `elm-language-server` |
 | erb | ✓ |  |  |  |
-| erlang | ✓ |  |  | `erlang_ls` |
+| erlang | ✓ | ✓ |  | `erlang_ls` |
 | fish | ✓ | ✓ | ✓ |  |
 | gdscript | ✓ |  | ✓ |  |
 | git-attributes | ✓ |  |  |  |
@@ -26,7 +28,7 @@
 | git-diff | ✓ |  |  |  |
 | git-ignore | ✓ |  |  |  |
 | git-rebase | ✓ |  |  |  |
-| gleam | ✓ |  |  |  |
+| gleam | ✓ | ✓ |  |  |
 | glsl | ✓ |  | ✓ |  |
 | go | ✓ | ✓ | ✓ | `gopls` |
 | gomod | ✓ |  |  | `gopls` |
@@ -40,6 +42,7 @@
 | iex | ✓ |  |  |  |
 | java | ✓ |  |  | `jdtls` |
 | javascript | ✓ |  | ✓ | `typescript-language-server` |
+| jsdoc | ✓ |  |  |  |
 | json | ✓ |  | ✓ | `vscode-json-language-server` |
 | jsx | ✓ |  | ✓ | `typescript-language-server` |
 | julia | ✓ |  |  | `julia` |
@@ -61,9 +64,11 @@
 | ocaml | ✓ |  | ✓ | `ocamllsp` |
 | ocaml-interface | ✓ |  |  | `ocamllsp` |
 | odin | ✓ |  |  |  |
+| openscad | ✓ |  |  | `openscad-language-server` |
 | org | ✓ |  |  |  |
 | perl | ✓ | ✓ | ✓ |  |
 | php | ✓ | ✓ | ✓ | `intelephense` |
+| prisma | ✓ |  |  | `prisma-language-server` |
 | prolog |  |  |  | `swipl` |
 | protobuf | ✓ |  | ✓ |  |
 | python | ✓ | ✓ | ✓ | `pylsp` |

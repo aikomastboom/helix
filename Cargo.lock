@@ -421,7 +421,6 @@ dependencies = [
  "futures-executor",
  "futures-util",
  "helix-core",
- "jsonrpc-core",
  "log",
  "lsp-types",
  "serde",
@@ -459,7 +458,6 @@ dependencies = [
  "once_cell",
  "pulldown-cmark",
  "retain_mut",
- "ropey",
  "serde",
  "serde_json",
  "signal-hook",
@@ -553,19 +551,6 @@ name = "itoa"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "112c678d4050afce233f4f2852bb2eb519230b3cf12f33585275537d7e41578d"
-
-[[package]]
-name = "jsonrpc-core"
-version = "18.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "14f7f76aef2d054868398427f6c54943cf3d1caa9a7ec7d0c38d69df97a965eb"
-dependencies = [
- "futures-util",
- "log",
- "serde",
- "serde_derive",
- "serde_json",
-]
 
 [[package]]
 name = "lazy_static"
@@ -843,9 +828,9 @@ checksum = "4389f1d5789befaf6029ebd9f7dac4af7f7e3d61b69d4f30e2ac02b57e7712b0"
 
 [[package]]
 name = "ropey"
-version = "1.4.1"
+version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fa0dd9b26e2a102b33d400b7b7d196c81a4014eb96eda90b1c5b48d7215d9633"
+checksum = "bbd22239fafefc42138ca5da064f3c17726a80d2379d817a3521240e78dd0064"
 dependencies = [
  "smallvec",
  "str_indices",
@@ -1024,9 +1009,9 @@ checksum = "9e08d8363704e6c71fc928674353e6b7c23dcea9d82d7012c8faf2a3a025f8d0"
 
 [[package]]
 name = "str_indices"
-version = "0.3.2"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "adfad63a1b47951101cd667a85b2959a62910cf03f814fff25df89c460b873f8"
+checksum = "9d9199fa80c817e074620be84374a520062ebac833f358d74b37060ce4a0f2c0"
 
 [[package]]
 name = "syn"
@@ -1105,9 +1090,9 @@ checksum = "cda74da7e1a664f795bb1f8a87ec406fb89a02522cf6e50620d016add6dbbf5c"
 
 [[package]]
 name = "tokio"
-version = "1.18.2"
+version = "1.19.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4903bf0427cf68dddd5aa6a93220756f8be0c34fcfa9f5e6191e103e15a31395"
+checksum = "c51a52ed6686dd62c320f9b89299e9dfb46f730c7a48e635c19f21d116cb1439"
 dependencies = [
  "bytes",
  "libc",
@@ -1136,9 +1121,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-stream"
-version = "0.1.8"
+version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "50145484efff8818b5ccd256697f36863f587da82cf8b409c53adf1e840798e3"
+checksum = "df54d54117d6fdc4e4fea40fe1e4e566b3505700e148a6827e59b34b0d2600d9"
 dependencies = [
  "futures-core",
  "pin-project-lite",
