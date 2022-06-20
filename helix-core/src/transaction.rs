@@ -113,7 +113,7 @@ impl ChangeSet {
     /// In other words,  If `this` goes `docA` → `docB` and `other` represents `docB` → `docC`, the
     /// returned value will represent the change `docA` → `docC`.
     pub fn compose(self, other: Self) -> Self {
-        assert!(self.len_after == other.len);
+        assert_eq!(self.len_after, other.len);
 
         // composing fails in weird ways if one of the sets is empty
         // a: [] len: 0 len_after: 1 | b: [Insert(Tendril<UTF8>(inline: "\n")), Retain(1)] len 1
@@ -262,7 +262,7 @@ impl ChangeSet {
     /// Returns a new changeset that reverts this one. Useful for `undo` implementation.
     /// The document parameter expects the original document before this change was applied.
     pub fn invert(&self, original_doc: &Rope) -> Self {
-        assert!(original_doc.len_chars() == self.len);
+        assert_eq!(original_doc.len_chars(), self.len);
 
         let mut changes = Self::with_capacity(self.changes.len());
 

@@ -391,7 +391,7 @@ pub fn dap_pause(cx: &mut Context) {
         let request = debugger.pause(thread.id);
         // NOTE: we don't need to set active thread id here because DAP will emit a "stopped" event
         if let Err(e) = block_on(request) {
-            editor.set_error(format!("Failed to pause: {}", e));
+            editor.set_error(format!("Failed to pause: {:?}", e));
         }
     })
 }
@@ -460,7 +460,7 @@ pub fn dap_variables(cx: &mut Context) {
     let scopes = match block_on(debugger.scopes(frame_id)) {
         Ok(s) => s,
         Err(e) => {
-            cx.editor.set_error(format!("Failed to get scopes: {}", e));
+            cx.editor.set_error(format!("Failed to get scopes: {:?}", e));
             return;
         }
     };

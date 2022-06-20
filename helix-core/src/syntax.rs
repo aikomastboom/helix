@@ -221,7 +221,7 @@ impl From<AutoPairConfig> for Option<AutoPairs> {
 }
 
 impl FromStr for AutoPairConfig {
-    type Err = std::str::ParseBoolError;
+    type Err = str::ParseBoolError;
 
     // only do bool parsing for runtime setting
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -257,7 +257,7 @@ impl<'a> CapturedNode<'a> {
         }
     }
 
-    pub fn byte_range(&self) -> std::ops::Range<usize> {
+    pub fn byte_range(&self) -> ops::Range<usize> {
         self.start_byte()..self.end_byte()
     }
 }
@@ -586,7 +586,7 @@ pub struct Syntax {
     loader: Arc<Loader>,
 }
 
-fn byte_range_to_str(range: std::ops::Range<usize>, source: RopeSlice) -> Cow<str> {
+fn byte_range_to_str(range: ops::Range<usize>, source: RopeSlice) -> Cow<str> {
     Cow::from(source.byte_slice(range))
 }
 
@@ -882,7 +882,7 @@ impl Syntax {
     pub fn highlight_iter<'a>(
         &'a self,
         source: RopeSlice<'a>,
-        range: Option<std::ops::Range<usize>>,
+        range: Option<ops::Range<usize>>,
         cancellation_flag: Option<&'a AtomicUsize>,
     ) -> impl Iterator<Item = Result<HighlightEvent, Error>> + 'a {
         let mut layers = self
@@ -938,7 +938,7 @@ impl Syntax {
         layers.sort_by_key(|layer| {
             (
                 layer.ranges.first().cloned(),
-                std::cmp::Reverse(layer.depth),
+                cmp::Reverse(layer.depth),
             )
         });
 
@@ -1117,7 +1117,7 @@ pub(crate) fn generate_edits(
 }
 
 use std::sync::atomic::{AtomicUsize, Ordering};
-use std::{iter, mem, ops, str, usize};
+use std::{iter, mem, ops, str, cmp};
 use tree_sitter::{
     Language as Grammar, Node, Parser, Point, Query, QueryCaptures, QueryCursor, QueryError,
     QueryMatch, Range, TextProvider, Tree,
@@ -1833,10 +1833,10 @@ fn injection_for_match<'a>(
 
 pub struct Merge<I> {
     iter: I,
-    spans: Box<dyn Iterator<Item = (usize, std::ops::Range<usize>)>>,
+    spans: Box<dyn Iterator<Item = (usize, ops::Range<usize>)>>,
 
     next_event: Option<HighlightEvent>,
-    next_span: Option<(usize, std::ops::Range<usize>)>,
+    next_span: Option<(usize, ops::Range<usize>)>,
 
     queue: Vec<HighlightEvent>,
 }
@@ -1844,7 +1844,7 @@ pub struct Merge<I> {
 /// Merge a list of spans into the highlight event stream.
 pub fn merge<I: Iterator<Item = HighlightEvent>>(
     iter: I,
-    spans: Vec<(usize, std::ops::Range<usize>)>,
+    spans: Vec<(usize, ops::Range<usize>)>,
 ) -> Merge<I> {
     let spans = Box::new(spans.into_iter());
     let mut merge = Merge {
@@ -1969,6 +1969,7 @@ impl<I: Iterator<Item = HighlightEvent>> Iterator for Merge<I> {
 mod test {
     use super::*;
     use crate::{Rope, Transaction};
+    use std::fs;
 
     #[test]
     fn test_textobject_queries() {
@@ -2048,9 +2049,9 @@ mod test {
         let language = get_language("Rust").unwrap();
         let config = HighlightConfiguration::new(
             language,
-            &std::fs::read_to_string("../runtime/grammars/sources/rust/queries/highlights.scm")
+            &fs::read_to_string("../runtime/grammars/sources/rust/queries/highlights.scm")
                 .unwrap(),
-            &std::fs::read_to_string("../runtime/grammars/sources/rust/queries/injections.scm")
+            &fs::read_to_string("../runtime/grammars/sources/rust/queries/injections.scm")
                 .unwrap(),
             "", // locals.scm
         )

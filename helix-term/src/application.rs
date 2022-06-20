@@ -61,6 +61,7 @@ pub struct Application {
 impl Application {
     pub fn new(args: Args) -> Result<Self, Error> {
         use helix_view::editor::Action;
+        use tui::buffer::Buffer;
 
         let config_dir = helix_loader::config_dir();
         if !config_dir.exists() {
@@ -123,6 +124,10 @@ impl Application {
         let terminal: Terminal<CrosstermBackend<Stdout>> = Terminal::new(backend)?;
         let mut compositor = Compositor::new(terminal)?;
         let config = Arc::new(ArcSwap::from_pointee(config));
+        let area = compositor.size();
+        if !Buffer::in_bounds_area(area, 1, 1) {
+            anyhow::bail!(format!("Terminal window is too small [{:?}]", area));
+        }
         let mut editor = Editor::new(
             compositor.size(),
             theme_loader.clone(),
@@ -155,9 +160,9 @@ impl Application {
                 editor.open(first.to_path_buf(), Action::VerticalSplit)?;
                 for (file, pos) in args.files {
                     if file.is_dir() {
-                        return Err(anyhow::anyhow!(
+                        anyhow::bail!(
                             "expected a path to file, found a directory. (to open a directory pass it as first argument)"
-                        ));
+                        );
                     } else {
                         let doc_id = editor.open(file, Action::Load)?;
                         // with Action::Load all documents have the same view
@@ -407,7 +412,7 @@ impl Application {
                     Ok(notification) => notification,
                     Err(err) => {
                         log::error!(
-                            "received malformed notification from Language Server: {}",
+                            "received malformed notification from Language Server: {:?}",
                             err
                         );
                         return;
@@ -631,7 +636,7 @@ impl Application {
                     }
                     Err(err) => {
                         log::error!(
-                            "received malformed method call from Language Server: {}: {}",
+                            "received malformed method call from Language Server: {}: {:?}",
                             method,
                             err
                         );

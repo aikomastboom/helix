@@ -190,10 +190,14 @@ impl Buffer {
     ///
     /// Global coordinates are offset by the Buffer's area offset (`x`/`y`).
     pub fn in_bounds(&self, x: u16, y: u16) -> bool {
-        x >= self.area.left()
-            && x < self.area.right()
-            && y >= self.area.top()
-            && y < self.area.bottom()
+        Buffer::in_bounds_area(self.area, x, y)
+    }
+
+    pub fn in_bounds_area(area: Rect, x: u16, y: u16) -> bool {
+        x >= area.left()
+            && x < area.right()
+            && y >= area.top()
+            && y < area.bottom()
     }
 
     /// Returns the index in the Vec<Cell> for the given global (x, y) coordinates.

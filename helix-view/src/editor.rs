@@ -564,7 +564,9 @@ impl Editor {
         let auto_pairs = (&conf.auto_pairs).into();
 
         // HAXX: offset the render area height by 1 to account for prompt/commandline
-        area.height -= 1;
+        if area.height > 1 {
+            area.height -= 1;
+        }
 
         Self {
             tree: Tree::new(area),
