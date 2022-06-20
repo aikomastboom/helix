@@ -301,6 +301,7 @@ pub enum CachedPreview {
     Document(Box<Document>),
     Binary,
     LargeFile,
+    Directory(Vec<String>),
     NotFound,
 }
 
@@ -320,6 +321,13 @@ impl Preview<'_, '_> {
         }
     }
 
+    fn directory(&self) -> Option<&Vec<String>> {
+        match self {
+            Preview::Cached(CachedPreview::Directory(preview)) => Some(preview),
+            _ => None,
+        }
+    }
+
     /// Alternate text to show for the preview.
     fn placeholder(&self) -> &str {
         match *self {
@@ -328,6 +336,7 @@ impl Preview<'_, '_> {
                 CachedPreview::Document(_) => "<File preview>",
                 CachedPreview::Binary => "<Binary file>",
                 CachedPreview::LargeFile => "<File too large to preview>",
+                CachedPreview::Directory(_) => "<Directory>",
                 CachedPreview::NotFound => "<File not found>",
             },
         }
@@ -521,30 +530,64 @@ impl<T> FilePicker<T> {
             return Preview::Cached(&self.preview_cache[path]);
         }
 
-        let data = std::fs::File::open(path).and_then(|file| {
-            let metadata = file.metadata()?;
-            // Read up to 1kb to detect the content type
-            let n = file.take(1024).read_to_end(&mut self.read_buffer)?;
-            let content_type = content_inspector::inspect(&self.read_buffer[..n]);
-            self.read_buffer.clear();
-            Ok((metadata, content_type))
-        });
-        let preview = data
-            .map(
-                |(metadata, content_type)| match (metadata.len(), content_type) {
-                    (_, content_inspector::ContentType::BINARY) => CachedPreview::Binary,
-                    (size, _) if size > MAX_FILE_SIZE_FOR_PREVIEW => CachedPreview::LargeFile,
-                    _ => {
-                        // TODO: enable syntax highlighting; blocked by async rendering
-                        Document::open(path, None, None)
-                            .map(|doc| CachedPreview::Document(Box::new(doc)))
-                            .unwrap_or(CachedPreview::NotFound)
-                    }
-                },
-            )
+        let preview = std::fs::File::open(path)
+            .and_then(|file| {
+                let metadata = file.metadata()?;
+                if metadata.is_file() {
+                    // Read up to 1kb to detect the content type
+                    let n = file.take(1024).read_to_end(&mut self.read_buffer)?;
+                    let content_type = content_inspector::inspect(&self.read_buffer[..n]);
+                    self.read_buffer.clear();
+                    Ok(match (metadata.len(), content_type) {
+                        (_, content_inspector::ContentType::BINARY) => CachedPreview::Binary,
+                        (size, _) if size > MAX_FILE_SIZE_FOR_PREVIEW => CachedPreview::LargeFile,
+                        _ => {
+                            // TODO: enable syntax highlighting; blocked by async rendering
+                            Document::open(path, None, None)
+                                .map(|doc| CachedPreview::Document(Box::new(doc)))
+                                .unwrap_or(CachedPreview::NotFound)
+                        }
+                    })
+                } else {
+                    // metadata.is_dir
+                    Ok(CachedPreview::Directory(self.preview_dir(path)))
+                }
+            })
             .unwrap_or(CachedPreview::NotFound);
         self.preview_cache.insert(path.to_owned(), preview);
         Preview::Cached(&self.preview_cache[path])
+    }
+
+    fn preview_dir(&self, dir: &Path) -> Vec<String> {
+        // TODO refactor this with directory list to directory.rs in view later
+        match fs::read_dir(&dir) {
+            Ok(entries) => entries
+                .flat_map(|res| {
+                    res.map(|entry| {
+                        let path = entry.path();
+                        let suffix = if path.is_dir() { "/" } else { "" };
+                        let metadata = fs::metadata(&*path).unwrap();
+                        let path = path.strip_prefix(&dir).unwrap_or(&path).to_string_lossy();
+                        if cfg!(unix) {
+                            let filetype = fields::filetype(&metadata);
+                            let permissions = fields::permissions(&metadata);
+                            let size = format!("{}", fields::size(&metadata));
+                            format!(
+                                "{:<22} {}{} {:>6}",
+                                path + suffix, // TODO this should check for size and handle truncation
+                                filetype,
+                                permissions,
+                                size,
+                                // TODO add absolute/relative time? may need to handle truncation
+                            )
+                        } else {
+                            (path + suffix).to_string()
+                        }
+                    })
+                })
+                .collect(),
+            Err(_) => vec!["<No access to directory>".to_owned()],
+        }
     }
 }
 
@@ -594,15 +637,20 @@ impl<T: 'static> Component for FilePicker<T> {
 
         if let Some((path, range)) = self.current_file(cx.editor) {
             let preview = self.get_preview(&path, cx.editor);
-            let doc = match preview.document() {
-                Some(doc) => doc,
-                None => {
-                    let alt_text = preview.placeholder();
-                    let x = inner.x + inner.width.saturating_sub(alt_text.len() as u16) / 2;
-                    let y = inner.y + inner.height / 2;
-                    surface.set_stringn(x, y, alt_text, inner.width as usize, text);
-                    return;
+            let doc = if let Some(doc) = preview.document() {
+                doc
+            } else if let Some(output) = preview.directory() {
+                for (n, line) in output.iter().take(inner.height as usize).enumerate() {
+                    let y = inner.y + n as u16;
+                    surface.set_stringn(inner.x, y, line, inner.width as usize, text);
                 }
+                return;
+            } else {
+                let alt_text = preview.placeholder();
+                let x = inner.x + inner.width.saturating_sub(alt_text.len() as u16) / 2;
+                let y = inner.y + inner.height / 2;
+                surface.set_stringn(x, y, alt_text, inner.width as usize, text);
+                return;
             };
 
             // align to middle
