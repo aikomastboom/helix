@@ -64,7 +64,8 @@ pub trait Component: Any + AnyComponent {
 }
 
 use anyhow::Error;
-use std::io::stdout;
+
+// this is hardcoded to CrosstermBackend due to Backend traits' generics in draw method.
 use tui::backend::{Backend, CrosstermBackend};
 type Terminal = tui::terminal::Terminal<CrosstermBackend<std::io::Stdout>>;
 
@@ -76,9 +77,7 @@ pub struct Compositor {
 }
 
 impl Compositor {
-    pub fn new() -> Result<Self, Error> {
-        let backend = CrosstermBackend::new(stdout());
-        let terminal = Terminal::new(backend)?;
+    pub fn new(terminal: Terminal) -> Result<Self, Error> {
         Ok(Self {
             layers: Vec::new(),
             terminal,

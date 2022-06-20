@@ -19,7 +19,7 @@ use crate::{
 
 use log::{error, warn};
 use std::{
-    io::{stdin, stdout, Write},
+    io::{stdin, stdout, Write, Stdout},
     sync::Arc,
     time::{Duration, Instant},
 };
@@ -36,6 +36,9 @@ use {
     signal_hook::{consts::signal, low_level},
     signal_hook_tokio::Signals,
 };
+use tui::backend::CrosstermBackend;
+use tui::terminal::Terminal;
+
 #[cfg(windows)]
 type Signals = futures_util::stream::Empty<()>;
 
@@ -116,7 +119,9 @@ impl Application {
         });
         let syn_loader = std::sync::Arc::new(syntax::Loader::new(syn_loader_conf));
 
-        let mut compositor = Compositor::new()?;
+        let backend = CrosstermBackend::new(stdout());
+        let terminal: Terminal<CrosstermBackend<Stdout>> = Terminal::new(backend)?;
+        let mut compositor = Compositor::new(terminal)?;
         let config = Arc::new(ArcSwap::from_pointee(config));
         let mut editor = Editor::new(
             compositor.size(),
