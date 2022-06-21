@@ -4578,7 +4578,7 @@ fn find_next_char_until_newline<M: CharMatcher>(
     search::find_nth_next(text.line(line_index), char_matcher, pos, 1).map(|pos| pos + pos_delta)
 }
 
-/// Decrement object under cursor by `amount`.
+/// Increment/Decrement object under cursor by `amount`.
 fn increment_impl(cx: &mut Context, amount: i64) {
     // TODO: when incrementing or decrementing a number that gets a new digit or lose one, the
     // selection is updated improperly.
@@ -4626,13 +4626,17 @@ fn increment_impl(cx: &mut Context, amount: i64) {
             overlapping_indexes.insert(i + 1);
         }
     }
-    let changes = changes.into_iter().enumerate().filter_map(|(i, change)| {
-        if overlapping_indexes.contains(&i) {
-            None
-        } else {
-            Some(change)
-        }
-    });
+
+    let changes = changes
+        .into_iter()
+        .enumerate()
+        .filter_map(|(i, change)| {
+            if overlapping_indexes.contains(&i) {
+                None
+            } else {
+                Some(change)
+            }
+        });
 
     if changes.clone().count() > 0 {
         let transaction = Transaction::change(doc.text(), changes);
