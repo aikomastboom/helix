@@ -41,7 +41,10 @@ impl<'a> NumberIncrementor<'a> {
             range
         };
 
-        let word: String = text.slice(range.from()..range.to()).chars().collect();
+        let word: String = text
+            .slice(range.from()..range.to())
+            .chars()
+            .collect();
         let (radix, prefixed) = if word.starts_with("0x") {
             (16, true)
         } else if word.starts_with("0o") {
@@ -320,17 +323,27 @@ mod test {
 
     #[test]
     fn test_number_surrounded_by_punctuation() {
-        let rope = Rope::from_str(",100;");
-        let range = Range::point(1);
-        assert_eq!(
-            NumberIncrementor::from_range(rope.slice(..), range),
-            Some(NumberIncrementor {
-                range: Range::new(1, 4),
-                value: 100,
-                radix: 10,
-                text: rope.slice(..),
-            })
-        );
+        let tests = [
+            (",100;", 1, 4),
+            ("num100", 3, 6),
+            ("100px", 0, 3),
+            ("num100px", 3, 6),
+            ("num_100px", 4, 7),
+        ];
+
+        for (original, anchor, head) in tests {
+            let rope = Rope::from_str(original);
+            let range = Range::point(1);
+            assert_eq!(
+                NumberIncrementor::from_range(rope.slice(..), range),
+                Some(NumberIncrementor {
+                    range: Range::new(anchor, head),
+                    value: 100,
+                    radix: 10,
+                    text: rope.slice(..),
+                })
+            );
+        }
     }
 
     #[test]
