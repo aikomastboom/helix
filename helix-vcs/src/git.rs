@@ -162,13 +162,15 @@ mod test {
         exec_git_cmd("commit -m message", temp_git.path());
 
         let root = Git::discover_from_path(&file).map(|g| g.root().to_owned());
-        assert_eq!(Some(temp_git.path().to_owned()), root);
+        let tmp_path = temp_git.path().canonicalize().unwrap().to_owned();
+        assert_eq!(Some(tmp_path), root);
     }
 
     #[test]
     fn test_read_file_from_head() {
         let tmp_repo = empty_git_repo();
-        let git_dir = tmp_repo.path();
+        let tmp_path = tmp_repo.path().canonicalize().unwrap();
+        let git_dir = tmp_path.as_path();
         let file = git_dir.join("file.txt");
 
         let contents = r#"
