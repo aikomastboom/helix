@@ -170,6 +170,23 @@ tab = "→"
 newline = "⏎"
 ```
 
+### `[editor.indent-guides]` Section
+
+Options for rendering vertical indent guides.
+
+| Key         | Description                                             | Default |
+|-------------|---------------------------------------------------------|---------|
+| `render`    | Whether to render indent guides.                        | `false` |
+| `character` | Literal character to use for rendering the indent guide | `│`     |
+
+Example:
+
+```toml
+[editor.indent-guides]
+render = true
+character = "╎"
+```
+
 ### `[editor.explorer]` Section
 Sets explorer side width and style.
 
@@ -178,3 +195,4 @@ Sets explorer side width and style.
 | `column-width` | explorer side width                        | 30      |
 | `style`        | explorer item style, tree or list          | tree    |
 | `position`     | explorer widget position, embed or overlay | overlay |
+
