@@ -453,7 +453,7 @@ impl Explorer {
             }
         };
         if meta.is_file() {
-            if let Err(e) = cx.editor.open(item.path.clone(), Action::Replace) {
+            if let Err(e) = cx.editor.open(item.path.as_path(), Action::Replace) {
                 cx.editor.set_error(format!("{e}"));
             }
             state.focus = false;

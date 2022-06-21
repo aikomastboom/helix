@@ -440,16 +440,16 @@ impl Component for FindFilePicker {
             move |cx: &mut Context, picker: &FilePicker<PathBuf>, dir: &PathBuf, action| {
                 if let Some(path) = picker.picker.selection() {
                     if path.is_dir() {
-                        return findfile_fn(path);
+                        return findfile_fn(path.as_path());
                     } else {
                         cx.editor
-                            .open(path.into(), action)
+                            .open(path.as_path(), action)
                             .expect("editor.open failed");
                     }
                 } else {
                     let filename = picker.picker.prompt.line();
                     cx.editor
-                        .open(dir.join(filename), action)
+                        .open(dir.join(filename).as_path(), action)
                         .expect("editor.open failed");
                 }
                 close_fn
