@@ -2,6 +2,7 @@
 
 - https://github.com/helix-editor/helix/pull/2377 https://github.com/cossonfork/helix/tree/tree_explore
 - https://github.com/helix-editor/helix/pull/1623 https://github.com/sudormrfbin/helix/tree/git-diff-sign
+- https://github.com/helix-editor/helix/pull/2728 https://github.com/sudormrfbin/helix/tree/completion-popup-padding
 - https://github.com/helix-editor/helix/pull/2412 https://github.com/pickfire/helix/tree/find-file
 
 - while typing in :themes command this happened (on master branch before merging in above PRs)
