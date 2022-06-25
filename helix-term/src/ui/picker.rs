@@ -368,7 +368,7 @@ impl FindFilePicker {
             // the score, and only calculate it once during initialization
             move |path| {
                 let suffix = if path.is_dir() { "/" } else { "" };
-                let metadata = fs::metadata(&*path).unwrap();
+                let metadata = path.symlink_metadata().unwrap();
                 let path = path.strip_prefix(&dir1).unwrap_or(path).to_string_lossy();
                 if cfg!(unix) {
                     let filetype = fields::filetype(&metadata);
