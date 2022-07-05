@@ -264,6 +264,7 @@ impl MappableCommand {
         file_picker_in_current_directory, "Open file picker at current working directory",
         code_action, "Perform code action",
         buffer_picker, "Open buffer picker",
+        mru_buffer_picker, "Open most recent used buffers picker",
         symbol_picker, "Open symbol picker",
         select_references_to_symbol_under_cursor, "Select symbol references",
         workspace_symbol_picker, "Open workspace symbol picker",
@@ -2191,6 +2192,14 @@ fn file_picker_in_current_directory(cx: &mut Context) {
 }
 
 fn buffer_picker(cx: &mut Context) {
+    _buffer_picker(cx, false);
+}
+
+fn mru_buffer_picker(cx: &mut Context) {
+    _buffer_picker(cx, true);
+}
+
+fn _buffer_picker(cx: &mut Context, mru_sort: bool) {
     let current = view!(cx.editor).doc;
 
     struct BufferMeta {
@@ -2198,6 +2207,7 @@ fn buffer_picker(cx: &mut Context) {
         path: Option<PathBuf>,
         is_modified: bool,
         is_current: bool,
+        used_at: std::time::SystemTime,
     }
 
     impl ui::menu::Item for BufferMeta {
@@ -2235,14 +2245,22 @@ fn buffer_picker(cx: &mut Context) {
         path: doc.path().cloned(),
         is_modified: doc.is_modified(),
         is_current: doc.id() == current,
+        used_at: doc.used_at.clone(),
     };
 
+    let mut items = cx
+        .editor
+        .documents
+        .iter()
+        .map(|(_, doc)| new_meta(doc))
+        .collect::<Vec<BufferMeta>>();
+
+    if mru_sort {
+        items.sort_by(|a, b| b.used_at.cmp(&a.used_at));
+    }
+
     let picker = FilePicker::new(
-        cx.editor
-            .documents
-            .iter()
-            .map(|(_, doc)| new_meta(doc))
-            .collect(),
+        items,
         (),
         |cx, meta, action| {
             cx.editor.switch(meta.id, action);
