@@ -666,7 +666,6 @@ impl Document {
         if self.selections.get(&view_id).is_none() {
             self.reset_selection(view_id);
         }
-        self.used_at = std::time::Instant::now();
     }
 
     /// Remove a view's selection from this document.

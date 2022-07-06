@@ -2263,6 +2263,10 @@ fn _buffer_picker(cx: &mut Context, mru_sort: bool) {
         items,
         (),
         |cx, meta, action| {
+            // update used_at for mru sorting
+            if let Some(doc) = cx.editor.documents.get_mut(&meta.id) {
+                doc.used_at = std::time::Instant::now();
+            }
             cx.editor.switch(meta.id, action);
         },
         |editor, meta| {
