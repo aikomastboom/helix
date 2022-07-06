@@ -238,7 +238,6 @@ This layer is a kludge of mappings, mostly pickers.
 | -----   | -----------                                                             | -------                             |
 | `f`     | Open file picker                                                        | `file_picker`                       |
 | `b`     | Open buffer picker                                                      | `buffer_picker`                     |
-| `m`     | Open most recent used buffers picker                                    | `mru_buffer_picker`                 |
 | `k`     | Show documentation for item under cursor in a [popup](#popup) (**LSP**) | `hover`                             |
 | `s`     | Open document symbol picker (**LSP**)                                   | `symbol_picker`                     |
 | `S`     | Open workspace symbol picker (**LSP**)                                  | `workspace_symbol_picker`           |

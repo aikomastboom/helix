@@ -786,6 +786,7 @@ impl Editor {
                             view.last_modified_docs = [Some(view.doc), view.last_modified_docs[0]];
                         }
                     }
+                    doc.used_at = std::time::Instant::now();
                 }
 
                 self.replace_document_in_view(view_id, id);
@@ -796,6 +797,7 @@ impl Editor {
                 let view_id = view!(self).id;
                 let doc = self.documents.get_mut(&id).unwrap();
                 doc.ensure_view_init(view_id);
+                doc.used_at = std::time::Instant::now();
                 return;
             }
             Action::HorizontalSplit | Action::VerticalSplit => {
@@ -811,6 +813,7 @@ impl Editor {
                 // initialize selection for view
                 let doc = self.documents.get_mut(&id).unwrap();
                 doc.ensure_view_init(view_id);
+                doc.used_at = std::time::Instant::now();
             }
         }
 
