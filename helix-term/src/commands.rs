@@ -2245,7 +2245,7 @@ fn _buffer_picker(cx: &mut Context, mru_sort: bool) {
         path: doc.path().cloned(),
         is_modified: doc.is_modified(),
         is_current: doc.id() == current,
-        used_at: doc.used_at.clone(),
+        used_at: doc.used_at,
     };
 
     let mut items = cx
