@@ -123,7 +123,7 @@ pub struct Document {
     language_server: Option<Arc<helix_lsp::Client>>,
 
     // when document was used for most-recent-used buffer picker
-    pub used_at: std::time::SystemTime,
+    pub used_at: std::time::Instant,
 }
 
 use std::{fmt, mem};
@@ -364,7 +364,7 @@ impl Document {
             last_saved_revision: 0,
             modified_since_accessed: false,
             language_server: None,
-            used_at: std::time::SystemTime::now(),
+            used_at: std::time::Instant::now(),
         }
     }
 
@@ -666,7 +666,7 @@ impl Document {
         if self.selections.get(&view_id).is_none() {
             self.reset_selection(view_id);
         }
-        self.used_at = std::time::SystemTime::now();
+        self.used_at = std::time::Instant::now();
     }
 
     /// Remove a view's selection from this document.

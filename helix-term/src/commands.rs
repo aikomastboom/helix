@@ -2207,7 +2207,7 @@ fn _buffer_picker(cx: &mut Context, mru_sort: bool) {
         path: Option<PathBuf>,
         is_modified: bool,
         is_current: bool,
-        used_at: std::time::SystemTime,
+        used_at: std::time::Instant,
     }
 
     impl ui::menu::Item for BufferMeta {
