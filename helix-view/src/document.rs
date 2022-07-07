@@ -668,6 +668,11 @@ impl Document {
         }
     }
 
+    /// Mark document as recent used for MRU sorting
+    pub fn mark_as_used(&mut self) {
+        self.used_at = std::time::Instant::now();
+    }
+
     /// Remove a view's selection from this document.
     pub fn remove_view(&mut self, view_id: ViewId) {
         self.selections.remove(&view_id);
