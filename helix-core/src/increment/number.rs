@@ -58,33 +58,32 @@ impl<'a> NumberIncrementor<'a> {
         let number = if prefixed {
             word[2..].replace('_', "")
         } else {
-            if !word_range.contains_range(&range) {
+            if !word_range.contains(range.head) {
                 return None;
             }
 
             let len = word_range.len();
 
             // Offsets of selection within word
-            let start_offset = range.from() - word_range.from();
-            let end_offset = range.to() - word_range.from();
+            let offset = range.head - word_range.from();
 
             // Find end of number
             let end = word
                 .chars()
                 .enumerate()
-                .skip(end_offset)
+                .skip(offset)
                 .find(|(_, c)| !(c.is_ascii_digit() || *c == '_'))
                 .map(|(i, _)| i)
                 .unwrap_or(len);
 
-            let (start_byte, _) = word.char_indices().nth(start_offset).unwrap();
+            let (start_byte, _) = word.char_indices().nth(offset)?;
             // Find start of nubmer
             let start = word[..start_byte]
                 .chars()
                 .rev()
                 .enumerate()
                 .find(|(_, c)| !(c.is_ascii_digit() || *c == '-' || *c == '_'))
-                .map(|(i, _)| start_offset - i)
+                .map(|(i, _)| offset - i)
                 .unwrap_or(0);
 
             if end < start {
@@ -380,6 +379,125 @@ mod test {
         let rope = Rope::from_str("Test text 45326 more text.");
         let range = Range::point(6);
         assert_eq!(NumberIncrementor::from_range(rope.slice(..), range), None);
+    }
+
+    #[test]
+    fn test_number_on_prefix() {
+        let rope = Rope::from_str("num1");
+        let range = Range::point(1);
+        assert_eq!(NumberIncrementor::from_range(rope.slice(..), range), None);
+    }
+
+    #[test]
+    fn test_number_on_suffix() {
+        let rope = Rope::from_str("1px");
+        let range = Range::point(2);
+        assert_eq!(NumberIncrementor::from_range(rope.slice(..), range), None);
+    }
+
+    #[test]
+    fn test_number_with_suffix() {
+        let rope = Rope::from_str("1px");
+        let range = Range::point(0);
+        assert_eq!(
+            NumberIncrementor::from_range(rope.slice(..), range),
+            Some(NumberIncrementor {
+                range: Range::new(0, 1),
+                value: 1,
+                radix: 10,
+                text: rope.slice(..),
+            })
+        );
+    }
+
+    #[test]
+    fn test_number_with_prefix() {
+        let rope = Rope::from_str("num1");
+        let range = Range::point(3);
+        assert_eq!(
+            NumberIncrementor::from_range(rope.slice(..), range),
+            Some(NumberIncrementor {
+                range: Range::new(3, 4),
+                value: 1,
+                radix: 10,
+                text: rope.slice(..),
+            })
+        );
+    }
+
+    #[test]
+    fn test_number_with_prefix_and_suffix() {
+        let rope = Rope::from_str("num1hundred");
+        let range = Range::point(3);
+        assert_eq!(
+            NumberIncrementor::from_range(rope.slice(..), range),
+            Some(NumberIncrementor {
+                range: Range::new(3, 4),
+                value: 1,
+                radix: 10,
+                text: rope.slice(..),
+            })
+        );
+    }
+
+    #[test]
+    fn test_word_with_two_numbers_first() {
+        let rope = Rope::from_str("num1of5things");
+        let range = Range::point(3);
+        assert_eq!(
+            NumberIncrementor::from_range(rope.slice(..), range),
+            Some(NumberIncrementor {
+                range: Range::new(3, 4),
+                value: 1,
+                radix: 10,
+                text: rope.slice(..),
+            })
+        );
+    }
+
+    #[test]
+    fn test_word_with_two_numbers_second() {
+        let rope = Rope::from_str("num1of5things");
+        let range = Range::point(6);
+        assert_eq!(
+            NumberIncrementor::from_range(rope.slice(..), range),
+            Some(NumberIncrementor {
+                range: Range::new(6, 7),
+                value: 5,
+                radix: 10,
+                text: rope.slice(..),
+            })
+        );
+    }
+
+    #[test]
+    fn test_negative_number_with_suffix() {
+        let rope = Rope::from_str("-5px");
+        let range = Range::point(1);
+        assert_eq!(
+            NumberIncrementor::from_range(rope.slice(..), range),
+            Some(NumberIncrementor {
+                range: Range::new(0, 2),
+                value: -5,
+                radix: 10,
+                text: rope.slice(..),
+            })
+        );
+    }
+
+    #[test]
+    fn test_negative_number_with_suffix_on_minus() {
+        let rope = Rope::from_str("-5px");
+        let range = Range::point(0);
+        assert_eq!(
+            NumberIncrementor::from_range(rope.slice(..), range),
+            Some(NumberIncrementor {
+                range: Range::new(0, 2),
+                value: -5,
+                radix: 10,
+                text: rope.slice(..),
+            })
+        );
     }
 
     #[test]
