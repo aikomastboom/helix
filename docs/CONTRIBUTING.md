@@ -30,6 +30,27 @@ inside the project. We use [xtask][xtask] as an ad-hoc task runner and
 thus do not require any dependencies other than `cargo` (You don't have
 to `cargo install` anything either).
 
+# generating the book
+
+Install mdbook.
+
+```shell
+cargo install mdbook
+```
+
+Generate the book. [see](file:///.github/workflows/gh-pages.yml)
+
+```shell
+mdbook build book
+```
+
+Serve book locally
+
+```shell
+mdbook serve book
+```
+
+
 [good-first-issue]: https://github.com/helix-editor/helix/labels/E-easy
 [log-file]: https://github.com/helix-editor/helix/wiki/FAQ#access-the-log-file
 [architecture.md]: ./architecture.md
