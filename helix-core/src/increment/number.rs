@@ -76,7 +76,9 @@ impl<'a> NumberIncrementor<'a> {
                 .map(|(i, _)| i)
                 .unwrap_or(len);
 
-            let (start_byte, _) = word.char_indices().nth(offset)?;
+            let (start_byte, _) = word
+                .char_indices()
+                .nth(offset)?;
             // Find start of nubmer
             let start = word[..start_byte]
                 .chars()
