@@ -293,60 +293,16 @@ mod fields {
 #[cfg(not(unix))]
 mod fields {}
 
+use super::menu::Item;
+
 pub const MIN_AREA_WIDTH_FOR_PREVIEW: u16 = 72;
 /// Biggest file size to preview in bytes
 pub const MAX_FILE_SIZE_FOR_PREVIEW: u64 = 10 * 1024 * 1024;
 
-pub enum CachedPreview {
-    Document(Box<Document>),
-    Binary,
-    LargeFile,
-    Directory(Vec<String>),
-    NotFound,
-}
-
-// We don't store this enum in the cache so as to avoid lifetime constraints
-// from borrowing a document already opened in the editor.
-pub enum Preview<'picker, 'editor> {
-    Cached(&'picker CachedPreview),
-    EditorDocument(&'editor Document),
-}
-
-impl Preview<'_, '_> {
-    fn document(&self) -> Option<&Document> {
-        match self {
-            Preview::EditorDocument(doc) => Some(doc),
-            Preview::Cached(CachedPreview::Document(doc)) => Some(doc),
-            _ => None,
-        }
-    }
-
-    fn directory(&self) -> Option<&Vec<String>> {
-        match self {
-            Preview::Cached(CachedPreview::Directory(preview)) => Some(preview),
-            _ => None,
-        }
-    }
-
-    /// Alternate text to show for the preview.
-    fn placeholder(&self) -> &str {
-        match *self {
-            Self::EditorDocument(_) => "<File preview>",
-            Self::Cached(preview) => match preview {
-                CachedPreview::Document(_) => "<File preview>",
-                CachedPreview::Binary => "<Binary file>",
-                CachedPreview::LargeFile => "<File too large to preview>",
-                CachedPreview::Directory(_) => "<Directory>",
-                CachedPreview::NotFound => "<File not found>",
-            },
-        }
-    }
-}
-
 /// File path and range of lines (used to align and highlight lines)
 pub type FileLocation = (PathBuf, Option<(usize, usize)>);
 
-// Specialized version of [`FilePicker`] with some custom support to allow directory navigation.
+/// Specialized version of [`FilePicker`] with some custom support to allow directory navigation.
 pub struct FindFilePicker {
     picker: FilePicker<PathBuf>,
     dir: PathBuf,
@@ -468,7 +424,7 @@ impl Component for FindFilePicker {
     }
 }
 
-pub struct FilePicker<T> {
+pub struct FilePicker<T: Item> {
     picker: Picker<T>,
     pub truncate_start: bool,
     /// Caches paths to documents
@@ -478,15 +434,61 @@ pub struct FilePicker<T> {
     file_fn: Box<dyn Fn(&Editor, &T) -> Option<FileLocation>>,
 }
 
-impl<T> FilePicker<T> {
+pub enum CachedPreview {
+    Document(Box<Document>),
+    Binary,
+    LargeFile,
+    Directory(Vec<String>),
+    NotFound,
+}
+
+// We don't store this enum in the cache so as to avoid lifetime constraints
+// from borrowing a document already opened in the editor.
+pub enum Preview<'picker, 'editor> {
+    Cached(&'picker CachedPreview),
+    EditorDocument(&'editor Document),
+}
+
+impl Preview<'_, '_> {
+    fn document(&self) -> Option<&Document> {
+        match self {
+            Preview::EditorDocument(doc) => Some(doc),
+            Preview::Cached(CachedPreview::Document(doc)) => Some(doc),
+            _ => None,
+        }
+    }
+
+    fn directory(&self) -> Option<&Vec<String>> {
+        match self {
+            Preview::Cached(CachedPreview::Directory(preview)) => Some(preview),
+            _ => None,
+        }
+    }
+
+    /// Alternate text to show for the preview.
+    fn placeholder(&self) -> &str {
+        match *self {
+            Self::EditorDocument(_) => "<File preview>",
+            Self::Cached(preview) => match preview {
+                CachedPreview::Document(_) => "<File preview>",
+                CachedPreview::Binary => "<Binary file>",
+                CachedPreview::LargeFile => "<File too large to preview>",
+                CachedPreview::Directory(_) => "<Directory>",
+                CachedPreview::NotFound => "<File not found>",
+            },
+        }
+    }
+}
+
+impl<T: Item> FilePicker<T> {
     pub fn new(
         options: Vec<T>,
-        format_fn: impl Fn(&T) -> Cow<str> + 'static,
+        editor_data: T::Data,
         callback_fn: impl Fn(&mut Context, &T, Action) + 'static,
         preview_fn: impl Fn(&Editor, &T) -> Option<FileLocation> + 'static,
     ) -> Self {
         let truncate_start = true;
-        let mut picker = Picker::new(options, format_fn, callback_fn);
+        let mut picker = Picker::new(options, editor_data, callback_fn);
         picker.truncate_start = truncate_start;
 
         Self {
@@ -530,7 +532,7 @@ impl<T> FilePicker<T> {
             return Preview::Cached(&self.preview_cache[path]);
         }
 
-        let preview = std::fs::File::open(path)
+        let preview = fs::File::open(path)
             .and_then(|file| {
                 let metadata = file.metadata()?;
                 if metadata.is_file() {
@@ -591,7 +593,7 @@ impl<T> FilePicker<T> {
     }
 }
 
-impl<T: 'static> Component for FilePicker<T> {
+impl<T: Item + 'static> Component for FilePicker<T> {
     fn render(&mut self, area: Rect, surface: &mut Surface, cx: &mut Context) {
         // +---------+ +---------+
         // |prompt   | |preview  |
@@ -713,8 +715,9 @@ impl<T: 'static> Component for FilePicker<T> {
     }
 }
 
-pub struct Picker<T> {
+pub struct Picker<T: Item> {
     options: Vec<T>,
+    editor_data: T::Data,
     // filter: String,
     matcher: Box<Matcher>,
     /// (index, score)
@@ -732,14 +735,13 @@ pub struct Picker<T> {
     /// Whether to truncate the start (default true)
     pub truncate_start: bool,
 
-    format_fn: Box<dyn Fn(&T) -> Cow<str>>,
     callback_fn: Box<dyn Fn(&mut Context, &T, Action)>,
 }
 
-impl<T> Picker<T> {
+impl<T: Item> Picker<T> {
     pub fn new(
         options: Vec<T>,
-        format_fn: impl Fn(&T) -> Cow<str> + 'static,
+        editor_data: T::Data,
         callback_fn: impl Fn(&mut Context, &T, Action) + 'static,
     ) -> Self {
         let prompt = Prompt::new(
@@ -751,6 +753,7 @@ impl<T> Picker<T> {
 
         let mut picker = Self {
             options,
+            editor_data,
             matcher: Box::new(Matcher::default()),
             matches: Vec::new(),
             filters: Vec::new(),
@@ -758,7 +761,6 @@ impl<T> Picker<T> {
             prompt,
             previous_pattern: String::new(),
             truncate_start: true,
-            format_fn: Box::new(format_fn),
             callback_fn: Box::new(callback_fn),
             completion_height: 0,
         };
@@ -804,8 +806,7 @@ impl<T> Picker<T> {
             #[allow(unstable_name_collisions)]
             self.matches.retain_mut(|(index, score)| {
                 let option = &self.options[*index];
-                // TODO: maybe using format_fn isn't the best idea here
-                let text = (self.format_fn)(option);
+                let text = option.sort_text(&self.editor_data);
 
                 match self.matcher.fuzzy_match(&text, pattern) {
                     Some(s) => {
@@ -833,8 +834,7 @@ impl<T> Picker<T> {
                             self.filters.binary_search(&index).ok()?;
                         }
 
-                        // TODO: maybe using format_fn isn't the best idea here
-                        let text = (self.format_fn)(option);
+                        let text = option.filter_text(&self.editor_data);
 
                         self.matcher
                             .fuzzy_match(&text, pattern)
@@ -911,7 +911,7 @@ impl<T> Picker<T> {
 // - on input change:
 //  - score all the names in relation to input
 
-impl<T: 'static> Component for Picker<T> {
+impl<T: Item + 'static> Component for Picker<T> {
     fn required_size(&mut self, viewport: (u16, u16)) -> Option<(u16, u16)> {
         self.completion_height = viewport.1.saturating_sub(4);
         Some(viewport)
@@ -924,7 +924,7 @@ impl<T: 'static> Component for Picker<T> {
             _ => return EventResult::Ignored(None),
         };
 
-        let close_fn = EventResult::Consumed(Some(Box::new(|compositor: &mut Compositor, _| {
+        let close_fn = EventResult::Consumed(Some(Box::new(|compositor: &mut Compositor, _cx| {
             // remove the layer
             compositor.last_picker = compositor.pop();
         })));
@@ -1041,33 +1041,46 @@ impl<T: 'static> Component for Picker<T> {
         for (i, (_index, option)) in files.take(rows as usize).enumerate() {
             let is_active = i == (self.cursor - offset);
             if is_active {
-                surface.set_string(inner.x.saturating_sub(2), inner.y + i as u16, ">", selected);
+                surface.set_string(
+                    inner.x.saturating_sub(3),
+                    inner.y + i as u16,
+                    " > ",
+                    selected,
+                );
+                surface.set_style(
+                    Rect::new(inner.x, inner.y + i as u16, inner.width, 1),
+                    selected,
+                );
             }
 
-            let formatted = (self.format_fn)(option);
-
+            let spans = option.label(&self.editor_data);
             let (_score, highlights) = self
                 .matcher
-                .fuzzy_indices(&formatted, self.prompt.line())
+                .fuzzy_indices(&String::from(&spans), self.prompt.line())
                 .unwrap_or_default();
 
-            surface.set_string_truncated(
-                inner.x,
-                inner.y + i as u16,
-                &formatted,
-                inner.width as usize,
-                |idx| {
-                    if highlights.contains(&idx) {
-                        highlighted
-                    } else if is_active {
-                        selected
-                    } else {
-                        text_style
-                    }
-                },
-                true,
-                self.truncate_start,
-            );
+            spans.0.into_iter().fold(inner, |pos, span| {
+                let new_x = surface
+                    .set_string_truncated(
+                        pos.x,
+                        pos.y + i as u16,
+                        &span.content,
+                        pos.width as usize,
+                        |idx| {
+                            if highlights.contains(&idx) {
+                                highlighted.patch(span.style)
+                            } else if is_active {
+                                selected.patch(span.style)
+                            } else {
+                                text_style.patch(span.style)
+                            }
+                        },
+                        true,
+                        self.truncate_start,
+                    )
+                    .0;
+                pos.clip_left(new_x - pos.x)
+            });
         }
     }
 
