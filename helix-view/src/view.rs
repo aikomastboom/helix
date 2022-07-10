@@ -75,7 +75,10 @@ pub struct View {
     pub last_modified_docs: [Option<DocumentId>; 2],
     /// used to store previous selections of tree-sitter objects
     pub object_selections: Vec<Selection>,
-    pub gutters: Vec<(Gutter, usize)>,
+    /// Gutter (constructor) and width of gutter, used to calculate `gutter_offset`
+    gutters: Vec<(Gutter, usize)>,
+    /// cached total width of gutter
+    gutter_offset: u16,
 }
 
 impl fmt::Debug for View {
@@ -91,13 +94,25 @@ impl fmt::Debug for View {
 impl View {
     pub fn new(doc: DocumentId, gutter_types: Vec<crate::editor::GutterType>) -> Self {
         let mut gutters: Vec<(Gutter, usize)> = vec![];
+        let mut gutter_offset = 0;
         use crate::editor::GutterType;
         for gutter_type in &gutter_types {
-            match gutter_type {
-                GutterType::GitDiff => gutters.push((gutter::git_diff, 1)),
-                GutterType::Diagnostics => gutters.push((gutter::diagnostics_or_breakpoints, 1)),
-                GutterType::LineNumbers => gutters.push((gutter::line_numbers, 5)),
-            }
+            let width = match gutter_type {
+                GutterType::GitDiff => 1,
+                GutterType::Diagnostics => 1,
+                GutterType::LineNumbers => 5,
+                GutterType::Padding => 1,
+            };
+            gutter_offset += width;
+            gutters.push((
+                match gutter_type {
+                    GutterType::GitDiff => gutter::git_diff,
+                    GutterType::Diagnostics => gutter::diagnostics_or_breakpoints,
+                    GutterType::LineNumbers => gutter::line_numbers,
+                    GutterType::Padding => gutter::padding,
+                },
+                width as usize,
+            ));
         }
         Self {
             id: ViewId::default(),
@@ -109,6 +124,7 @@ impl View {
             last_modified_docs: [None, None],
             object_selections: Vec::new(),
             gutters,
+            gutter_offset,
         }
     }
 
@@ -120,14 +136,12 @@ impl View {
     }
 
     pub fn inner_area(&self) -> Rect {
-        // TODO: cache this
-        let offset = self
-            .gutters
-            .iter()
-            .map(|(_, width)| *width as u16)
-            .sum::<u16>()
-            + 1; // +1 for some space between gutters and line
-        self.area.clip_left(offset).clip_bottom(1) // -1 for statusline
+        // TODO add ability to not use cached offset for runtime configurable gutter
+        self.area.clip_left(self.gutter_offset).clip_bottom(1) // -1 for statusline
+    }
+
+    pub fn gutters(&self) -> &[(Gutter, usize)] {
+        &self.gutters
     }
 
     //
@@ -328,7 +342,11 @@ mod tests {
     fn test_text_pos_at_screen_coords() {
         let mut view = View::new(
             DocumentId::default(),
-            vec![GutterType::Diagnostics, GutterType::LineNumbers],
+            vec![
+                GutterType::Diagnostics,
+                GutterType::LineNumbers,
+                GutterType::Padding,
+            ],
         );
         view.area = Rect::new(40, 40, 40, 40);
         let rope = Rope::from_str("abc\n\tdef");
@@ -375,7 +393,13 @@ mod tests {
 
     #[test]
     fn test_text_pos_at_screen_coords_without_line_numbers_gutter() {
-        let mut view = View::new(DocumentId::default(), vec![GutterType::Diagnostics]);
+        let mut view = View::new(
+            DocumentId::default(),
+            vec![
+                GutterType::Diagnostics,
+                GutterType::Padding
+            ],
+        );
         view.area = Rect::new(40, 40, 40, 40);
         let rope = Rope::from_str("abc\n\tdef");
         let text = rope.slice(..);
@@ -401,7 +425,11 @@ mod tests {
     fn test_text_pos_at_screen_coords_cjk() {
         let mut view = View::new(
             DocumentId::default(),
-            vec![GutterType::Diagnostics, GutterType::LineNumbers],
+            vec![
+                GutterType::Diagnostics,
+                GutterType::LineNumbers,
+                GutterType::Padding,
+            ],
         );
         view.area = Rect::new(40, 40, 40, 40);
         let rope = Rope::from_str("Hi! こんにちは皆さん");
@@ -441,7 +469,11 @@ mod tests {
     fn test_text_pos_at_screen_coords_graphemes() {
         let mut view = View::new(
             DocumentId::default(),
-            vec![GutterType::Diagnostics, GutterType::LineNumbers],
+            vec![
+                GutterType::Diagnostics,
+                GutterType::LineNumbers,
+                GutterType::Padding,
+            ],
         );
         view.area = Rect::new(40, 40, 40, 40);
         let rope = Rope::from_str("Hèl̀l̀ò world!");
