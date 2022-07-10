@@ -21,6 +21,16 @@ pub struct NumberIncrementor<'a> {
 impl<'a> NumberIncrementor<'a> {
     /// Return information about number under range if there is one.
     pub fn from_range(text: RopeSlice, range: Range) -> Option<NumberIncrementor> {
+
+        // correct head position
+        let range = if range.head > range.anchor
+            && range.head > 0
+        {
+            Range::new(range.anchor, range.head -1)
+        } else {
+            range
+        };
+
         // If the cursor is on the minus sign of a number we want to get the word textobject to the
         // right of it.
         let range = if range.to() < text.len_chars()
@@ -35,7 +45,9 @@ impl<'a> NumberIncrementor<'a> {
         let word_range = textobject_word(text, range, TextObject::Inside, 1, false);
 
         // If there is a minus sign to the left of the word object, we want to include it in the range.
-        let mut word_range = if word_range.from() > 0 && text.char(word_range.from() - 1) == '-' {
+        let mut word_range = if word_range.from() > 0
+            && text.char(word_range.from() - 1) == '-'
+        {
             word_range.extend(word_range.from() - 1, word_range.from())
         } else {
             word_range
@@ -45,7 +57,8 @@ impl<'a> NumberIncrementor<'a> {
             .slice(word_range.from()..word_range.to())
             .chars()
             .collect();
-        let (radix, prefixed) = if word.starts_with("0x") {
+        let (radix, prefixed) = if word.starts_with("0x")
+        {
             (16, true)
         } else if word.starts_with("0o") {
             (8, true)
@@ -79,7 +92,7 @@ impl<'a> NumberIncrementor<'a> {
             let (start_byte, _) = word
                 .char_indices()
                 .nth(offset)?;
-            // Find start of nubmer
+            // Find start of number
             let start = word[..start_byte]
                 .chars()
                 .rev()
@@ -322,6 +335,21 @@ mod test {
     }
 
     #[test]
+    fn test_single_number_under_range_start_of_rope() {
+        let rope = Rope::from_str("1");
+        let range = Range::point(0);
+        assert_eq!(
+            NumberIncrementor::from_range(rope.slice(..), range),
+            Some(NumberIncrementor {
+                range: Range::new(0, 1),
+                value: 1,
+                radix: 10,
+                text: rope.slice(..),
+            })
+        );
+    }
+
+   #[test]
     fn test_number_under_range_start_of_rope() {
         let rope = Rope::from_str("100");
         let range = Range::point(0);
@@ -352,18 +380,18 @@ mod test {
     }
 
     #[test]
-    fn test_number_surrounded_by_punctuation() {
+    fn test_number_surrounded_by() {
         let tests = [
-            (",100;", 1, 4),
-            ("num100", 3, 6),
-            ("100px", 0, 3),
-            ("num100px", 3, 6),
-            ("num_100px", 4, 7),
+            (",100;", 1, 4, 1),
+            ("num100", 3, 6, 4),
+            ("100px", 0, 3, 1),
+            ("num100px", 3, 6, 4),
+            ("num_100px", 3, 7, 5),
         ];
 
-        for (original, anchor, head) in tests {
+        for (original, anchor, head, point) in tests {
             let rope = Rope::from_str(original);
-            let range = Range::point(1);
+            let range = Range::point(point);
             assert_eq!(
                 NumberIncrementor::from_range(rope.slice(..), range),
                 Some(NumberIncrementor {
