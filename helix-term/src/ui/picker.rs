@@ -308,6 +308,39 @@ pub struct FindFilePicker {
     dir: PathBuf,
 }
 
+pub mod file_picker_helpers {
+    use std::{
+        borrow::Cow,
+        path::{Path, PathBuf},
+    };
+    use super::fields;
+
+    pub fn root_label<'a>(dir: &Path, path: &'a PathBuf) -> Cow<'a, str> {
+        let suffix = if path.is_dir() { "/" } else { "" };
+        let stripped_path = path
+            .strip_prefix(&dir)
+            .unwrap_or(path)
+            .to_string_lossy();
+        let label = stripped_path + suffix;
+        if cfg!(unix) {
+            let metadata = path.symlink_metadata().unwrap();
+            let filetype = fields::filetype(&metadata);
+            let permissions = fields::permissions(&metadata);
+            let size = format!("{}", fields::size(&metadata));
+            Cow::Owned(format!(
+                "{:<22} {}{} {:>6}",
+                label, // TODO this should check for size and handle truncation
+                filetype,
+                permissions,
+                size,
+                // TODO add absolute/relative time? may need to handle truncation
+            ))
+        } else {
+            label
+        }
+    }
+}
+
 impl FindFilePicker {
     pub fn new(dir: PathBuf) -> FindFilePicker {
         // switch to Result::flatten later
@@ -322,26 +355,7 @@ impl FindFilePicker {
             files,
             // TODO: prevent this from running within score function that skews
             // the score, and only calculate it once during initialization
-            move |path| {
-                let suffix = if path.is_dir() { "/" } else { "" };
-                let metadata = path.symlink_metadata().unwrap();
-                let path = path.strip_prefix(&dir1).unwrap_or(path).to_string_lossy();
-                if cfg!(unix) {
-                    let filetype = fields::filetype(&metadata);
-                    let permissions = fields::permissions(&metadata);
-                    let size = format!("{}", fields::size(&metadata));
-                    Cow::Owned(format!(
-                        "{:<22} {}{} {:>6}",
-                        path + suffix, // TODO this should check for size and handle truncation
-                        filetype,
-                        permissions,
-                        size,
-                        // TODO add absolute/relative time? may need to handle truncation
-                    ))
-                } else {
-                    path + suffix
-                }
-            },
+            dir1,
             |_cx, _path, _action| {}, // we use custom callback_fn
             |_editor, path| Some((path.clone(), None)),
         );
@@ -567,24 +581,8 @@ impl<T: Item> FilePicker<T> {
                 .flat_map(|res| {
                     res.map(|entry| {
                         let path = entry.path();
-                        let suffix = if path.is_dir() { "/" } else { "" };
-                        let metadata = fs::metadata(&*path).unwrap();
-                        let path = path.strip_prefix(&dir).unwrap_or(&path).to_string_lossy();
-                        if cfg!(unix) {
-                            let filetype = fields::filetype(&metadata);
-                            let permissions = fields::permissions(&metadata);
-                            let size = format!("{}", fields::size(&metadata));
-                            format!(
-                                "{:<22} {}{} {:>6}",
-                                path + suffix, // TODO this should check for size and handle truncation
-                                filetype,
-                                permissions,
-                                size,
-                                // TODO add absolute/relative time? may need to handle truncation
-                            )
-                        } else {
-                            (path + suffix).to_string()
-                        }
+                        let label = file_picker_helpers::root_label(&dir, &path);
+                        label.to_string()
                     })
                 })
                 .collect(),

@@ -36,15 +36,15 @@ pub trait Item {
     }
 }
 
+use super::picker::file_picker_helpers;
+
 impl Item for PathBuf {
     /// Root prefix to strip.
     type Data = PathBuf;
 
     fn label(&self, root_path: &Self::Data) -> Spans {
-        self.strip_prefix(&root_path)
-            .unwrap_or(self)
-            .to_string_lossy()
-            .into()
+        let path = file_picker_helpers::root_label(root_path, &self);
+        path.into()
     }
 }
 
