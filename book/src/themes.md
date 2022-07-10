@@ -252,5 +252,3 @@ These scopes are used for theming the editor interface.
 | `diagnostic.error`        | Diagnostics error (editing area)                                |
 
 [editor-section]: ./configuration.md#editor-section
-
-[rulers-config]: ./configuration.md#rulers-config
