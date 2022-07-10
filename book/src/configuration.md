@@ -47,6 +47,8 @@ hidden = false
 | `true-color`             | Set to `true` to override automatic detection of terminal truecolor support in the event of a false negative.                                                                                                   | `false`                                                  |
 | `rulers`                 | List of column positions at which to display the rulers. Can be overridden by language specific `rulers` in `languages.toml` file.                                                                              | `[]`                                                     |
 | `color-modes`            | Whether to color the mode indicator with different colors depending on the mode itself                                                                                                                          | `false`                                                  |
+| `spinner-frames`         | List of strings comprising the frames to be used for the progress spinner[^1]. Set to `[]` to disable spinner display.                                                                                          | `["⣾","⣽","⣻","⢿","⡿","⣟","⣯","⣷"]`                      |
+| `spinner-interval`       | The minimum number of milliseconds to advance the progress spinner[^1] frame. Set to `0` to disable spinner display.                                                                                            | `80`                                                     |
 
 ### `[editor.lsp]` Section
 

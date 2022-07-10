@@ -47,18 +47,18 @@ pub enum InsertEvent {
 
 impl Default for EditorView {
     fn default() -> Self {
-        Self::new(Keymaps::default())
+        Self::new(Keymaps::default(), ProgressSpinners::default())
     }
 }
 
 impl EditorView {
-    pub fn new(keymaps: Keymaps) -> Self {
+    pub fn new(keymaps: Keymaps, spinners: ProgressSpinners) -> Self {
         Self {
             keymaps,
             on_next_key: None,
             last_insert: (commands::MappableCommand::normal_mode, Vec::new()),
             completion: None,
-            spinners: ProgressSpinners::default(),
+            spinners,
             explorer: None,
         }
     }
@@ -760,13 +760,14 @@ impl EditorView {
                     .get(srv.id())
                     .and_then(|spinner| spinner.frame())
             })
-            .unwrap_or("");
-
+            .unwrap_or_default();
+            // TODO Aiko: .unwrap_or_default();
         let base_style = if is_focused {
             theme.get("ui.statusline")
         } else {
             theme.get("ui.statusline.inactive")
         };
+        let progress_style = theme.get("ui.spinner");
         // statusline
         surface.set_style(viewport.with_height(1), base_style);
         if is_focused {
@@ -778,7 +779,7 @@ impl EditorView {
                 if color_modes { mode_style } else { base_style },
             );
         }
-        surface.set_string(viewport.x + 5, viewport.y, progress, base_style);
+        surface.set_string(viewport.x + 5, viewport.y, progress, progress_style);
 
         //-------------------------------
         // Right side of the status line.
