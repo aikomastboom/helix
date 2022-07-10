@@ -333,7 +333,7 @@ impl View {
 mod tests {
     use super::*;
     use helix_core::Rope;
-    const OFFSET: u16 = 7; // 1 diagnostic + 5 linenr + 1 gutter
+    const OFFSET: u16 = 8; // 1 diagnostic + 5 linenr + 1 GitDiff + 1 gutter
     const OFFSET_WITHOUT_LINE_NUMBERS: u16 = 2; // 1 diagnostic + 1 gutter
                                                 // const OFFSET: u16 = GUTTERS.iter().map(|(_, width)| *width as u16).sum();
     use crate::editor::GutterType;
@@ -345,6 +345,7 @@ mod tests {
             vec![
                 GutterType::Diagnostics,
                 GutterType::LineNumbers,
+                GutterType::GitDiff,
                 GutterType::Padding,
             ],
         );
@@ -428,6 +429,7 @@ mod tests {
             vec![
                 GutterType::Diagnostics,
                 GutterType::LineNumbers,
+                GutterType::GitDiff,
                 GutterType::Padding,
             ],
         );
@@ -472,6 +474,7 @@ mod tests {
             vec![
                 GutterType::Diagnostics,
                 GutterType::LineNumbers,
+                GutterType::GitDiff,
                 GutterType::Padding,
             ],
         );
