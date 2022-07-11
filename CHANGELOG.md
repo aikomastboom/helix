@@ -1,5 +1,6 @@
 # 22.05-aiko (2022-07-10)
 
+- https://github.com/helix-editor/helix/pull/2793 https://github.com/sbromberger/helix/tree/sbromberger/spinners
 - https://github.com/helix-editor/helix/pull/2977 https://github.com/hirschenberger/helix/tree/master
 - https://github.com/helix-editor/helix/pull/2996 https://github.com/pickfire/helix/tree/optional-gutter-padding
 - https://github.com/helix-editor/helix/pull/2377 https://github.com/cossonfork/helix/tree/tree_explore
