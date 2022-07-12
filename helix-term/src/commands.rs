@@ -424,6 +424,7 @@ impl MappableCommand {
         dap_disable_exceptions, "Disable exception breakpoints",
         shell_pipe, "Pipe selections through shell command",
         shell_pipe_to, "Pipe selections into shell command, ignoring command output",
+        async_shell_pipe_to, "Pipe selections into async shell command, ignoring command output",
         shell_insert_output, "Insert output of shell command before each selection",
         shell_append_output, "Append output of shell command after each selection",
         shell_keep_pipe, "Filter selections with shell predicate",
@@ -4409,6 +4410,40 @@ fn shell_pipe_to(cx: &mut Context) {
     shell_prompt(cx, "pipe-to:".into(), ShellBehavior::Ignore);
 }
 
+fn async_shell_pipe_to(cx: &mut Context) {
+    ui::prompt(
+        cx,
+        "pipe-to-async:".into(),
+        Some('|'),
+        ui::completers::none,
+        move |cx, input: &str, event: PromptEvent| {
+            if event != PromptEvent::Validate {
+                return;
+            }
+            if input.is_empty() {
+                return;
+            }
+
+            let (view, doc) = current!(cx.editor);
+            let selection = doc.selection(view.id);
+
+            let mut changes = Vec::with_capacity(selection.len());
+            let text = doc.text().slice(..);
+
+            for range in selection.ranges() {
+                let fragment = range.fragment(text);
+                changes.extend_from_slice(fragment.as_bytes());
+            }
+            let shell = cx.editor.config().shell.clone();
+            let cmd = input.to_string();
+            cx.jobs.spawn(async move {
+                async_shell_impl(&shell, &cmd, Some(&changes)).await?;
+                Ok(())
+            });
+        },
+    )
+}
+
 fn shell_insert_output(cx: &mut Context) {
     shell_prompt(cx, "insert-output:".into(), ShellBehavior::Insert);
 }
@@ -4497,6 +4532,48 @@ fn shell_impl(
         stdin.write_all(input)?;
     }
     let output = process.wait_with_output()?;
+
+    if !output.stderr.is_empty() {
+        log::error!("Shell error: {}", String::from_utf8_lossy(&output.stderr));
+    }
+
+    let str = std::str::from_utf8(&output.stdout)
+        .map_err(|_| anyhow!("Process did not output valid UTF-8"))?;
+    let tendril = Tendril::from(str);
+    Ok((tendril, output.status.success()))
+}
+
+async fn async_shell_impl(
+    shell: &[String],
+    cmd: &str,
+    input: Option<&[u8]>,
+) -> anyhow::Result<(Tendril, bool)> {
+    use std::process::Stdio;
+    use tokio::io::AsyncWriteExt;
+    use tokio::process::Command;
+
+    ensure!(!shell.is_empty(), "No shell set");
+
+    let mut process = match Command::new(&shell[0])
+        .args(&shell[1..])
+        .arg(cmd)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+    {
+        Ok(process) => process,
+        Err(e) => {
+            log::error!("Failed to start shell: {}", e);
+            return Err(e.into());
+        }
+    };
+    if let Some(input) = input {
+        let mut stdin = process.stdin.take().unwrap();
+        stdin.write_all(input).await?;
+        drop(stdin);
+    }
+    let output = process.wait_with_output().await?;
 
     if !output.stderr.is_empty() {
         log::error!("Shell error: {}", String::from_utf8_lossy(&output.stderr));
