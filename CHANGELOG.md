@@ -1,5 +1,6 @@
 # 22.05-aiko (2022-07-10)
 
+- https://github.com/helix-editor/helix/pull/2982 https://github.com/jharrilim/helix/tree/preview-goto
 - https://github.com/helix-editor/helix/pull/1819 https://github.com/cossonfork/helix/tree/completion
 - https://github.com/helix-editor/helix/pull/3029 https://github.com/QiBaobin/helix/tree/async-shell-command
 - https://github.com/helix-editor/helix/pull/2793 https://github.com/sbromberger/helix/tree/sbromberger/spinners
