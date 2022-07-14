@@ -12,7 +12,7 @@ pub use tui::widgets::{Cell, Row};
 use fuzzy_matcher::skim::SkimMatcherV2 as Matcher;
 use fuzzy_matcher::FuzzyMatcher;
 
-use helix_view::{graphics::Rect, Editor};
+use helix_view::{graphics::Rect, Editor, Theme};
 use tui::layout::Constraint;
 
 pub trait Item {
@@ -31,7 +31,7 @@ pub trait Item {
         label.into()
     }
 
-    fn row(&self, data: &Self::Data) -> Row {
+    fn row(&self, data: &Self::Data, _theme: Option<&Theme>) -> Row {
         Row::new(vec![Cell::from(self.label(data))])
     }
 }
@@ -151,10 +151,10 @@ impl<T: Item> Menu<T> {
         let n = self
             .options
             .first()
-            .map(|option| option.row(&self.editor_data).cells.len())
+            .map(|option| option.row(&self.editor_data, None).cells.len())
             .unwrap_or_default();
         let max_lens = self.options.iter().fold(vec![0; n], |mut acc, option| {
-            let row = option.row(&self.editor_data);
+            let row = option.row(&self.editor_data, None);
             // maintain max for each column
             for (acc, cell) in acc.iter_mut().zip(row.cells.iter()) {
                 let width = cell.content.width();
@@ -324,7 +324,8 @@ impl<T: Item + 'static> Component for Menu<T> {
         let scroll_line = (win_height - scroll_height) * scroll
             / std::cmp::max(1, len.saturating_sub(win_height));
 
-        let rows = options.iter().map(|option| option.row(&self.editor_data));
+        let rows = options.iter()
+            .map(|option| option.row(&self.editor_data, Some(theme)));
         let table = Table::new(rows)
             .style(style)
             .highlight_style(selected)
