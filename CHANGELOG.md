@@ -1,5 +1,6 @@
 # 22.05-aiko (2022-07-10)
 
+- https://github.com/helix-editor/helix/pull/1905 https://github.com/danyspin97/helix/tree/add_colors_to_completions
 - https://github.com/helix-editor/helix/pull/2982 https://github.com/jharrilim/helix/tree/preview-goto
 - https://github.com/helix-editor/helix/pull/2793 https://github.com/sbromberger/helix/tree/sbromberger/spinners
 - https://github.com/helix-editor/helix/pull/2977 https://github.com/hirschenberger/helix/tree/master
