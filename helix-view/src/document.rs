@@ -1,7 +1,7 @@
 use anyhow::{anyhow, bail, Context, Error};
 use helix_core::auto_pairs::AutoPairs;
-use helix_core::Range;
 use helix_core::diff::compare_ropes;
+use helix_core::Range;
 use helix_vcs::LineDiffs;
 use serde::de::{self, Deserialize, Deserializer};
 use serde::Serialize;
@@ -116,7 +116,7 @@ pub struct Document {
     // be more troublesome.
     pub history: Cell<History>,
 
-    pub savepoint: Option<Transaction>,
+    pub savepoint: Option<(i32, Transaction)>,
 
     last_saved_revision: usize,
     version: i32, // should be usize?
@@ -779,7 +779,8 @@ impl Document {
             // generate revert to savepoint
             if self.savepoint.is_some() {
                 take_with(&mut self.savepoint, |prev_revert| {
-                    Some(reverted_tx.compose(prev_revert.unwrap()))
+                    let (version, prev_revert) = prev_revert.unwrap();
+                    Some((version, reverted_tx.compose(prev_revert)))
                 });
             }
 
@@ -867,11 +868,11 @@ impl Document {
     }
 
     pub fn savepoint(&mut self) {
-        self.savepoint = Some(Transaction::new(self.text()));
+        self.savepoint = Some((self.version, Transaction::new(self.text())));
     }
 
     pub fn restore(&mut self, view_id: ViewId) {
-        if let Some(revert) = self.savepoint.take() {
+        if let Some((_, revert)) = self.savepoint.take() {
             self.apply(&revert, view_id);
         }
     }

@@ -424,6 +424,7 @@ impl MappableCommand {
         dap_disable_exceptions, "Disable exception breakpoints",
         shell_pipe, "Pipe selections through shell command",
         shell_pipe_to, "Pipe selections into shell command, ignoring command output",
+        async_shell_pipe_to, "Pipe selections into async shell command, ignoring command output",
         shell_insert_output, "Insert output of shell command before each selection",
         shell_append_output, "Append output of shell command after each selection",
         shell_keep_pipe, "Filter selections with shell predicate",
@@ -1420,7 +1421,7 @@ fn copy_selection_on_line(cx: &mut Context, direction: Direction) {
         let (head, anchor) = if range.anchor < range.head {
             (range.head - 1, range.anchor)
         } else {
-            (range.head, range.anchor - 1)
+            (range.head, range.anchor.saturating_sub(1))
         };
 
         let tab_width = doc.tab_width();
@@ -2816,13 +2817,11 @@ pub mod insert {
         super::completion(cx);
     }
 
-    fn language_server_completion(cx: &mut Context, ch: char) {
+    pub fn is_server_trigger_char(doc: &Document, ch: char) -> bool {
         use helix_lsp::lsp;
-        // if ch matches completion char, trigger completion
-        let doc = doc_mut!(cx.editor);
         let language_server = match doc.language_server() {
             Some(language_server) => language_server,
-            None => return,
+            None => return false,
         };
 
         let capabilities = language_server.capabilities();
@@ -2832,11 +2831,24 @@ pub mod insert {
             ..
         }) = &capabilities.completion_provider
         {
-            // TODO: what if trigger is multiple chars long
             if triggers.iter().any(|trigger| trigger.contains(ch)) {
-                cx.editor.clear_idle_timer();
-                super::completion(cx);
+                return true;
             }
+        }
+        false
+    }
+
+    fn language_server_completion(cx: &mut Context, ch: char) {
+        use helix_core::chars::char_is_word;
+
+        // if ch matches completion char, trigger completion
+        let doc = doc_mut!(cx.editor);
+        if char_is_word(ch) && doc.savepoint.is_none() {
+            cx.editor.reset_idle_timer();
+            return;
+        }
+        if is_server_trigger_char(doc, ch) {
+            cx.editor.reset_idle_timer_zero();
         }
     }
 
@@ -3730,6 +3742,12 @@ pub fn completion(cx: &mut Context) {
     let pos = pos_to_lsp_pos(doc.text(), cursor, offset_encoding);
 
     let future = language_server.completion(doc.identifier(), pos, None);
+    let future = async move {
+        match future.await {
+            Ok(v) => Ok(v),
+            Err(_) => Ok(serde_json::Value::Null),
+        }
+    };
 
     let trigger_offset = cursor;
 
@@ -3743,51 +3761,72 @@ pub fn completion(cx: &mut Context) {
     let start_offset = cursor.saturating_sub(offset);
     let prefix = text.slice(start_offset..cursor).to_string();
 
+    doc.savepoint();
+    let trigger_version = doc.version();
     cx.callback(
         future,
         move |editor, compositor, response: Option<lsp::CompletionResponse>| {
-            let doc = doc!(editor);
-            if doc.mode() != Mode::Insert {
-                // we're not in insert mode anymore
-                return;
-            }
+            let get_items = || {
+                let doc = doc!(editor);
+                if doc.mode() != Mode::Insert {
+                    // we're not in insert mode anymore
+                    return None;
+                }
+                match &doc.savepoint {
+                    Some((current, _)) if *current == trigger_version => {}
+                    _ => return None,
+                };
+                if response.is_none() {
+                    if doc.version() != trigger_version {
+                        editor.reset_idle_timer_zero();
+                    }
+                    return None;
+                }
 
-            let mut items = match response {
-                Some(lsp::CompletionResponse::Array(items)) => items,
-                // TODO: do something with is_incomplete
-                Some(lsp::CompletionResponse::List(lsp::CompletionList {
-                    is_incomplete: _is_incomplete,
-                    items,
-                })) => items,
-                None => Vec::new(),
+                let mut items = match response {
+                    Some(lsp::CompletionResponse::Array(items)) => items,
+                    // TODO: do something with is_incomplete
+                    Some(lsp::CompletionResponse::List(lsp::CompletionList {
+                        is_incomplete: _is_incomplete,
+                        items,
+                    })) => items,
+                    None => return None,
+                };
+
+                if !prefix.is_empty() {
+                    items = items
+                        .into_iter()
+                        .filter(|item| {
+                            item.filter_text
+                                .as_ref()
+                                .unwrap_or(&item.label)
+                                .starts_with(&prefix)
+                        })
+                        .collect();
+                };
+
+                if items.is_empty() {
+                    // editor.set_error("No completion available".to_string());
+                    return None;
+                }
+                Some(items)
             };
-
-            if !prefix.is_empty() {
-                items = items
-                    .into_iter()
-                    .filter(|item| {
-                        item.filter_text
-                            .as_ref()
-                            .unwrap_or(&item.label)
-                            .starts_with(&prefix)
-                    })
-                    .collect();
-            }
-
-            if items.is_empty() {
-                // editor.set_error("No completion available");
-                return;
-            }
             let size = compositor.size();
             let ui = compositor.find::<ui::EditorView>().unwrap();
-            ui.set_completion(
-                editor,
-                items,
-                offset_encoding,
-                start_offset,
-                trigger_offset,
-                size,
-            );
+            match get_items() {
+                Some(items) => ui.set_completion(
+                    editor,
+                    items,
+                    offset_encoding,
+                    start_offset,
+                    trigger_offset,
+                    size,
+                ),
+                None => {
+                    ui.completion = None;
+                    doc_mut!(editor).savepoint = None;
+                }
+            }
         },
     );
 }
@@ -4409,6 +4448,40 @@ fn shell_pipe_to(cx: &mut Context) {
     shell_prompt(cx, "pipe-to:".into(), ShellBehavior::Ignore);
 }
 
+fn async_shell_pipe_to(cx: &mut Context) {
+    ui::prompt(
+        cx,
+        "pipe-to-async:".into(),
+        Some('|'),
+        ui::completers::none,
+        move |cx, input: &str, event: PromptEvent| {
+            if event != PromptEvent::Validate {
+                return;
+            }
+            if input.is_empty() {
+                return;
+            }
+
+            let (view, doc) = current!(cx.editor);
+            let selection = doc.selection(view.id);
+
+            let mut changes = Vec::with_capacity(selection.len());
+            let text = doc.text().slice(..);
+
+            for range in selection.ranges() {
+                let fragment = range.fragment(text);
+                changes.extend_from_slice(fragment.as_bytes());
+            }
+            let shell = cx.editor.config().shell.clone();
+            let cmd = input.to_string();
+            cx.jobs.spawn(async move {
+                async_shell_impl(&shell, &cmd, Some(&changes)).await?;
+                Ok(())
+            });
+        },
+    )
+}
+
 fn shell_insert_output(cx: &mut Context) {
     shell_prompt(cx, "insert-output:".into(), ShellBehavior::Insert);
 }
@@ -4497,6 +4570,48 @@ fn shell_impl(
         stdin.write_all(input)?;
     }
     let output = process.wait_with_output()?;
+
+    if !output.stderr.is_empty() {
+        log::error!("Shell error: {}", String::from_utf8_lossy(&output.stderr));
+    }
+
+    let str = std::str::from_utf8(&output.stdout)
+        .map_err(|_| anyhow!("Process did not output valid UTF-8"))?;
+    let tendril = Tendril::from(str);
+    Ok((tendril, output.status.success()))
+}
+
+async fn async_shell_impl(
+    shell: &[String],
+    cmd: &str,
+    input: Option<&[u8]>,
+) -> anyhow::Result<(Tendril, bool)> {
+    use std::process::Stdio;
+    use tokio::io::AsyncWriteExt;
+    use tokio::process::Command;
+
+    ensure!(!shell.is_empty(), "No shell set");
+
+    let mut process = match Command::new(&shell[0])
+        .args(&shell[1..])
+        .arg(cmd)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+    {
+        Ok(process) => process,
+        Err(e) => {
+            log::error!("Failed to start shell: {}", e);
+            return Err(e.into());
+        }
+    };
+    if let Some(input) = input {
+        let mut stdin = process.stdin.take().unwrap();
+        stdin.write_all(input).await?;
+        drop(stdin);
+    }
+    let output = process.wait_with_output().await?;
 
     if !output.stderr.is_empty() {
         log::error!("Shell error: {}", String::from_utf8_lossy(&output.stderr));
