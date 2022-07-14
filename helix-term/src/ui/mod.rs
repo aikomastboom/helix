@@ -9,6 +9,7 @@ mod picker;
 mod popup;
 mod prompt;
 mod spinner;
+mod statusline;
 mod text;
 mod tree;
 

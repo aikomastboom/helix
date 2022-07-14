@@ -50,13 +50,43 @@ hidden = false
 | `spinner-frames`         | List of strings comprising the frames to be used for the progress spinner[^1]. Set to `[]` to disable spinner display.                                                                                          | `["⣾","⣽","⣻","⢿","⡿","⣟","⣯","⣷"]`                      |
 | `spinner-interval`       | The minimum number of milliseconds to advance the progress spinner[^1] frame. Set to `0` to disable spinner display.                                                                                            | `80`                                                     |
 
+### `[editor.statusline]` Section
+
+Allows configuring the statusline at the bottom of the editor.
+
+The configuration distinguishes between three areas of the status line:
+
+`[ ... ... LEFT ... ... | ... ... ... ... CENTER ... ... ... ... | ... ... RIGHT ... ... ]`
+
+Statusline elements can be defined as follows:
+
+```toml
+[editor.statusline]
+left = ["mode", "spinner"]
+center = ["file-name"]
+right = ["diagnostics", "selections", "position", "file-encoding", "file-type"]
+```
+
+The following elements can be configured:
+
+| Key    | Description |
+| ------ | ----------- |
+| `mode` | The current editor mode (`NOR`/`INS`/`SEL`) |
+| `spinner` | A progress spinner indicating LSP activity |
+| `file-name` | The path/name of the opened file |
+| `file-encoding` | The encoding of the opened file if it differs from UTF-8 |
+| `file-type` | The type of the opened file |
+| `diagnostics` | The number of warnings and/or errors |
+| `selections` | The number of active selections |
+| `position` | The cursor position |
+
 ### `[editor.lsp]` Section
 
 | Key                | Description                                        | Default |
 |--------------------|----------------------------------------------------|---------|
 | `display-messages` | Display LSP progress messages below statusline[^1] | `false` |
 
-[^1]: A progress spinner is always shown in the statusline beside the file path.
+[^1]: By default, a progress spinner is shown in the statusline beside the file path.
 
 ### `[editor.cursor-shape]` Section
 
