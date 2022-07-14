@@ -1231,9 +1231,12 @@ fn extend_prev_char(cx: &mut Context) {
 }
 
 fn repeat_last_motion(cx: &mut Context) {
+    let count = cx.count();
     let last_motion = cx.editor.last_motion.take();
     if let Some(m) = &last_motion {
-        m.run(cx.editor);
+        for _ in 0..count {
+            m.run(cx.editor);
+        }
         cx.editor.last_motion = last_motion;
     }
 }
@@ -1691,6 +1694,7 @@ fn searcher(cx: &mut Context, direction: Direction) {
 }
 
 fn search_next_or_prev_impl(cx: &mut Context, movement: Movement, direction: Direction) {
+    let count = cx.count();
     let config = cx.editor.config();
     let scrolloff = config.scrolloff;
     let (view, doc) = current!(cx.editor);
@@ -1709,16 +1713,18 @@ fn search_next_or_prev_impl(cx: &mut Context, movement: Movement, direction: Dir
             .multi_line(true)
             .build()
         {
-            search_impl(
-                doc,
-                view,
-                &contents,
-                &regex,
-                movement,
-                direction,
-                scrolloff,
-                wrap_around,
-            );
+            for _ in 0..count {
+                search_impl(
+                    doc,
+                    view,
+                    &contents,
+                    &regex,
+                    movement,
+                    direction,
+                    scrolloff,
+                    wrap_around,
+                );
+            }
         } else {
             let error = format!("Invalid regex: {}", query);
             cx.editor.set_error(error);
