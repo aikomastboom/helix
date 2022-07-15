@@ -41,7 +41,7 @@ hidden = false
 | `gutters`                | Gutters to display: Available are `diagnostics`, `line-numbers`, `git-diff` and `padding`, note that `diagnostics` also includes other features like breakpoints                                                | `["diagnostics", "line-numbers", "git-diff", "padding"]` |
 | `auto-completion`        | Enable automatic pop up of auto-completion.                                                                                                                                                                     | `true`                                                   |
 | `auto-format`            | Enable automatic formatting on save.                                                                                                                                                                            | `true`                                                   |
-| `idle-timeout`           | Time in milliseconds since last keypress before idle timers trigger. Used for autocompletion, set to 0 for instant.                                                                                             | `400`                                                    |
+| `idle-timeout`           | Time in milliseconds since last key-press before idle timers trigger. Used for autocompletion, set to 0 for instant.                                                                                            | `400`                                                    |
 | `completion-trigger-len` | The min-length of word under cursor to trigger autocompletion                                                                                                                                                   | `2`                                                      |
 | `auto-info`              | Whether to display infoboxes                                                                                                                                                                                    | `true`                                                   |
 | `true-color`             | Set to `true` to override automatic detection of terminal truecolor support in the event of a false negative.                                                                                                   | `false`                                                  |
@@ -69,16 +69,16 @@ right = ["diagnostics", "selections", "position", "file-encoding", "file-type"]
 
 The following elements can be configured:
 
-| Key    | Description |
-| ------ | ----------- |
-| `mode` | The current editor mode (`NOR`/`INS`/`SEL`) |
-| `spinner` | A progress spinner indicating LSP activity |
-| `file-name` | The path/name of the opened file |
+| Key             | Description                                              |
+|-----------------|----------------------------------------------------------|
+| `mode`          | The current editor mode (`NOR`/`INS`/`SEL`)              |
+| `spinner`       | A progress spinner indicating LSP activity               |
+| `file-name`     | The path/name of the opened file                         |
 | `file-encoding` | The encoding of the opened file if it differs from UTF-8 |
-| `file-type` | The type of the opened file |
-| `diagnostics` | The number of warnings and/or errors |
-| `selections` | The number of active selections |
-| `position` | The cursor position |
+| `file-type`     | The type of the opened file                              |
+| `diagnostics`   | The number of warnings and/or errors                     |
+| `selections`    | The number of active selections                          |
+| `position`      | The cursor position                                      |
 
 ### `[editor.lsp]` Section
 
@@ -92,7 +92,7 @@ The following elements can be configured:
 
 Defines the shape of cursor in each mode. Note that due to limitations
 of the terminal environment, only the primary cursor can change shape.
-Valid values for these options are `block`, `bar`, `underline`, or `none`.
+Valid values for these options are `block`, `bar`, `underline`, or `hidden`.
 
 | Key      | Description                                | Default |
 |----------|--------------------------------------------|---------|

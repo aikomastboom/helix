@@ -62,7 +62,7 @@
 | `P`         | Paste before selection                                               | `paste_before`            |
 | `"` `<reg>` | Select a register to yank to or paste from                           | `select_register`         |
 | `>`         | Indent selection                                                     | `indent`                  |
-| `<`         | Unindent selection                                                   | `unindent`                |
+| `<`         | Un-indent selection                                                  | `unindent`                |
 | `=`         | Format selection (currently nonfunctional/disabled) (**LSP**)        | `format_selections`       |
 | `d`         | Delete selection                                                     | `delete_selection`        |
 | `Alt-d`     | Delete selection, without yanking                                    | `delete_selection_noyank` |
@@ -90,7 +90,7 @@
 | Key                  | Description                                                   | Command                              |
 |----------------------|---------------------------------------------------------------|--------------------------------------|
 | `s`                  | Select all regex matches inside selections                    | `select_regex`                       |
-| `S`                  | Split selection into subselections on regex matches           | `split_selection`                    |
+| `S`                  | Split selection into sub-selections on regex matches          | `split_selection`                    |
 | `Alt-s`              | Split selection on newlines                                   | `split_selection_on_newline`         |
 | `&`                  | Align selection in columns                                    | `align_selections`                   |
 | `_`                  | Trim whitespace from the selection                            | `trim_selections`                    |
@@ -302,30 +302,30 @@ convenience. These can be helpful for making simple modifications
 without escaping to normal mode, but beware that you will not have an
 undo-able "save point" until you return to normal mode.
 
-| Key                       | Description               | Command                 |
-|---------------------------|---------------------------|-------------------------|
-| `Escape`                  | Switch to normal mode     | `normal_mode`           |
-| `Ctrl-x`                  | Autocomplete              | `completion`            |
-| `Ctrl-r`                  | Insert a register content | `insert_register`       |
-| `Ctrl-w`, `Alt-Backspace` | Delete previous word      | `delete_word_backward`  |
-| `Alt-d`                   | Delete next word          | `delete_word_forward`   |
-| `Alt-b`, `Ctrl-Left`      | Backward a word           | `move_prev_word_end`    |
-| `Ctrl-b`, `Left`          | Backward a char           | `move_char_left`        |
-| `Alt-f`, `Ctrl-Right`     | Forward a word            | `move_next_word_start`  |
-| `Ctrl-f`, `Right`         | Forward a char            | `move_char_right`       |
-| `Ctrl-e`, `End`           | Move to line end          | `goto_line_end_newline` |
-| `Ctrl-a`, `Home`          | Move to line start        | `goto_line_start`       |
-| `Ctrl-u`                  | Delete to start of line   | `kill_to_line_start`    |
-| `Ctrl-k`                  | Delete to end of line     | `kill_to_line_end`      |
-| `Ctrl-j`, `Enter`         | Insert new line           | `insert_newline`        |
-| `Backspace`, `Ctrl-h`     | Delete previous char      | `delete_char_backward`  |
-| `Delete`, `Ctrl-d`        | Delete next char          | `delete_char_forward`   |
-| `Ctrl-p`, `Up`            | Move to previous line     | `move_line_up`          |
-| `Ctrl-n`, `Down`          | Move to next line         | `move_line_down`        |
-| `PageUp`                  | Move one page up          | `page_up`               |
-| `PageDown`                | Move one page down        | `page_down`             |
-| `Alt->`                   | Go to end of buffer       | `goto_file_end`         |
-| `Alt-<`                   | Go to start of buffer     | `goto_file_start`       |
+| Key                                          | Description               | Command                 |
+|----------------------------------------------|---------------------------|-------------------------|
+| `Escape`                                     | Switch to normal mode     | `normal_mode`           |
+| `Ctrl-x`                                     | Autocomplete              | `completion`            |
+| `Ctrl-r`                                     | Insert a register content | `insert_register`       |
+| `Ctrl-w`, `Alt-Backspace`, `Ctrl-Backspace`  | Delete previous word      | `delete_word_backward`  |
+| `Alt-d`, `Alt-Delete`, `Ctrl-Delete`         | Delete next word          | `delete_word_forward`   |
+| `Alt-b`, `Ctrl-Left`                         | Backward a word           | `move_prev_word_end`    |
+| `Ctrl-b`, `Left`                             | Backward a char           | `move_char_left`        |
+| `Alt-f`, `Ctrl-Right`                        | Forward a word            | `move_next_word_start`  |
+| `Ctrl-f`, `Right`                            | Forward a char            | `move_char_right`       |
+| `Ctrl-e`, `End`                              | Move to line end          | `goto_line_end_newline` |
+| `Ctrl-a`, `Home`                             | Move to line start        | `goto_line_start`       |
+| `Ctrl-u`                                     | Delete to start of line   | `kill_to_line_start`    |
+| `Ctrl-k`                                     | Delete to end of line     | `kill_to_line_end`      |
+| `Ctrl-j`, `Enter`                            | Insert new line           | `insert_newline`        |
+| `Backspace`, `Ctrl-h`                        | Delete previous char      | `delete_char_backward`  |
+| `Delete`, `Ctrl-d`                           | Delete next char          | `delete_char_forward`   |
+| `Ctrl-p`, `Up`                               | Move to previous line     | `move_line_up`          |
+| `Ctrl-n`, `Down`                             | Move to next line         | `move_line_down`        |
+| `PageUp`                                     | Move one page up          | `page_up`               |
+| `PageDown`                                   | Move one page down        | `page_down`             |
+| `Alt->`                                      | Go to end of buffer       | `goto_file_end`         |
+| `Alt-<`                                      | Go to start of buffer     | `goto_file_start`       |
 
 ## Select / extend mode
 
@@ -363,28 +363,28 @@ Keys to use within picker. Remapping currently not supported.
 
 Keys to use within prompt, Remapping currently not supported.
 
-| Key                   | Description                                                           |
-|-----------------------|-----------------------------------------------------------------------|
-| `Escape`, `Ctrl-c`    | Close prompt                                                          |
-| `Alt-b`, `Alt-Left`   | Backward a word                                                       |
-| `Ctrl-b`, `Left`      | Backward a char                                                       |
-| `Alt-f`, `Alt-Right`  | Forward a word                                                        |
-| `Ctrl-f`, `Right`     | Forward a char                                                        |
-| `Ctrl-e`, `End`       | Move prompt end                                                       |
-| `Ctrl-a`, `Home`      | Move prompt start                                                     |
-| `Ctrl-w`              | Delete previous word                                                  |
-| `Alt-d`               | Delete next word                                                      |
-| `Ctrl-u`              | Delete to start of line                                               |
-| `Ctrl-k`              | Delete to end of line                                                 |
-| `backspace`, `Ctrl-h` | Delete previous char                                                  |
-| `delete`, `Ctrl-d`    | Delete next char                                                      |
-| `Ctrl-s`              | Insert a word under doc cursor, may be changed to Ctrl-r Ctrl-w later |
-| `Ctrl-p`, `Up`        | Select previous history                                               |
-| `Ctrl-n`, `Down`      | Select next history                                                   |
-| `Ctrl-r`              | Insert the content of the register selected by following input char   |
-| `Tab`                 | Select next completion item                                           |
-| `BackTab`             | Select previous completion item                                       |
-| `Enter`               | Open selected                                                         |
+| Key                                         | Description                                                           |
+|---------------------------------------------|-----------------------------------------------------------------------|
+| `Escape`, `Ctrl-c`                          | Close prompt                                                          |
+| `Alt-b`, `Ctrl-Left`                        | Backward a word                                                       |
+| `Ctrl-b`, `Left`                            | Backward a char                                                       |
+| `Alt-f`, `Ctrl-Right`                       | Forward a word                                                        |
+| `Ctrl-f`, `Right`                           | Forward a char                                                        |
+| `Ctrl-e`, `End`                             | Move prompt end                                                       |
+| `Ctrl-a`, `Home`                            | Move prompt start                                                     |
+| `Ctrl-w`, `Alt-Backspace`, `Ctrl-Backspace` | Delete previous word                                                  |
+| `Alt-d`, `Alt-Delete`, `Ctrl-Delete`        | Delete next word                                                      |
+| `Ctrl-u`                                    | Delete to start of line                                               |
+| `Ctrl-k`                                    | Delete to end of line                                                 |
+| `backspace`, `Ctrl-h`                       | Delete previous char                                                  |
+| `delete`, `Ctrl-d`                          | Delete next char                                                      |
+| `Ctrl-s`                                    | Insert a word under doc cursor, may be changed to Ctrl-r Ctrl-w later |
+| `Ctrl-p`, `Up`                              | Select previous history                                               |
+| `Ctrl-n`, `Down`                            | Select next history                                                   |
+| `Ctrl-r`                                    | Insert the content of the register selected by following input char   |
+| `Tab`                                       | Select next completion item                                           |
+| `BackTab`                                   | Select previous completion item                                       |
+| `Enter`                                     | Open selected                                                         |
 
 # File explorer
 Keys to use within explorer, Remapping currently not supported.
@@ -396,7 +396,7 @@ Keys to use within explorer, Remapping currently not supported.
 | `Enter`                | Open file or toggle dir selected            |
 | `b`                    | Back to current root's parent               |
 | `f`                    | Filter items                                |
-| `z`                    | Fold currrent level                         |
+| `z`                    | Fold current level                          |
 | `k`, `Shift-Tab`, `Up` | select previous item                        |
 | `j`, `Tab`, `Down`     | select next item                            |
 | `h`                    | Scroll left                                 |
