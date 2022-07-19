@@ -1,4 +1,4 @@
-# 22.05-aiko (2022-07-10)
+# 22.05-aiko (2022-07-19)
 
 - https://github.com/helix-editor/helix/pull/2434 https://github.com/etienne-k/helix/tree/feat-statusline
 - https://github.com/helix-editor/helix/pull/1905 https://github.com/danyspin97/helix/tree/add_colors_to_completions
@@ -7,7 +7,6 @@
 - https://github.com/helix-editor/helix/pull/3029 https://github.com/QiBaobin/helix/tree/async-shell-command
 - https://github.com/helix-editor/helix/pull/2793 https://github.com/sbromberger/helix/tree/sbromberger/spinners
 - https://github.com/helix-editor/helix/pull/2977 https://github.com/hirschenberger/helix/tree/master
-- https://github.com/helix-editor/helix/pull/2996 https://github.com/pickfire/helix/tree/optional-gutter-padding
 - https://github.com/helix-editor/helix/pull/2377 https://github.com/cossonfork/helix/tree/tree_explore
 - https://github.com/helix-editor/helix/pull/1623 https://github.com/sudormrfbin/helix/tree/git-diff-sign
 - https://github.com/helix-editor/helix/pull/2412 https://github.com/pickfire/helix/tree/find-file
