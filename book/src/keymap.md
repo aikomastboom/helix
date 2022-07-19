@@ -75,14 +75,14 @@
 
 #### Shell
 
-| Key                     | Description                                                                      | Command               |
-|-------------------------|----------------------------------------------------------------------------------|-----------------------|
-| <code>&#124;</code>     | Pipe each selection through shell command, replacing with output                 | `shell_pipe`          |
-| <code>Alt-&#124;</code> | Pipe each selection into shell command, ignoring output                          | `shell_pipe_to`       |
-| `Alt->`                 | Pipe each selection into an async shell command, ignoring output                 | `async_shell_pipe_to` |
-| `!`                     | Run shell command, inserting output before each selection                        | `shell_insert_output` |
-| `Alt-!`                 | Run shell command, appending output after each selection                         | `shell_append_output` |
-| `$`                     | Pipe each selection into shell command, keep selections where command returned 0 | `shell_keep_pipe`     |
+| Key          | Description                                                                      | Command               |
+|--------------|----------------------------------------------------------------------------------|-----------------------|
+| `&#124;`     | Pipe each selection through shell command, replacing with output                 | `shell_pipe`          |
+| `Alt-&#124;` | Pipe each selection into shell command, ignoring output                          | `shell_pipe_to`       |
+| `Alt->`      | Pipe each selection into an async shell command, ignoring output                 | `async_shell_pipe_to` |
+| `!`          | Run shell command, inserting output before each selection                        | `shell_insert_output` |
+| `Alt-!`      | Run shell command, appending output after each selection                         | `shell_append_output` |
+| `$`          | Pipe each selection into shell command, keep selections where command returned 0 | `shell_keep_pipe`     |
 
 
 ### Selection manipulation
@@ -356,6 +356,7 @@ Keys to use within picker. Remapping currently not supported.
 | `Enter`                 | Open selected    (also creates new file in find-file) |
 | `Ctrl-s`                | Open horizontally                                     |
 | `Ctrl-v`                | Open vertically                                       |
+| `Ctrl-t`                | Toggle preview                                        |
 | `Escape`, `Ctrl-c`      | Close picker                                          |
 | `Backspace` (find-file) | Goto parent directory                                 |
 

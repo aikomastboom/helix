@@ -75,7 +75,8 @@ pub struct View {
     pub last_modified_docs: [Option<DocumentId>; 2],
     /// used to store previous selections of tree-sitter objects
     pub object_selections: Vec<Selection>,
-    /// Gutter (constructor) and width of gutter, used to calculate `gutter_offset`
+    /// Gutter (constructor) and width of gutter,
+    /// used to calculate `gutter_offset`
     gutters: Vec<(Gutter, usize)>,
     /// cached total width of gutter
     gutter_offset: u16,
