@@ -1,5 +1,6 @@
 # 22.05-aiko (2022-07-20)
 
+- https://github.com/helix-editor/helix/pull/2980 https://github.com/estin/helix/tree/mru-buffer-picker
 - https://github.com/helix-editor/helix/pull/3067 https://github.com/TheSamsa/helix/tree/inherit-theme
 - https://github.com/helix-editor/helix/pull/3095 https://github.com/etienne-k/helix/tree/feat-default-indent
 - https://github.com/helix-editor/helix/pull/1905 https://github.com/danyspin97/helix/tree/add_colors_to_completions
