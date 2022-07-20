@@ -130,6 +130,9 @@ pub struct Document {
     /// to get the diff base (eg. checked in version of the file in git).
     diff_changes: Option<ChangeSet>,
     line_diffs: LineDiffs,
+
+    // when document was used for most-recent-used buffer picker
+    pub used_at: std::time::Instant,
 }
 
 use std::{fmt, mem};
@@ -373,6 +376,7 @@ impl Document {
             version_control: None,
             diff_changes: None,
             line_diffs: LineDiffs::new(),
+            used_at: std::time::Instant::now(),
         }
     }
 
@@ -718,6 +722,11 @@ impl Document {
         if self.selections.get(&view_id).is_none() {
             self.reset_selection(view_id);
         }
+    }
+
+    /// Mark document as recent used for MRU sorting
+    pub fn mark_as_used(&mut self) {
+        self.used_at = std::time::Instant::now();
     }
 
     /// Remove a view's selection from this document.

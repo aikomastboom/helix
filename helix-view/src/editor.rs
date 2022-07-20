@@ -886,6 +886,7 @@ impl Editor {
 
         let doc = self.documents.get_mut(&doc_id).unwrap();
         doc.ensure_view_init(view.id);
+        doc.mark_as_used();
 
         // TODO: reuse align_view
         let pos = doc
@@ -957,6 +958,7 @@ impl Editor {
                 let view_id = view!(self).id;
                 let doc = self.documents.get_mut(&id).unwrap();
                 doc.ensure_view_init(view_id);
+                doc.mark_as_used();
                 return;
             }
             Action::HorizontalSplit | Action::VerticalSplit => {
@@ -972,6 +974,7 @@ impl Editor {
                 // initialize selection for view
                 let doc = self.documents.get_mut(&id).unwrap();
                 doc.ensure_view_init(view_id);
+                doc.mark_as_used();
             }
         }
 
