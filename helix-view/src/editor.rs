@@ -547,7 +547,6 @@ impl Default for Config {
             gutters: vec![
                 GutterType::Diagnostics,
                 GutterType::LineNumbers,
-                GutterType::GitDiff,
                 GutterType::Padding,
             ],
             middle_click_paste: true,
