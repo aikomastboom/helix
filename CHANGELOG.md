@@ -1,4 +1,26 @@
-# 22.05-aiko (2022-07-20)
+# 22.05-aiko (2022-07-21)
+
+- https://github.com/helix-editor/helix/issues/2824 cargo install --git https://github.com/euclio/mdpls
+```shell
+$ cat ~/.config/helix/languages.toml
+```
+```toml
+[[language]]
+name = "markdown"
+language-server = { command = "mdpls" }
+config = {  markdown.preview.auto = true,  markdown.preview.browser = "open" }
+
+[[language]]
+name = "rust"
+
+[language.auto-pairs]
+'(' = ')'
+'{' = '}'
+'[' = ']'
+'"' = '"'
+'`' = '`'
+'<' = '>'
+```
 
 - https://github.com/helix-editor/helix/pull/2980 https://github.com/estin/helix/tree/mru-buffer-picker
 - https://github.com/helix-editor/helix/pull/3067 https://github.com/TheSamsa/helix/tree/inherit-theme
@@ -19,6 +41,32 @@
       thread 'main' panicked at 'assertion failed: self.is_char_boundary(n)', /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/alloc/src/string.rs:1725:29
       note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
+```shell
+$ cat ~/.config/helix/config.toml
+```
+```toml
+theme = "monokai_pro_octagon"
+
+[editor]
+line-number = "relative"
+rulers = [80, 120]
+shell = ["/bin/zsh", "-c"]
+gutters = ["diagnostics", "line-numbers", "git-diff", "padding"]
+spinner-frames = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█", "▇", "▆", "▅", "▄", "▃", "▁"]
+
+[editor.cursor-shape]
+insert = "bar"
+normal = "block"
+select = "underline"
+
+[editor.statusline]
+left = ["mode", "spinner"]
+center = ["file-name"]
+right = ["diagnostics", "selections", "position", "file-encoding", "file-line-ending", "file-type"]
+
+[editor.indent-guides]
+render = true
+```
 # 22.05 (2022-05-28)
 
 An even bigger shout out than usual to all the contributors - we had a whopping
