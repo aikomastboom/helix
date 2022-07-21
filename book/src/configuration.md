@@ -29,26 +29,26 @@ hidden = false
 
 ### `[editor]` Section
 
-| Key                      | Description                                                                                                                                                                                                     | Default                                                   |
-|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------|
-| `scrolloff`              | Number of lines of padding around the edge of the screen when scrolling.                                                                                                                                        | `3`                                                       |
-| `mouse`                  | Enable mouse mode.                                                                                                                                                                                              | `true`                                                    |
-| `middle-click-paste`     | Middle click paste support.                                                                                                                                                                                     | `true`                                                    |
-| `scroll-lines`           | Number of lines to scroll per scroll wheel step.                                                                                                                                                                | `3`                                                       |
-| `shell`                  | Shell to use when running external commands.                                                                                                                                                                    | Unix: `["sh", "-c"]`<br/>Windows: `["cmd", "/C"]`         |
-| `line-number`            | Line number display: `absolute` simply shows each line's number, while `relative` shows the distance from the current line. When unfocused or in insert mode, `relative` will still show absolute line numbers. | `absolute`                                                |
-| `cursorline`             | Highlight all lines with a cursor.                                                                                                                                                                              | `false`                                                   |
-| `gutters`                | Gutters to display: Available are `diagnostics`, `line-numbers`, `git-diff` and `padding`, note that `diagnostics` also includes other features like breakpoints                                                | `["diagnostics", "line-numbers", "git-diff", "padding"]`  |
-| `auto-completion`        | Enable automatic pop up of auto-completion.                                                                                                                                                                     | `true`                                                    |
-| `auto-format`            | Enable automatic formatting on save.                                                                                                                                                                            | `true`                                                    |
-| `idle-timeout`           | Time in milliseconds since last key-press before idle timers trigger. Used for autocompletion, set to 0 for instant.                                                                                            | `400`                                                     |
-| `completion-trigger-len` | The min-length of word under cursor to trigger autocompletion                                                                                                                                                   | `2`                                                       |
-| `auto-info`              | Whether to display infoboxes                                                                                                                                                                                    | `true`                                                    |
-| `true-color`             | Set to `true` to override automatic detection of terminal truecolor support in the event of a false negative.                                                                                                   | `false`                                                   |
-| `rulers`                 | List of column positions at which to display the rulers. Can be overridden by language specific `rulers` in `languages.toml` file.                                                                              | `[]`                                                      |
-| `spinner-frames`         | List of strings comprising the frames to be used for the progress spinner[^1]. Set to `[]` to disable spinner display.                                                                                          | `["⣾","⣽","⣻","⢿","⡿","⣟","⣯","⣷"]`                       |
-| `spinner-interval`       | The minimum number of milliseconds to advance the progress spinner[^1] frame. Set to `0` to disable spinner display.                                                                                            | `80`                                                      |
-| `color-modes`            | Whether to color the mode indicator with different colors depending on the mode itself                                                                                                                          | `false`                                                   |
+| Key                      | Description                                                                                                                                                                                                     | Default                                           |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|
+| `scrolloff`              | Number of lines of padding around the edge of the screen when scrolling.                                                                                                                                        | `3`                                               |
+| `mouse`                  | Enable mouse mode.                                                                                                                                                                                              | `true`                                            |
+| `middle-click-paste`     | Middle click paste support.                                                                                                                                                                                     | `true`                                            |
+| `scroll-lines`           | Number of lines to scroll per scroll wheel step.                                                                                                                                                                | `3`                                               |
+| `shell`                  | Shell to use when running external commands.                                                                                                                                                                    | Unix: `["sh", "-c"]`<br/>Windows: `["cmd", "/C"]` |
+| `line-number`            | Line number display: `absolute` simply shows each line's number, while `relative` shows the distance from the current line. When unfocused or in insert mode, `relative` will still show absolute line numbers. | `absolute`                                        |
+| `cursorline`             | Highlight all lines with a cursor.                                                                                                                                                                              | `false`                                           |
+| `gutters`                | Gutters to display: Available are `diagnostics`, `line-numbers`, `git-diff` and `padding`, note that `diagnostics` also includes other features like breakpoints                                                | `["diagnostics", "line-numbers", "padding"]`      |
+| `auto-completion`        | Enable automatic pop up of auto-completion.                                                                                                                                                                     | `true`                                            |
+| `auto-format`            | Enable automatic formatting on save.                                                                                                                                                                            | `true`                                            |
+| `idle-timeout`           | Time in milliseconds since last key-press before idle timers trigger. Used for autocompletion, set to 0 for instant.                                                                                            | `400`                                             |
+| `completion-trigger-len` | The min-length of word under cursor to trigger autocompletion                                                                                                                                                   | `2`                                               |
+| `auto-info`              | Whether to display infoboxes                                                                                                                                                                                    | `true`                                            |
+| `true-color`             | Set to `true` to override automatic detection of terminal truecolor support in the event of a false negative.                                                                                                   | `false`                                           |
+| `rulers`                 | List of column positions at which to display the rulers. Can be overridden by language specific `rulers` in `languages.toml` file.                                                                              | `[]`                                              |
+| `spinner-frames`         | List of strings comprising the frames to be used for the progress spinner[^1]. Set to `[]` to disable spinner display.                                                                                          | `["⣾","⣽","⣻","⢿","⡿","⣟","⣯","⣷"]`               |
+| `spinner-interval`       | The minimum number of milliseconds to advance the progress spinner[^1] frame. Set to `0` to disable spinner display.                                                                                            | `80`                                              |
+| `color-modes`            | Whether to color the mode indicator with different colors depending on the mode itself                                                                                                                          | `false`                                           |
 
 ### `[editor.statusline]` Section
 
@@ -117,12 +117,12 @@ available, which is not defined by default.
 
 | Key           | Description                                                                                            | Default            |
 |---------------|--------------------------------------------------------------------------------------------------------|--------------------|
-| `hidden`      | Enables ignoring hidden files.                                                                         | true               |
-| `parents`     | Enables reading ignore files from parent directories.                                                  | true               |
-| `ignore`      | Enables reading `.ignore` files.                                                                       | true               |
-| `git-ignore`  | Enables reading `.gitignore` files.                                                                    | true               |
-| `git-global`  | Enables reading global .gitignore, whose path is specified in git's config: `core.excludefile` option. | true               |
-| `git-exclude` | Enables reading `.git/info/exclude` files.                                                             | true               |
+| `hidden`      | Enables ignoring hidden files.                                                                         | `true`             |
+| `parents`     | Enables reading ignore files from parent directories.                                                  | `true`             |
+| `ignore`      | Enables reading `.ignore` files.                                                                       | `true`             |
+| `git-ignore`  | Enables reading `.gitignore` files.                                                                    | `true`             |
+| `git-global`  | Enables reading global .gitignore, whose path is specified in git's config: `core.excludefile` option. | `true`             |
+| `git-exclude` | Enables reading `.git/info/exclude` files.                                                             | `true`             |
 | `max-depth`   | Set with an integer value for maximum depth to recurse.                                                | Defaults to `None` |
 
 ### `[editor.auto-pairs]` Section
@@ -227,8 +227,8 @@ character = "╎"
 ### `[editor.explorer]` Section
 Sets explorer side width and style.
 
-| Key            | Description                                | Default |
-|----------------|--------------------------------------------|---------|
-| `column-width` | explorer side width                        | 30      |
-| `style`        | explorer item style, tree or list          | tree    |
-| `position`     | explorer widget position, embed or overlay | overlay |
+| Key            | Description                                    | Default   |
+|----------------|------------------------------------------------|-----------|
+| `column-width` | explorer side width                            | 30        |
+| `style`        | explorer item style, `tree` or `list`          | `tree`    |
+| `position`     | explorer widget position, `embed` or `overlay` | `overlay` |
