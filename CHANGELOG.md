@@ -1,6 +1,7 @@
-# 22.05-aiko (2022-07-21)
+# 22.05-aiko (2022-07-22)
 
-- https://github.com/helix-editor/helix/issues/2824 cargo install --git https://github.com/euclio/mdpls
+- [issues/2824](https://github.com/helix-editor/helix/issues/2824) 
+  cargo install --git https://github.com/euclio/mdpls
 ```shell
 $ cat ~/.config/helix/languages.toml
 ```
@@ -22,25 +23,141 @@ name = "rust"
 '<' = '>'
 ```
 
-- https://github.com/helix-editor/helix/pull/2980 https://github.com/estin/helix/tree/mru-buffer-picker
-- https://github.com/helix-editor/helix/pull/3067 https://github.com/TheSamsa/helix/tree/inherit-theme
-- https://github.com/helix-editor/helix/pull/3095 https://github.com/etienne-k/helix/tree/feat-default-indent
-- https://github.com/helix-editor/helix/pull/1905 https://github.com/danyspin97/helix/tree/add_colors_to_completions
-- https://github.com/helix-editor/helix/pull/2982 https://github.com/jharrilim/helix/tree/preview-goto
-- https://github.com/helix-editor/helix/pull/1819 https://github.com/cossonfork/helix/tree/completion
-- https://github.com/helix-editor/helix/pull/3029 https://github.com/QiBaobin/helix/tree/async-shell-command
-- https://github.com/helix-editor/helix/pull/2793 https://github.com/sbromberger/helix/tree/sbromberger/spinners
-- https://github.com/helix-editor/helix/pull/2977 https://github.com/hirschenberger/helix/tree/master
-- https://github.com/helix-editor/helix/pull/2377 https://github.com/cossonfork/helix/tree/tree_explore
-- https://github.com/helix-editor/helix/pull/1623 https://github.com/sudormrfbin/helix/tree/git-diff-sign
-- https://github.com/helix-editor/helix/pull/2412 https://github.com/pickfire/helix/tree/find-file
-- https://github.com/helix-editor/helix/pull/2832 https://github.com/A-Walrus/helix/tree/master
+- [pull/2980](https://github.com/helix-editor/helix/pull/2980) https://github.com/estin/helix/tree/mru-buffer-picker
+- [pull/3067](https://github.com/helix-editor/helix/pull/3067) https://github.com/TheSamsa/helix/tree/inherit-theme
+- [pull/1905](https://github.com/helix-editor/helix/pull/1905) https://github.com/danyspin97/helix/tree/add_colors_to_completions
+- [pull/2982](https://github.com/helix-editor/helix/pull/2982) https://github.com/jharrilim/helix/tree/preview-goto
+- [pull/1819](https://github.com/helix-editor/helix/pull/1819) https://github.com/cossonfork/helix/tree/completion
+- [pull/3029](https://github.com/helix-editor/helix/pull/3029) https://github.com/QiBaobin/helix/tree/async-shell-command
+- [pull/2793](https://github.com/helix-editor/helix/pull/2793) https://github.com/sbromberger/helix/tree/sbromberger/spinners
+- [pull/2977](https://github.com/helix-editor/helix/pull/2977) https://github.com/hirschenberger/helix/tree/master
+- [pull/2377](https://github.com/helix-editor/helix/pull/2377) https://github.com/cossonfork/helix/tree/tree_explore
+- [pull/1623](https://github.com/helix-editor/helix/pull/1623) https://github.com/sudormrfbin/helix/tree/git-diff-sign
+- [pull/2412](https://github.com/helix-editor/helix/pull/2412) https://github.com/pickfire/helix/tree/find-file
+- [pull/2832](https://github.com/helix-editor/helix/pull/2832) ~~https://github.com/A-Walrus/helix/tree/master~~
 
-- while typing in :themes command this happened (on master branch before merging in above PRs)
+- [issues/3157](https://github.com/helix-editor/helix/issues/3157)
+      thread 'main' panicked at 'assertion failed: self.is_char_boundary(n)', 
+      /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/alloc/src/string.rs:1725:29
+      note: run with `RUST_BACKTRACE=full` environment variable to display a backtrace
 
-      thread 'main' panicked at 'assertion failed: self.is_char_boundary(n)', /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/alloc/src/string.rs:1725:29
-      note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
-
+```log
+thread 'main' panicked at 'assertion failed: self.is_char_boundary(n)', /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/alloc/src/string.rs:1725:29
+stack backtrace:
+   0:        0x1080fdf04 - std::backtrace_rs::backtrace::libunwind::trace::h3cae2b905fd8ac13
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/../../backtrace/src/backtrace/libunwind.rs:93:5
+   1:        0x1080fdf04 - std::backtrace_rs::backtrace::trace_unsynchronized::he35fb4c47e25f88c
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/../../backtrace/src/backtrace/mod.rs:66:5
+   2:        0x1080fdf04 - std::sys_common::backtrace::_print_fmt::hdb42afc2298dc41a
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/sys_common/backtrace.rs:66:5
+   3:        0x1080fdf04 - <std::sys_common::backtrace::_print::DisplayBacktrace as core::fmt::Display>::fmt::hc80096156cd24709
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/sys_common/backtrace.rs:45:22
+   4:        0x10811e98b - core::fmt::write::hb6b947db0e571766
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/core/src/fmt/mod.rs:1194:17
+   5:        0x1080f72d8 - std::io::Write::write_fmt::h59c4febf5f8fcb1e
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/io/mod.rs:1655:15
+   6:        0x10810009d - std::sys_common::backtrace::_print::h72a3180302df7468
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/sys_common/backtrace.rs:48:5
+   7:        0x10810009d - std::sys_common::backtrace::print::ha0747cec3f48ad89
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/sys_common/backtrace.rs:35:9
+   8:        0x10810009d - std::panicking::default_hook::{{closure}}::h0e76f92bbb367061
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/panicking.rs:295:22
+   9:        0x1080ffd81 - std::panicking::default_hook::hbbbb8c05ad6cce9a
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/panicking.rs:314:9
+  10:        0x106b8f8d4 - <alloc::boxed::Box<F,A> as core::ops::function::Fn<Args>>::call::h89835fc4da545bd1
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/alloc/src/boxed.rs:1875:9
+  11:        0x106b97b0a - helix_term::application::Application::run::{{closure}}::{{closure}}::h52935e71f15cffe8
+                               at /Users/aiko/Development/helix/helix-term/src/application.rs:826:13
+  12:        0x1081006d6 - std::panicking::rust_panic_with_hook::ha581a2c99399f83b
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/panicking.rs:702:17
+  13:        0x1081004da - std::panicking::begin_panic_handler::{{closure}}::h97df6e4273b6a879
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/panicking.rs:586:13
+  14:        0x1080fe387 - std::sys_common::backtrace::__rust_end_short_backtrace::ha4a3b48ae6bfb343
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/sys_common/backtrace.rs:138:18
+  15:        0x1081001ea - rust_begin_unwind
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/panicking.rs:584:5
+  16:        0x108161233 - core::panicking::panic_fmt::h4a5343602e6cbb54
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/core/src/panicking.rs:143:14
+  17:        0x108161117 - core::panicking::panic::h6b179fc6a750c6a7
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/core/src/panicking.rs:48:5
+  18:        0x106e3e704 - alloc::string::String::replace_range::h15748cfeb42e2858
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/alloc/src/string.rs:1725:29
+  19:        0x1070e3d60 - helix_term::ui::prompt::Prompt::change_completion_selection::he6ab3068ccd06da1
+                               at /Users/aiko/Development/helix/helix-term/src/ui/prompt.rs:336:9
+  20:        0x1070e5e4d - <helix_term::ui::prompt::Prompt as helix_term::compositor::Component>::handle_event::h565fc0a7534f0d73
+                               at /Users/aiko/Development/helix/helix-term/src/ui/prompt.rs:571:17
+  21:        0x106e40dab - helix_term::compositor::Compositor::handle_event::h7f8e36e3dd01fee9
+                               at /Users/aiko/Development/helix/helix-term/src/compositor.rs:173:19
+  22:        0x106d396da - helix_term::application::Application::handle_terminal_events::h011430108e0bef7a
+                               at /Users/aiko/Development/helix/helix-term/src/application.rs:446:26
+  23:        0x106b91809 - helix_term::application::Application::event_loop_until_idle::{{closure}}::h5f53dad12d6250cd
+                               at /Users/aiko/Development/helix/helix-term/src/application.rs:284:21
+  24:        0x106b3bff0 - <core::future::from_generator::GenFuture<T> as core::future::future::Future>::poll::h59e7daa22688c421
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/core/src/future/mod.rs:91:19
+  25:        0x106b90275 - helix_term::application::Application::event_loop::{{closure}}::hb0eb43addcab7c3e
+                               at /Users/aiko/Development/helix/helix-term/src/application.rs:260:57
+  26:        0x106b3bbb0 - <core::future::from_generator::GenFuture<T> as core::future::future::Future>::poll::h372a81900ad0f961
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/core/src/future/mod.rs:91:19
+  27:        0x106b976d1 - helix_term::application::Application::run::{{closure}}::hb234fbf4b461f62f
+                               at /Users/aiko/Development/helix/helix-term/src/application.rs:829:38
+  28:        0x106b3bcf0 - <core::future::from_generator::GenFuture<T> as core::future::future::Future>::poll::h3dcd4ac97a63d5d4
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/core/src/future/mod.rs:91:19
+  29:        0x106b6b9f3 - hx::main_impl::{{closure}}::hcabbbd3674b49a9d
+                               at /Users/aiko/Development/helix/helix-term/src/main.rs:140:53
+  30:        0x106b3c800 - <core::future::from_generator::GenFuture<T> as core::future::future::Future>::poll::hdbe054d30301e681
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/core/src/future/mod.rs:91:19
+  31:        0x106b6f821 - tokio::park::thread::CachedParkThread::block_on::{{closure}}::hcdd89f67e4a82e4a
+                               at /Users/aiko/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.20.0/src/park/thread.rs:263:54
+  32:        0x106b445d8 - tokio::coop::with_budget::{{closure}}::hb28974cfd5b54ea7
+                               at /Users/aiko/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.20.0/src/coop.rs:102:9
+  33:        0x106b70b9a - std::thread::local::LocalKey<T>::try_with::he1861490f22f1716
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/thread/local.rs:442:16
+  34:        0x106b703f8 - std::thread::local::LocalKey<T>::with::hcb264360cfeff137
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/thread/local.rs:418:9
+  35:        0x106b6f1de - tokio::coop::with_budget::h153b6e60ee5b9757
+                               at /Users/aiko/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.20.0/src/coop.rs:95:5
+  36:        0x106b6f1de - tokio::coop::budget::h94bf0c0c4ad6cfb2
+                               at /Users/aiko/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.20.0/src/coop.rs:72:5
+  37:        0x106b6f1de - tokio::park::thread::CachedParkThread::block_on::h1ab184c17d1441c7
+                               at /Users/aiko/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.20.0/src/park/thread.rs:263:31
+  38:        0x106b5ff3d - tokio::runtime::enter::Enter::block_on::h503146038bcf5e56
+                               at /Users/aiko/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.20.0/src/runtime/enter.rs:152:13
+  39:        0x106b65c80 - tokio::runtime::thread_pool::ThreadPool::block_on::h4f5d9683069fc2d6
+                               at /Users/aiko/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.20.0/src/runtime/thread_pool/mod.rs:90:9
+  40:        0x106b3902a - tokio::runtime::Runtime::block_on::h545853cc6c8c99c4
+                               at /Users/aiko/.cargo/registry/src/github.com-1ecc6299db9ec823/tokio-1.20.0/src/runtime/mod.rs:484:43
+  41:        0x106b667f9 - hx::main_impl::h327da4d56028de14
+                               at /Users/aiko/Development/helix/helix-term/src/main.rs:142:5
+  42:        0x106b66671 - hx::main::h8af8fcbc4b21bdb9
+                               at /Users/aiko/Development/helix/helix-term/src/main.rs:37:21
+  43:        0x106b45c4e - core::ops::function::FnOnce::call_once::h2fe0d1babec631b5
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/core/src/ops/function.rs:227:5
+  44:        0x106b77f61 - std::sys_common::backtrace::__rust_begin_short_backtrace::ha590b7d7427cf9a0
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/sys_common/backtrace.rs:122:18
+  45:        0x106b6bee4 - std::rt::lang_start::{{closure}}::h745b6ae5928436dc
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/rt.rs:145:18
+  46:        0x1080f03aa - core::ops::function::impls::<impl core::ops::function::FnOnce<A> for &F>::call_once::h45b43bdd91db95dd
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/core/src/ops/function.rs:259:13
+  47:        0x1080f03aa - std::panicking::try::do_call::h249f439f16aa313c
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/panicking.rs:492:40
+  48:        0x1080f03aa - std::panicking::try::ha8537a1873fa2ff9
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/panicking.rs:456:19
+  49:        0x1080f03aa - std::panic::catch_unwind::hffa61ccaeb4f89c5
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/panic.rs:137:14
+  50:        0x1080f03aa - std::rt::lang_start_internal::{{closure}}::h32bbf4c39987b002
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/rt.rs:128:48
+  51:        0x1080f03aa - std::panicking::try::do_call::h558936e01b59417c
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/panicking.rs:492:40
+  52:        0x1080f03aa - std::panicking::try::h12a630e8ced1b46a
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/panicking.rs:456:19
+  53:        0x1080f03aa - std::panic::catch_unwind::h539ca15d1ec773ea
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/panic.rs:137:14
+  54:        0x1080f03aa - std::rt::lang_start_internal::hdb19fe6764e59ca8
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/rt.rs:128:20
+  55:        0x106b6bebe - std::rt::lang_start::he2eb825531ab7f0f
+                               at /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/std/src/rt.rs:144:17
+  56:        0x106b66896 - _main
+```
 ```shell
 $ cat ~/.config/helix/config.toml
 ```
