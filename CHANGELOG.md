@@ -170,6 +170,9 @@ rulers = [80, 120]
 shell = ["/bin/zsh", "-c"]
 gutters = ["diagnostics", "line-numbers", "git-diff", "padding"]
 spinner-frames = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█", "▇", "▆", "▅", "▄", "▃", "▁"]
+# https://github.com/sindresorhus/cli-spinners/pull/63
+spinner-frames = ["⣼","⣹","⢻","⠿","⡟","⣏","⣧","⣶"]
+spinner-frames = ["⠁", "⠂", "⠄", "⡀", "⡈", "⡐", "⡠", "⣀", "⣁", "⣂", "⣄", "⣌", "⣔", "⣤", "⣥", "⣦", "⣮", "⣶", "⣷", "⣿", "⡿", "⠿", "⢟", "⠟", "⡛", "⠛", "⠫", "⢋", "⠋", "⠍", "⡉", "⠉", "⠑", "⠡", "⢁"]
 
 [editor.cursor-shape]
 insert = "bar"
