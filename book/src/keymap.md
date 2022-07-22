@@ -62,7 +62,7 @@
 | `P`         | Paste before selection                                               | `paste_before`            |
 | `"` `<reg>` | Select a register to yank to or paste from                           | `select_register`         |
 | `>`         | Indent selection                                                     | `indent`                  |
-| `<`         | Un-indent selection                                                  | `unindent`                |
+| `<`         | Unindent selection                                                   | `unindent`                |
 | `=`         | Format selection (currently nonfunctional/disabled) (**LSP**)        | `format_selections`       |
 | `d`         | Delete selection                                                     | `delete_selection`        |
 | `Alt-d`     | Delete selection, without yanking                                    | `delete_selection_noyank` |
@@ -90,7 +90,7 @@
 | Key                  | Description                                                   | Command                              |
 |----------------------|---------------------------------------------------------------|--------------------------------------|
 | `s`                  | Select all regex matches inside selections                    | `select_regex`                       |
-| `S`                  | Split selection into sub-selections on regex matches          | `split_selection`                    |
+| `S`                  | Split selection into subselections on regex matches           | `split_selection`                    |
 | `Alt-s`              | Split selection on newlines                                   | `split_selection_on_newline`         |
 | `&`                  | Align selection in columns                                    | `align_selections`                   |
 | `_`                  | Trim whitespace from the selection                            | `trim_selections`                    |
@@ -240,6 +240,7 @@ This layer is a kludge of mappings, mostly pickers.
 | `f` | Open file picker                                                        | `file_picker`                       |
 | `.` | Open find file picker                                                   | `find_file_picker`                  |
 | `b` | Open buffer picker                                                      | `buffer_picker`                     |
+| `j` | Open jumplist picker                                                    | `jumplist_picker`                   |
 | `k` | Show documentation for item under cursor in a [popup](#popup) (**LSP**) | `hover`                             |
 | `s` | Open document symbol picker (**LSP**)                                   | `symbol_picker`                     |
 | `S` | Open workspace symbol picker (**LSP**)                                  | `workspace_symbol_picker`           |
