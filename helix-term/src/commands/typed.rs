@@ -594,7 +594,7 @@ fn write_all_impl(
     bail!(errors)
 }
 
-fn write_all(
+pub fn write_all(
     cx: &mut compositor::Context,
     args: &[Cow<str>],
     event: PromptEvent,
@@ -2008,7 +2008,7 @@ pub static TYPABLE_COMMAND_MAP: Lazy<HashMap<&'static str, &'static TypableComma
             .collect()
     });
 
-pub fn command_mode(cx: &mut Context) {
+pub(super) fn command_mode(cx: &mut Context) {
     let mut prompt = Prompt::new(
         ":".into(),
         Some(':'),
