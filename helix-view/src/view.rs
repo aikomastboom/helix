@@ -120,9 +120,10 @@ impl View {
                 width as usize,
             ));
         }
-        if !gutter_types.is_empty() {
-            gutter_offset += 1;
-        }
+        // if !gutter_types.is_empty() {
+            // AM: undo change, no magically added space please, just add Spacer by default
+            // gutter_offset += 1;
+        // }
         Self {
             id: ViewId::default(),
             doc,
