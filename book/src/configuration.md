@@ -70,19 +70,19 @@ separator = "│"
 
 The following elements can be configured:
 
-| Key                   | Description                                              |
-|-----------------------|----------------------------------------------------------|
-| `mode`                | The current editor mode (`NOR`/`INS`/`SEL`)              |
-| `spinner`             | A progress spinner indicating LSP activity               |
-| `file-name`           | The path/name of the opened file                         |
-| `file-encoding`       | The encoding of the opened file if it differs from UTF-8 |
-| `file-line-ending`    | The file line endings (CRLF or LF)                       |
-| `file-type`           | The type of the opened file                              |
-| `diagnostics`         | The number of warnings and/or errors                     |
-| `selections`          | The number of active selections                          |
-| `position`            | The cursor position                                      |
-| `position-percentage` | The cursor position as a percentage of the total number of lines |
-| `separator`           | The string defined in `editor.statusline.separator` (defaults to `"│"`) |
+| Key                   | Description                                                                     |
+|-----------------------|---------------------------------------------------------------------------------|
+| `mode`                | The current editor mode (`NOR`/`INS`/`SEL`)                                     |
+| `spinner`             | A progress spinner indicating LSP activity                                      |
+| `file-name`           | The path/name of the opened file                                                |
+| `file-encoding`       | The encoding of the opened file if it differs from UTF-8                        |
+| `file-line-ending`    | The file line endings (CRLF or LF)                                              |
+| `file-type`           | The type of the opened file                                                     |
+| `diagnostics`         | The number of warnings and/or errors                                            |
+| `selections`          | The number of active selections                                                 |
+| `position`            | The cursor position                                                             |
+| `position-percentage` | The cursor position as a percentage of the total number of lines                |
+| `separator`           | The string defined in `editor.statusline.separator` (defaults to `"│"`)         |
 | `spacer`              | Inserts a space between elements (multiple/contiguous spacers may be specified) |
 
 ### `[editor.lsp]` Section
