@@ -180,7 +180,7 @@ normal = "block"
 select = "underline"
 
 [editor.statusline]
-left = ["mode", "spinner"]
+left = ["spinner", "mode"]
 center = ["file-name"]
 right = ["diagnostics", "selections", "position", "file-encoding", "file-line-ending", "file-type"]
 
