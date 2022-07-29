@@ -107,7 +107,7 @@ impl View {
                 GutterType::GitDiff => 1,
                 GutterType::Diagnostics => 1,
                 GutterType::LineNumbers => 5,
-                GutterType::Padding => 1,
+                GutterType::Spacer => 1,
             };
             gutter_offset += width;
             gutters.push((
@@ -115,10 +115,13 @@ impl View {
                     GutterType::GitDiff => gutter::git_diff,
                     GutterType::Diagnostics => gutter::diagnostics_or_breakpoints,
                     GutterType::LineNumbers => gutter::line_numbers,
-                    GutterType::Padding => gutter::padding,
+                    GutterType::Spacer => gutter::padding,
                 },
                 width as usize,
             ));
+        }
+        if !gutter_types.is_empty() {
+            gutter_offset += 1;
         }
         Self {
             id: ViewId::default(),
@@ -352,7 +355,7 @@ mod tests {
                 GutterType::Diagnostics,
                 GutterType::LineNumbers,
                 GutterType::GitDiff,
-                GutterType::Padding,
+                GutterType::Spacer,
             ],
         );
         view.area = Rect::new(40, 40, 40, 40);
@@ -404,7 +407,7 @@ mod tests {
             DocumentId::default(),
             vec![
                 GutterType::Diagnostics,
-                GutterType::Padding
+                GutterType::Spacer
             ],
         );
         view.area = Rect::new(40, 40, 40, 40);
@@ -436,7 +439,7 @@ mod tests {
                 GutterType::Diagnostics,
                 GutterType::LineNumbers,
                 GutterType::GitDiff,
-                GutterType::Padding,
+                GutterType::Spacer,
             ],
         );
         view.area = Rect::new(40, 40, 40, 40);
@@ -481,7 +484,7 @@ mod tests {
                 GutterType::Diagnostics,
                 GutterType::LineNumbers,
                 GutterType::GitDiff,
-                GutterType::Padding,
+                GutterType::Spacer,
             ],
         );
         view.area = Rect::new(40, 40, 40, 40);

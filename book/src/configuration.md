@@ -38,7 +38,7 @@ hidden = false
 | `shell`                  | Shell to use when running external commands.                                                                                                                                                                    | Unix: `["sh", "-c"]`<br/>Windows: `["cmd", "/C"]` |
 | `line-number`            | Line number display: `absolute` simply shows each line's number, while `relative` shows the distance from the current line. When unfocused or in insert mode, `relative` will still show absolute line numbers. | `absolute`                                        |
 | `cursorline`             | Highlight all lines with a cursor.                                                                                                                                                                              | `false`                                           |
-| `gutters`                | Gutters to display: Available are `diagnostics`, `line-numbers`, `git-diff` and `padding`, note that `diagnostics` also includes other features like breakpoints                                                | `["diagnostics", "line-numbers", "padding"]`      |
+| `gutters`                | Gutters to display: Available are `diagnostics`, `line-numbers`, `git-diff` and `spacer`, note that `diagnostics` also includes other features like breakpoints                                               , 1-width padding will be inserted if gutters is non-empty | `["diagnostics", "line-numbers"]`      |
 | `auto-completion`        | Enable automatic pop up of auto-completion.                                                                                                                                                                     | `true`                                            |
 | `auto-format`            | Enable automatic formatting on save.                                                                                                                                                                            | `true`                                            |
 | `idle-timeout`           | Time in milliseconds since last key-press before idle timers trigger. Used for autocompletion, set to 0 for instant.                                                                                            | `400`                                             |
@@ -65,21 +65,25 @@ Statusline elements can be defined as follows:
 left = ["mode", "spinner"]
 center = ["file-name"]
 right = ["diagnostics", "selections", "position", "file-encoding", "file-line-ending", "file-type"]
+separator = "│"
 ```
 
 The following elements can be configured:
 
-| Key                | Description                                              |
-|--------------------|----------------------------------------------------------|
-| `mode`             | The current editor mode (`NOR`/`INS`/`SEL`)              |
-| `spinner`          | A progress spinner indicating LSP activity               |
-| `file-name`        | The path/name of the opened file                         |
-| `file-encoding`    | The encoding of the opened file if it differs from UTF-8 |
-| `file-line-ending` | The file line endings (CRLF or LF)                       |
-| `file-type`        | The type of the opened file                              |
-| `diagnostics`      | The number of warnings and/or errors                     |
-| `selections`       | The number of active selections                          |
-| `position`         | The cursor position                                      |
+| Key                   | Description                                              |
+|-----------------------|----------------------------------------------------------|
+| `mode`                | The current editor mode (`NOR`/`INS`/`SEL`)              |
+| `spinner`             | A progress spinner indicating LSP activity               |
+| `file-name`           | The path/name of the opened file                         |
+| `file-encoding`       | The encoding of the opened file if it differs from UTF-8 |
+| `file-line-ending`    | The file line endings (CRLF or LF)                       |
+| `file-type`           | The type of the opened file                              |
+| `diagnostics`         | The number of warnings and/or errors                     |
+| `selections`          | The number of active selections                          |
+| `position`            | The cursor position                                      |
+| `position-percentage` | The cursor position as a percentage of the total number of lines |
+| `separator`           | The string defined in `editor.statusline.separator` (defaults to `"│"`) |
+| `spacer`              | Inserts a space between elements (multiple/contiguous spacers may be specified) |
 
 ### `[editor.lsp]` Section
 
