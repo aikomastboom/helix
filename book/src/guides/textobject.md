@@ -14,17 +14,17 @@ for example).
 
 The following [captures][tree-sitter-captures] are recognized:
 
-| Capture Name       |
-| ---                |
-| `function.inside`  |
-| `function.around`  |
-| `class.inside`     |
-| `class.around`     |
-| `test.inside`      |
-| `test.around`      |
-| `parameter.inside` |
-| `comment.inside`   |
-| `comment.around`   |
+| Capture Name        |
+|---------------------|
+| `function.inside`   |
+| `function.around`   |
+| `class.inside`      |
+| `class.around`      |
+| `test.inside`       |
+| `test.around`       |
+| `parameter.inside`  |
+| `comment.inside`    |
+| `comment.around`    |
 
 [Example query files][textobject-examples] can be found in the helix GitHub repository.
 
