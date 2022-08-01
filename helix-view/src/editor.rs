@@ -481,7 +481,11 @@ impl Default for Config {
             },
             line_number: LineNumber::Absolute,
             cursorline: false,
-            gutters: vec![GutterType::Diagnostics, GutterType::LineNumbers],
+            gutters: vec![
+                GutterType::Diagnostics,
+                GutterType::LineNumbers,
+                GutterType::Spacer,
+            ],
             middle_click_paste: true,
             auto_pairs: AutoPairConfig::default(),
             auto_completion: true,

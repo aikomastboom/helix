@@ -118,9 +118,6 @@ impl View {
                 width as usize,
             ));
         }
-        if !gutter_types.is_empty() {
-            gutter_offset += 1;
-        }
         Self {
             id: ViewId::default(),
             doc,
@@ -340,16 +337,20 @@ impl View {
 mod tests {
     use super::*;
     use helix_core::Rope;
-    const OFFSET: u16 = 7; // 1 diagnostic + 5 linenr + 1 gutter
-    const OFFSET_WITHOUT_LINE_NUMBERS: u16 = 2; // 1 diagnostic + 1 gutter
-                                                // const OFFSET: u16 = GUTTERS.iter().map(|(_, width)| *width as u16).sum();
+    const OFFSET: u16 = 7; // 1 diagnostic + 5 linenr + 1 spacer
+    const OFFSET_WITHOUT_LINE_NUMBERS: u16 = 1; // 1 diagnostic
+
     use crate::editor::GutterType;
 
     #[test]
     fn test_text_pos_at_screen_coords() {
         let mut view = View::new(
             DocumentId::default(),
-            vec![GutterType::Diagnostics, GutterType::LineNumbers],
+            vec![
+                GutterType::Diagnostics,
+                GutterType::LineNumbers,
+                GutterType::Spacer,
+            ],
         );
         view.area = Rect::new(40, 40, 40, 40);
         let rope = Rope::from_str("abc\n\tdef");
@@ -422,7 +423,11 @@ mod tests {
     fn test_text_pos_at_screen_coords_cjk() {
         let mut view = View::new(
             DocumentId::default(),
-            vec![GutterType::Diagnostics, GutterType::LineNumbers],
+            vec![
+                GutterType::Diagnostics,
+                GutterType::LineNumbers,
+                GutterType::Spacer,
+            ],
         );
         view.area = Rect::new(40, 40, 40, 40);
         let rope = Rope::from_str("Hi! こんにちは皆さん");
@@ -462,7 +467,11 @@ mod tests {
     fn test_text_pos_at_screen_coords_graphemes() {
         let mut view = View::new(
             DocumentId::default(),
-            vec![GutterType::Diagnostics, GutterType::LineNumbers],
+            vec![
+                GutterType::Diagnostics,
+                GutterType::LineNumbers,
+                GutterType::Spacer,
+            ],
         );
         view.area = Rect::new(40, 40, 40, 40);
         let rope = Rope::from_str("Hèl̀l̀ò world!");
