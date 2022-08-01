@@ -44,31 +44,31 @@ language-server = { command = "mylang-lsp", args = ["--stdio"] }
 
 These configuration keys are available:
 
-| Key                   | Description                                                   |
-| ----                  | -----------                                                   |
-| `name`                | The name of the language                                      |
+| Key                   | Description                                                                                                                                                                                                                               |
+|-----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `name`                | The name of the language                                                                                                                                                                                                                  |
 | `scope`               | A string like `source.js` that identifies the language. Currently, we strive to match the scope names used by popular TextMate grammars and by the Linguist library. Usually `source.<name>` or `text.<name>` in case of markup languages |
-| `injection-regex`     | regex pattern that will be tested against a language name in order to determine whether this language should be used for a potential [language injection][treesitter-language-injection] site. |
-| `file-types`          | The filetypes of the language, for example `["yml", "yaml"]`. Extensions and full file names are supported.  |
-| `shebangs`            | The interpreters from the shebang line, for example `["sh", "bash"]` |
-| `roots`               | A set of marker files to look for when trying to find the workspace root. For example `Cargo.lock`, `yarn.lock` |
-| `auto-format`         | Whether to autoformat this language when saving               |
-| `diagnostic-severity` | Minimal severity of diagnostic for it to be displayed. (Allowed values: `Error`, `Warning`, `Info`, `Hint`) |
-| `comment-token`       | The token to use as a comment-token                           |
-| `indent`              | The indent to use. Has sub keys `tab-width` and `unit`        |
-| `language-server`     | The Language Server to run. See the Language Server configuration section below. |
-| `config`              | Language Server configuration                                 |
-| `grammar`             | The tree-sitter grammar to use (defaults to the value of `name`) |
+| `injection-regex`     | regex pattern that will be tested against a language name in order to determine whether this language should be used for a potential [language injection][treesitter-language-injection] site.                                            |
+| `file-types`          | The filetypes of the language, for example `["yml", "yaml"]`. Extensions and full file names are supported.                                                                                                                               |
+| `shebangs`            | The interpreters from the shebang line, for example `["sh", "bash"]`                                                                                                                                                                      |
+| `roots`               | A set of marker files to look for when trying to find the workspace root. For example `Cargo.lock`, `yarn.lock`                                                                                                                           |
+| `auto-format`         | Whether to autoformat this language when saving                                                                                                                                                                                           |
+| `diagnostic-severity` | Minimal severity of diagnostic for it to be displayed. (Allowed values: `Error`, `Warning`, `Info`, `Hint`)                                                                                                                               |
+| `comment-token`       | The token to use as a comment-token                                                                                                                                                                                                       |
+| `indent`              | The indent to use. Has sub keys `tab-width` and `unit`                                                                                                                                                                                    |
+| `language-server`     | The Language Server to run. See the Language Server configuration section below.                                                                                                                                                          |
+| `config`              | Language Server configuration                                                                                                                                                                                                             |
+| `grammar`             | The tree-sitter grammar to use (defaults to the value of `name`)                                                                                                                                                                          |
 
 ### Language Server configuration
 
 The `language-server` field takes the following keys:
 
-| Key           | Description                                                           |
-| ---           | -----------                                                           |
-| `command`     | The name of the language server binary to execute. Binaries must be in `$PATH` |
-| `args`        | A list of arguments to pass to the language server binary             |
-| `timeout`     | The maximum time a request to the language server may take, in seconds. Defaults to `20` |
+| Key           | Description                                                                                                                                                              |
+|---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `command`     | The name of the language server binary to execute. Binaries must be in `$PATH`                                                                                           |
+| `args`        | A list of arguments to pass to the language server binary                                                                                                                |
+| `timeout`     | The maximum time a request to the language server may take, in seconds. Defaults to `20`                                                                                 |
 | `language-id` | The language name to pass to the language server. Some language servers support multiple languages and use this field to determine which one is being served in a buffer |
 
 The top-level `config` field is used to configure the LSP initialization options. A `format`
@@ -97,18 +97,18 @@ source = { git = "https://github.com/example/mylang", rev = "a250c4582510ff34767
 
 Grammar configuration takes these keys:
 
-| Key      | Description                                                              |
-| ---      | -----------                                                              |
-| `name`   | The name of the tree-sitter grammar                                      |
-| `source` | The method of fetching the grammar - a table with a schema defined below |
+| Key      | Description                                                               |
+|----------|---------------------------------------------------------------------------|
+| `name`   | The name of the tree-sitter grammar                                       |
+| `source` | The method of fetching the grammar - a table with a schema defined below  |
 
 Where `source` is a table with either these keys when using a grammar from a
 git repository:
 
-| Key    | Description                                               |
-| ---    | -----------                                               |
-| `git`  | A git remote URL from which the grammar should be cloned  |
-| `rev`  | The revision (commit hash or tag) which should be fetched |
+| Key       | Description                                                                                                                                                                                                                                                                                                                    |
+|-----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `git`     | A git remote URL from which the grammar should be cloned                                                                                                                                                                                                                                                                       |
+| `rev`     | The revision (commit hash or tag) which should be fetched                                                                                                                                                                                                                                                                      |
 | `subpath` | A path within the grammar directory which should be built. Some grammar repositories host multiple grammars (for example `tree-sitter-typescript` and `tree-sitter-ocaml`) in subdirectories. This key is used to point `hx --grammar build` to the correct path for compilation. When omitted, the root of repository is used |
 
 ### Choosing grammars
