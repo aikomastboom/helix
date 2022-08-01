@@ -1,6 +1,6 @@
-# Author : Rohan Jain <crodjer@pm.me> 
+# Author : Rohan Jain <crodjer@pm.me>
 # Author : Jakub Bartodziej <kubabartodziej@gmail.com>
-# The theme uses the gruvbox light palette with standard contrast: github.com/morhetz/gruvbox
+# The theme uses the gruvbox light palette with medium contrast: github.com/morhetz/gruvbox
 
 "attribute" = "aqua1"
 "keyword" = { fg = "red1" }

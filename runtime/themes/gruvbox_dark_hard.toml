@@ -1,5 +1,5 @@
 # Author : Jakub Bartodziej <kubabartodziej@gmail.com>
-# The theme uses the gruvbox dark palette with medium contrast: github.com/morhetz/gruvbox
+# The theme uses the gruvbox dark palette with hard contrast: github.com/morhetz/gruvbox
 
 "attribute" = "aqua1"
 "keyword" = { fg = "red1" }
@@ -67,14 +67,8 @@
 "markup.link.text" = "red1"
 "markup.raw" = "red1"
 
-"ui.explorer.file" = { fg = "fg1" }
-"ui.explorer.dir" = { fg = "blue0" }
-"ui.explorer.exe" = { fg = "fg1" }
-"ui.explorer.focus" = { modifiers = ["reversed"] }
-"ui.explorer.unfocus" = { bg = "bg3" }
-
 [palette]
-bg0 = "#282828" # main background
+bg0 = "#1d2021" # main background
 bg1 = "#3c3836"
 bg2 = "#504945"
 bg3 = "#665c54"

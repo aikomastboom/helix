@@ -1,5 +1,6 @@
+# Author : Rohan Jain <crodjer@pm.me>
 # Author : Jakub Bartodziej <kubabartodziej@gmail.com>
-# The theme uses the gruvbox dark palette with medium contrast: github.com/morhetz/gruvbox
+# The theme uses the gruvbox light palette with soft contrast: github.com/morhetz/gruvbox
 
 "attribute" = "aqua1"
 "keyword" = { fg = "red1" }
@@ -67,39 +68,33 @@
 "markup.link.text" = "red1"
 "markup.raw" = "red1"
 
-"ui.explorer.file" = { fg = "fg1" }
-"ui.explorer.dir" = { fg = "blue0" }
-"ui.explorer.exe" = { fg = "fg1" }
-"ui.explorer.focus" = { modifiers = ["reversed"] }
-"ui.explorer.unfocus" = { bg = "bg3" }
-
 [palette]
-bg0 = "#282828" # main background
-bg1 = "#3c3836"
-bg2 = "#504945"
-bg3 = "#665c54"
-bg4 = "#7c6f64"
+bg0 = "#f2e5bc" # main background
+bg1 = "#ebdbb2"
+bg2 = "#d5c4a1"
+bg3 = "#bdae93"
+bg4 = "#a89984"
 
-fg0 = "#fbf1c7"
-fg1 = "#ebdbb2" # main foreground
-fg2 = "#d5c4a1"
-fg3 = "#bdae93"
-fg4 = "#a89984" # gray0
+fg0 = "#282828" # main foreground
+fg1 = "#3c3836"
+fg2 = "#504945"
+fg3 = "#665c54"
+fg4 = "#7c6f64" # gray0
 
-gray0 = "#a89984"
+gray0 = "#7c6f64"
 gray1 = "#928374"
 
 red0 = "#cc241d" # neutral
-red1 = "#fb4934" # bright
+red1 = "#9d0006" # bright
 green0 = "#98971a"
-green1 = "#b8bb26"
+green1 = "#79740e"
 yellow0 = "#d79921"
-yellow1 = "#fabd2f"
+yellow1 = "#b57614"
 blue0 = "#458588"
-blue1 = "#83a598"
+blue1 = "#076678"
 purple0 = "#b16286"
-purple1 = "#d3869b"
+purple1 = "#8f3f71"
 aqua0 = "#689d6a"
-aqua1 = "#8ec07c"
+aqua1 = "#427b58"
 orange0 = "#d65d0e"
-orange1 = "#fe8019"
+orange1 = "#af3a03"
