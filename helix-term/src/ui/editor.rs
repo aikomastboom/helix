@@ -3,7 +3,6 @@ use crate::{
     compositor::{Component, Context, Event, EventResult},
     job, key,
     keymap::{KeymapResult, Keymaps},
-    ui::prompt::PromptEvent,
     ui::{Completion, ProgressSpinners},
 };
 
@@ -1253,8 +1252,7 @@ impl Component for EditorView {
             Event::FocusGained => EventResult::Ignored(None),
             Event::FocusLost => {
                 if context.editor.config().auto_save {
-                    if let Err(e) = commands::typed::write_all(context, &[], PromptEvent::Validate)
-                    {
+                    if let Err(e) = commands::typed::write_all_impl(context, false, false) {
                         context.editor.set_error(format!("{}", e));
                     }
                 }
