@@ -1252,8 +1252,11 @@ impl Component for EditorView {
             Event::Mouse(event) => self.handle_mouse_event(event, &mut cx),
             Event::FocusGained => EventResult::Ignored(None),
             Event::FocusLost => {
-                if let Err(e) = commands::typed::write_all(context, &[], PromptEvent::Validate) {
-                    context.editor.set_error(format!("{}", e));
+                if context.editor.config().auto_save {
+                    if let Err(e) = commands::typed::write_all(context, &[], PromptEvent::Validate)
+                    {
+                        context.editor.set_error(format!("{}", e));
+                    }
                 }
                 EventResult::Consumed(None)
             }
