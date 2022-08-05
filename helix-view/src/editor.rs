@@ -488,7 +488,7 @@ impl Default for Config {
             auto_pairs: AutoPairConfig::default(),
             auto_completion: true,
             auto_format: true,
-            auto_save: true,
+            auto_save: false,
             idle_timeout: Duration::from_millis(400),
             completion_trigger_len: 2,
             auto_info: true,
