@@ -1,4 +1,4 @@
-# 22.05-aiko (2022-08-01)
+# 22.05-aiko (2022-08-06)
 
 - [issues/2824](https://github.com/helix-editor/helix/issues/2824) 
   cargo install --git https://github.com/euclio/mdpls
@@ -24,6 +24,7 @@ name = "rust"
 ```
 
 - [pull/3193](https://github.com/helix-editor/helix/pull/3193) https://github.com/Frojdholm/helix/tree/fix-panic-in-prompt
+- [pull/3285](https://github.com/helix-editor/helix/pull/3285) https://github.com/kevinastock/helix/tree/gruvbox-contrast 
 - [pull/2980](https://github.com/helix-editor/helix/pull/2980) https://github.com/estin/helix/tree/mru-buffer-picker
 - [pull/3067](https://github.com/helix-editor/helix/pull/3067) https://github.com/TheSamsa/helix/tree/inherit-theme
 - [pull/1905](https://github.com/helix-editor/helix/pull/1905) https://github.com/danyspin97/helix/tree/add_colors_to_completions
