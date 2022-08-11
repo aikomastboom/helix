@@ -4,12 +4,12 @@ use crate::{
     ctrl, key, shift, ui,
 };
 use anyhow::{bail, ensure, Result};
-use crossterm::event::{Event, KeyEvent};
 use helix_core::Position;
 use helix_view::{
     editor::Action,
     graphics::{CursorKind, Modifier, Rect},
     Editor,
+    input::{Event, KeyEvent}
 };
 use std::borrow::Cow;
 use std::cmp::Ordering;

@@ -7,9 +7,11 @@ use crate::{
     compositor::{Context, EventResult},
     ctrl, key, shift,
 };
-use crossterm::event::{Event, KeyEvent};
 use helix_core::unicode::width::UnicodeWidthStr;
-use helix_view::graphics::Rect;
+use helix_view::{
+    graphics::Rect,
+    input::{Event, KeyEvent}
+};
 use tui::{buffer::Buffer as Surface, text::Spans};
 
 pub trait TreeItem: Sized {

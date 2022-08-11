@@ -1,4 +1,4 @@
-# 22.05-aiko (2022-08-06)
+# 22.05-aiko (2022-08-11)
 
 - [issues/2824](https://github.com/helix-editor/helix/issues/2824) 
   cargo install --git https://github.com/euclio/mdpls

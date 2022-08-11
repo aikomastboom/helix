@@ -1,5 +1,4 @@
-use crate::compositor::{Component, Context, EventResult};
-use crossterm::event::{Event, KeyCode, KeyEvent};
+use crate::compositor::{Component, Context, Event, EventResult};
 use helix_view::editor::CompleteAction;
 use helix_view::theme::Modifier;
 use helix_view::Theme;
@@ -9,7 +8,11 @@ use tui::text::Spans;
 use std::borrow::Cow;
 
 use helix_core::{Change, Transaction};
-use helix_view::{graphics::Rect, Document, Editor};
+use helix_view::{
+    graphics::Rect,
+    input::{KeyCode, KeyEvent},
+    Document, Editor,
+};
 
 use crate::commands;
 use crate::ui::{menu, Markdown, Menu, Popup, PromptEvent};
