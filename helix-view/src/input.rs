@@ -8,6 +8,8 @@ pub use crate::keyboard::{KeyCode, KeyModifiers};
 
 #[derive(Debug, PartialOrd, PartialEq, Eq, Clone, Copy, Hash)]
 pub enum Event {
+    FocusGained,
+    FocusLost,
     Key(KeyEvent),
     Mouse(MouseEvent),
     Resize(u16, u16),
@@ -271,6 +273,11 @@ impl From<crossterm::event::Event> for Event {
             crossterm::event::Event::Key(key) => Self::Key(key.into()),
             crossterm::event::Event::Mouse(mouse) => Self::Mouse(mouse.into()),
             crossterm::event::Event::Resize(w, h) => Self::Resize(w, h),
+            crossterm::event::Event::FocusGained => Self::FocusGained,
+            crossterm::event::Event::FocusLost => Self::FocusLost,
+            crossterm::event::Event::Paste(_) => {
+                unreachable!("crossterm shouldn't emit Paste events without them being enabled")
+            }
         }
     }
 }
@@ -321,7 +328,14 @@ impl From<crossterm::event::MouseButton> for MouseButton {
 
 #[cfg(feature = "term")]
 impl From<crossterm::event::KeyEvent> for KeyEvent {
-    fn from(crossterm::event::KeyEvent { code, modifiers }: crossterm::event::KeyEvent) -> Self {
+    fn from(
+        crossterm::event::KeyEvent {
+            code,
+            modifiers,
+            kind: _,
+            state: _,
+        }: crossterm::event::KeyEvent,
+    ) -> Self {
         if code == crossterm::event::KeyCode::BackTab {
             // special case for BackTab -> Shift-Tab
             let mut modifiers: KeyModifiers = modifiers.into();
@@ -349,11 +363,15 @@ impl From<KeyEvent> for crossterm::event::KeyEvent {
             crossterm::event::KeyEvent {
                 code: crossterm::event::KeyCode::BackTab,
                 modifiers: modifiers.into(),
+                kind: crossterm::event::KeyEventKind::Press,
+                state: crossterm::event::KeyEventState::NONE,
             }
         } else {
             crossterm::event::KeyEvent {
                 code: code.into(),
                 modifiers: modifiers.into(),
+                kind: crossterm::event::KeyEventKind::Press,
+                state: crossterm::event::KeyEventState::NONE,
             }
         }
     }
