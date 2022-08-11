@@ -365,21 +365,21 @@ you to selectively add search terms to your selections.
 
 Keys to use within picker. Remapping currently not supported.
 
-| Key                     | Description                                           |
-|-------------------------|-------------------------------------------------------|
-| `Up`, `Ctrl-p`          | Previous entry                                        |
-| `PageUp`, `Ctrl-u`      | Page up                                               |
-| `Down`, `Ctrl-n`        | Next entry                                            |
-| `PageDown`, `Ctrl-d`    | Page down                                             |
-| `Home`                  | Go to first entry                                     |
-| `End`                   | Go to last entry                                      |
-| `Ctrl-space`            | Filter options                                        |
-| `Enter`                 | Open selected    (also creates new file in find-file) |
-| `Ctrl-s`                | Open horizontally                                     |
-| `Ctrl-v`                | Open vertically                                       |
-| `Ctrl-t`                | Toggle preview                                        |
-| `Escape`, `Ctrl-c`      | Close picker                                          |
-| `Backspace` (find-file) | Goto parent directory                                 |
+| Key                           | Description                                           |
+|-------------------------------|-------------------------------------------------------|
+| `Tab`, `Up`, `Ctrl-p`         | Previous entry                                        |
+| `PageUp`, `Ctrl-u`            | Page up                                               |
+| `Shift-tab`, `Down`, `Ctrl-n` | Next entry                                            |
+| `PageDown`, `Ctrl-d`          | Page down                                             |
+| `Home`                        | Go to first entry                                     |
+| `End`                         | Go to last entry                                      |
+| `Ctrl-space`                  | Filter options                                        |
+| `Enter`                       | Open selected    (also creates new file in find-file) |
+| `Ctrl-s`                      | Open horizontally                                     |
+| `Ctrl-v`                      | Open vertically                                       |
+| `Ctrl-t`                      | Toggle preview                                        |
+| `Escape`, `Ctrl-c`            | Close picker                                          |
+| `Backspace` (find-file)       | Goto parent directory                                 |
 
 ## Prompt
 
