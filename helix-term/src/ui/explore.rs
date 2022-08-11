@@ -8,8 +8,8 @@ use helix_core::Position;
 use helix_view::{
     editor::Action,
     graphics::{CursorKind, Modifier, Rect},
+    input::{Event, KeyEvent},
     Editor,
-    input::{Event, KeyEvent}
 };
 use std::borrow::Cow;
 use std::cmp::Ordering;

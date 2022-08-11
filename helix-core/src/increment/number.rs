@@ -21,12 +21,9 @@ pub struct NumberIncrementor<'a> {
 impl<'a> NumberIncrementor<'a> {
     /// Return information about number under range if there is one.
     pub fn from_range(text: RopeSlice, range: Range) -> Option<NumberIncrementor> {
-
         // correct head position
-        let range = if range.head > range.anchor
-            && range.head > 0
-        {
-            Range::new(range.anchor, range.head -1)
+        let range = if range.head > range.anchor && range.head > 0 {
+            Range::new(range.anchor, range.head - 1)
         } else {
             range
         };
@@ -45,9 +42,7 @@ impl<'a> NumberIncrementor<'a> {
         let word_range = textobject_word(text, range, TextObject::Inside, 1, false);
 
         // If there is a minus sign to the left of the word object, we want to include it in the range.
-        let mut word_range = if word_range.from() > 0
-            && text.char(word_range.from() - 1) == '-'
-        {
+        let mut word_range = if word_range.from() > 0 && text.char(word_range.from() - 1) == '-' {
             word_range.extend(word_range.from() - 1, word_range.from())
         } else {
             word_range
@@ -57,8 +52,7 @@ impl<'a> NumberIncrementor<'a> {
             .slice(word_range.from()..word_range.to())
             .chars()
             .collect();
-        let (radix, prefixed) = if word.starts_with("0x")
-        {
+        let (radix, prefixed) = if word.starts_with("0x") {
             (16, true)
         } else if word.starts_with("0o") {
             (8, true)
@@ -89,9 +83,7 @@ impl<'a> NumberIncrementor<'a> {
                 .map(|(i, _)| i)
                 .unwrap_or(len);
 
-            let (start_byte, _) = word
-                .char_indices()
-                .nth(offset)?;
+            let (start_byte, _) = word.char_indices().nth(offset)?;
             // Find start of number
             let start = word[..start_byte]
                 .chars()
@@ -349,7 +341,7 @@ mod test {
         );
     }
 
-   #[test]
+    #[test]
     fn test_number_under_range_start_of_rope() {
         let rope = Rope::from_str("100");
         let range = Range::point(0);

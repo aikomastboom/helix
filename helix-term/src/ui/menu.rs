@@ -323,7 +323,8 @@ impl<T: Item + 'static> Component for Menu<T> {
         let scroll_line = (win_height - scroll_height) * scroll
             / std::cmp::max(1, len.saturating_sub(win_height));
 
-        let rows = options.iter()
+        let rows = options
+            .iter()
             .map(|option| option.row(&self.editor_data, Some(theme)));
         let table = Table::new(rows)
             .style(style)
@@ -334,8 +335,7 @@ impl<T: Item + 'static> Component for Menu<T> {
         use tui::widgets::TableState;
 
         table.render_table(
-            area.clip_left(Self::LEFT_PADDING as u16)
-                .clip_right(1),
+            area.clip_left(Self::LEFT_PADDING as u16).clip_right(1),
             surface,
             &mut TableState {
                 offset: scroll,

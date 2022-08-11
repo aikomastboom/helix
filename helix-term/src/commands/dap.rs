@@ -486,7 +486,8 @@ pub fn dap_variables(cx: &mut Context) {
     let scopes = match block_on(debugger.scopes(frame_id)) {
         Ok(s) => s,
         Err(e) => {
-            cx.editor.set_error(format!("Failed to get scopes: {:?}", e));
+            cx.editor
+                .set_error(format!("Failed to get scopes: {:?}", e));
             return;
         }
     };

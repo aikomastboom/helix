@@ -936,12 +936,7 @@ impl Syntax {
             .collect::<Vec<_>>();
 
         // HAXX: arrange layers by byte range, with deeper layers positioned first
-        layers.sort_by_key(|layer| {
-            (
-                layer.ranges.first().cloned(),
-                cmp::Reverse(layer.depth),
-            )
-        });
+        layers.sort_by_key(|layer| (layer.ranges.first().cloned(), cmp::Reverse(layer.depth)));
 
         let mut result = HighlightIter {
             source,
@@ -1118,7 +1113,7 @@ pub(crate) fn generate_edits(
 }
 
 use std::sync::atomic::{AtomicUsize, Ordering};
-use std::{iter, mem, ops, str, cmp};
+use std::{cmp, iter, mem, ops, str};
 use tree_sitter::{
     Language as Grammar, Node, Parser, Point, Query, QueryCaptures, QueryCursor, QueryError,
     QueryMatch, Range, TextProvider, Tree,
@@ -2074,10 +2069,8 @@ mod test {
         let language = get_language("Rust").unwrap();
         let config = HighlightConfiguration::new(
             language,
-            &fs::read_to_string("../runtime/grammars/sources/rust/queries/highlights.scm")
-                .unwrap(),
-            &fs::read_to_string("../runtime/grammars/sources/rust/queries/injections.scm")
-                .unwrap(),
+            &fs::read_to_string("../runtime/grammars/sources/rust/queries/highlights.scm").unwrap(),
+            &fs::read_to_string("../runtime/grammars/sources/rust/queries/injections.scm").unwrap(),
             "", // locals.scm
         )
         .unwrap();
