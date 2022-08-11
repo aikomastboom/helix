@@ -194,10 +194,7 @@ impl Buffer {
     }
 
     pub fn in_bounds_area(area: Rect, x: u16, y: u16) -> bool {
-        x >= area.left()
-            && x < area.right()
-            && y >= area.top()
-            && y < area.bottom()
+        x >= area.left() && x < area.right() && y >= area.top() && y < area.bottom()
     }
 
     /// Returns the index in the Vec<Cell> for the given global (x, y) coordinates.
