@@ -1,6 +1,7 @@
 | Language | Syntax Highlighting | Treesitter Textobjects | Auto Indent | Default LSP |
 | --- | --- | --- | --- | --- |
 | bash | ✓ |  |  | `bash-language-server` |
+| beancount | ✓ |  |  |  |
 | c | ✓ | ✓ | ✓ | `clangd` |
 | c-sharp | ✓ |  |  | `OmniSharp` |
 | cairo | ✓ |  |  |  |
@@ -62,6 +63,7 @@
 | lua | ✓ |  | ✓ | `lua-language-server` |
 | make | ✓ |  |  |  |
 | markdown | ✓ |  |  |  |
+| markdown.inline | ✓ |  |  |  |
 | meson | ✓ |  | ✓ |  |
 | mint |  |  |  | `mint` |
 | nickel | ✓ |  | ✓ | `nls` |
@@ -89,6 +91,7 @@
 | scala | ✓ |  | ✓ | `metals` |
 | scheme | ✓ |  |  |  |
 | scss | ✓ |  |  | `vscode-css-language-server` |
+| slint | ✓ |  | ✓ | `slint-lsp` |
 | solidity | ✓ |  |  | `solc` |
 | sql | ✓ |  |  |  |
 | sshclientconfig | ✓ |  |  |  |

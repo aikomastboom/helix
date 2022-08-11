@@ -1,6 +1,6 @@
 use crate::{
     commands,
-    compositor::{Component, Context, EventResult},
+    compositor::{Component, Context, Event, EventResult},
     job, key,
     keymap::{KeymapResult, Keymaps},
     ui::{overlay::Overlay, Completion, Explorer, ProgressSpinners},
@@ -19,13 +19,12 @@ use helix_view::{
     document::Mode,
     editor::{CompleteAction, CursorShapeConfig},
     graphics::{Color, CursorKind, Modifier, Rect, Style},
-    input::KeyEvent,
+    input::{KeyEvent, MouseButton, MouseEvent, MouseEventKind},
     keyboard::{KeyCode, KeyModifiers},
     Document, Editor, Theme, View,
 };
 use std::borrow::Cow;
 
-use crossterm::event::{Event, MouseButton, MouseEvent, MouseEventKind};
 use tui::buffer::Buffer as Surface;
 
 use super::lsp::SignatureHelp;
@@ -416,7 +415,13 @@ impl EditorView {
 
         let mut is_in_indent_area = true;
         let mut last_line_indent_level = 0;
-        let indent_style = theme.get("ui.virtual.indent-guide");
+
+        // use whitespace style as fallback for indent-guide
+        let indent_guide_style = text_style.patch(
+            theme
+                .try_get("ui.virtual.indent-guide")
+                .unwrap_or_else(|| theme.get("ui.virtual.whitespace")),
+        );
 
         let draw_indent_guides = |indent_level, line, surface: &mut Surface| {
             if !config.indent_guides.render {
@@ -432,7 +437,7 @@ impl EditorView {
                     viewport.x + (i * tab_width as u16) - offset.col as u16,
                     viewport.y + line,
                     &indent_guide_char,
-                    indent_style,
+                    indent_guide_style,
                 );
             }
         };
@@ -489,14 +494,7 @@ impl EditorView {
                                 );
                             }
 
-                            // This is an empty line; draw indent guides at previous line's
-                            // indent level to avoid breaking the guides on blank lines.
-                            if visual_x == 0 {
-                                draw_indent_guides(last_line_indent_level, line, surface);
-                            } else if is_in_indent_area {
-                                // A line with whitespace only
-                                draw_indent_guides(visual_x, line, surface);
-                            }
+                            draw_indent_guides(last_line_indent_level, line, surface);
 
                             visual_x = 0;
                             line += 1;
@@ -532,6 +530,8 @@ impl EditorView {
                                 (grapheme.as_ref(), width)
                             };
 
+                            let cut_off_start = offset.col.saturating_sub(visual_x as usize);
+
                             if !out_of_bounds {
                                 // if we're offscreen just keep going until we hit a new line
                                 surface.set_string(
@@ -544,7 +544,24 @@ impl EditorView {
                                         style
                                     },
                                 );
+                            } else if cut_off_start != 0 && cut_off_start < width {
+                                // partially on screen
+                                let rect = Rect::new(
+                                    viewport.x as u16,
+                                    viewport.y + line,
+                                    (width - cut_off_start) as u16,
+                                    1,
+                                );
+                                surface.set_style(
+                                    rect,
+                                    if is_whitespace {
+                                        style.patch(whitespace_style)
+                                    } else {
+                                        style
+                                    },
+                                );
                             }
+
                             if is_in_indent_area && !(grapheme == " " || grapheme == "\t") {
                                 draw_indent_guides(visual_x, line, surface);
                                 is_in_indent_area = false;
@@ -977,7 +994,7 @@ impl EditorView {
                 if let Some((pos, view_id)) = pos_and_view(editor, row, column) {
                     let doc = editor.document_mut(editor.tree.get(view_id).doc).unwrap();
 
-                    if modifiers == crossterm::event::KeyModifiers::ALT {
+                    if modifiers == KeyModifiers::ALT {
                         let selection = doc.selection(view_id).clone();
                         doc.set_selection(view_id, selection.push(Range::point(pos)));
                     } else {
@@ -1079,7 +1096,7 @@ impl EditorView {
                     let line = coords.row + view.offset.row;
                     if let Ok(pos) = doc.text().try_line_to_char(line) {
                         doc.set_selection(view_id, Selection::point(pos));
-                        if modifiers == crossterm::event::KeyModifiers::ALT {
+                        if modifiers == KeyModifiers::ALT {
                             commands::MappableCommand::dap_edit_log.execute(cxt);
                         } else {
                             commands::MappableCommand::dap_edit_condition.execute(cxt);
@@ -1098,7 +1115,7 @@ impl EditorView {
                     return EventResult::Ignored(None);
                 }
 
-                if modifiers == crossterm::event::KeyModifiers::ALT {
+                if modifiers == KeyModifiers::ALT {
                     commands::MappableCommand::replace_selections_with_primary_clipboard
                         .execute(cxt);
 
@@ -1148,9 +1165,8 @@ impl Component for EditorView {
                 // Handling it here but not re-rendering will cause flashing
                 EventResult::Consumed(None)
             }
-            Event::Key(key) => {
+            Event::Key(mut key) => {
                 cx.editor.clear_idle_timer();
-                let mut key = KeyEvent::from(key);
                 canonicalize_key(&mut key);
 
                 // clear status
