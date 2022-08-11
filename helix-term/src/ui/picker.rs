@@ -308,18 +308,15 @@ pub struct FindFilePicker {
 }
 
 pub mod file_picker_helpers {
+    use super::fields;
     use std::{
         borrow::Cow,
         path::{Path, PathBuf},
     };
-    use super::fields;
 
     pub fn root_label<'a>(dir: &Path, path: &'a PathBuf) -> Cow<'a, str> {
         let suffix = if path.is_dir() { "/" } else { "" };
-        let stripped_path = path
-            .strip_prefix(&dir)
-            .unwrap_or(path)
-            .to_string_lossy();
+        let stripped_path = path.strip_prefix(&dir).unwrap_or(path).to_string_lossy();
         let label = stripped_path + suffix;
         if cfg!(unix) {
             let metadata = path.symlink_metadata().unwrap();

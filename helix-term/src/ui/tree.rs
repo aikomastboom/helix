@@ -10,7 +10,7 @@ use crate::{
 use helix_core::unicode::width::UnicodeWidthStr;
 use helix_view::{
     graphics::Rect,
-    input::{Event, KeyEvent}
+    input::{Event, KeyEvent},
 };
 use tui::{buffer::Buffer as Surface, text::Spans};
 

@@ -121,8 +121,8 @@ impl View {
             ));
         }
         // if !gutter_types.is_empty() {
-            // AM: undo change, no magically added space please, just add Spacer by default
-            // gutter_offset += 1;
+        // AM: undo change, no magically added space please, just add Spacer by default
+        // gutter_offset += 1;
         // }
         Self {
             id: ViewId::default(),
@@ -406,10 +406,7 @@ mod tests {
     fn test_text_pos_at_screen_coords_without_line_numbers_gutter() {
         let mut view = View::new(
             DocumentId::default(),
-            vec![
-                GutterType::Diagnostics,
-                GutterType::Spacer
-            ],
+            vec![GutterType::Diagnostics, GutterType::Spacer],
         );
         view.area = Rect::new(40, 40, 40, 40);
         let rope = Rope::from_str("abc\n\tdef");
