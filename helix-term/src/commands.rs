@@ -4951,16 +4951,13 @@ fn increment_impl(cx: &mut Context, amount: i64) {
         }
     }
 
-    let changes = changes
-        .into_iter()
-        .enumerate()
-        .filter_map(|(i, change)| {
-            if overlapping_indexes.contains(&i) {
-                None
-            } else {
-                Some(change)
-            }
-        });
+    let changes = changes.into_iter().enumerate().filter_map(|(i, change)| {
+        if overlapping_indexes.contains(&i) {
+            None
+        } else {
+            Some(change)
+        }
+    });
 
     if changes.clone().count() > 0 {
         let transaction = Transaction::change(doc.text(), changes);
