@@ -1,5 +1,5 @@
 # Author: André Sá <enkodr@outlook.com>
-# Based on the AYU theme colors from https://github.com/dempfi/ayu 
+# Based on the AYU theme colors from https://github.com/dempfi/ayu
 
 # Syntax highlighting
 "type" = { fg = "blue" }
