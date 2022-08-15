@@ -29,7 +29,10 @@ use std::{
 use anyhow::{Context, Error};
 
 use crossterm::{
-    event::{DisableMouseCapture, EnableMouseCapture, Event as CrosstermEvent},
+    event::{
+        DisableFocusChange, DisableMouseCapture, EnableFocusChange, EnableMouseCapture,
+        Event as CrosstermEvent,
+    },
     execute, terminal,
     tty::IsTty,
 };
@@ -801,6 +804,7 @@ impl Application {
         let mut stdout = stdout();
         execute!(stdout, terminal::EnterAlternateScreen)?;
         execute!(stdout, terminal::Clear(terminal::ClearType::All))?;
+        execute!(stdout, EnableFocusChange)?;
         if self.config.load().editor.mouse {
             execute!(stdout, EnableMouseCapture)?;
         }
@@ -814,6 +818,7 @@ impl Application {
         // Ignore errors on disabling, this might trigger on windows if we call
         // disable without calling enable previously
         let _ = execute!(stdout, DisableMouseCapture);
+        execute!(stdout, DisableFocusChange)?;
         execute!(stdout, terminal::LeaveAlternateScreen)?;
         terminal::disable_raw_mode()?;
         Ok(())
