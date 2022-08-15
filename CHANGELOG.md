@@ -1,4 +1,4 @@
-# 22.05-aiko (2022-08-11)
+# 22.05-aiko (2022-08-15)
 
 - [issues/2824](https://github.com/helix-editor/helix/issues/2824) 
   cargo install --git https://github.com/euclio/mdpls
@@ -70,6 +70,10 @@ right = ["diagnostics", "selections", "position", "file-encoding", "file-line-en
 
 [editor.indent-guides]
 render = true
+
+[keys.normal]
+Z = { Z = ':write-guit' }
+
 ```
 # 22.05 (2022-05-28)
 
