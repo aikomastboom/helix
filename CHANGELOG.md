@@ -1,4 +1,4 @@
-# 22.05-aiko (2022-08-11)
+# 22.05-aiko (2022-08-15)
 
 - [issues/2824](https://github.com/helix-editor/helix/issues/2824) 
   cargo install --git https://github.com/euclio/mdpls
@@ -48,7 +48,7 @@ theme = "monokai_pro_octagon"
 line-number = "relative"
 rulers = [80, 120]
 shell = ["/bin/zsh", "-c"]
-gutters = ["diagnostics", "line-numbers", "git-diff", "padding"]
+gutters = ["diagnostics", "line-numbers", "git-diff", "spacer"]
 spinner-frames = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█", "▇", "▆", "▅", "▄", "▃", "▁"]
 # https://github.com/sindresorhus/cli-spinners/pull/63
 spinner-frames = ["⣼","⣹","⢻","⠿","⡟","⣏","⣧","⣶"]
@@ -66,6 +66,10 @@ right = ["diagnostics", "selections", "position", "file-encoding", "file-line-en
 
 [editor.indent-guides]
 render = true
+
+[keys.normal]
+Z = { Z = ':write-guit' }
+
 ```
 
 # 22.05 (2022-05-28)
