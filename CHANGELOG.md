@@ -52,7 +52,7 @@ theme = "monokai_pro_octagon"
 line-number = "relative"
 rulers = [80, 120]
 shell = ["/bin/zsh", "-c"]
-gutters = ["diagnostics", "line-numbers", "git-diff", "padding"]
+gutters = ["diagnostics", "line-numbers", "git-diff", "spacer"]
 spinner-frames = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█", "▇", "▆", "▅", "▄", "▃", "▁"]
 # https://github.com/sindresorhus/cli-spinners/pull/63
 spinner-frames = ["⣼","⣹","⢻","⠿","⡟","⣏","⣧","⣶"]
