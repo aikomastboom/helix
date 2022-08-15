@@ -1,6 +1,6 @@
 # 22.05-aiko (2022-08-15)
 
-- [issues/2824](https://github.com/helix-editor/helix/issues/2824) 
+- [issues/2824](https://github.com/helix-editor/helix/issues/2824)
   cargo install --git https://github.com/euclio/mdpls
 ```shell
 $ cat ~/.config/helix/languages.toml
@@ -23,7 +23,9 @@ name = "rust"
 '<' = '>'
 ```
 
-- [pull/3285](https://github.com/helix-editor/helix/pull/3285) https://github.com/kevinastock/helix/tree/gruvbox-contrast 
+- [pull/3178](https://github.com/helix-editor/helix/pull/3178) https://github.com/groves/helix/tree/autosave_on_focus_lost
+- [pull/3390](https://github.com/helix-editor/helix/pull/3390) https://github.com/groves/helix/tree/update-crossterm-0.25
+- [pull/3285](https://github.com/helix-editor/helix/pull/3285) https://github.com/kevinastock/helix/tree/gruvbox-contrast
 - [pull/2980](https://github.com/helix-editor/helix/pull/2980) https://github.com/estin/helix/tree/mru-buffer-picker
 - [pull/3067](https://github.com/helix-editor/helix/pull/3067) https://github.com/TheSamsa/helix/tree/inherit-theme
 - [pull/1905](https://github.com/helix-editor/helix/pull/1905) https://github.com/danyspin97/helix/tree/add_colors_to_completions
@@ -75,6 +77,7 @@ render = true
 Z = { Z = ':write-guit' }
 
 ```
+
 # 22.05 (2022-05-28)
 
 An even bigger shout out than usual to all the contributors - we had a whopping
