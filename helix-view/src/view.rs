@@ -101,6 +101,7 @@ impl View {
     pub fn new(doc: DocumentId, gutter_types: Vec<crate::editor::GutterType>) -> Self {
         let mut gutters: Vec<(Gutter, usize)> = vec![];
         let mut gutter_offset = 0;
+        let mut last_gutter_is_spacer = false;
         use crate::editor::GutterType;
         for gutter_type in &gutter_types {
             let width = match gutter_type {
@@ -117,6 +118,11 @@ impl View {
                 },
                 width as usize,
             ));
+            last_gutter_is_spacer = matches!(gutter_type, GutterType::Spacer);
+        }
+        if last_gutter_is_spacer && !gutter_types.is_empty() {
+            // pop from gutters, but leave the offset.
+            gutters.pop();
         }
         Self {
             id: ViewId::default(),
@@ -415,6 +421,45 @@ mod tests {
         let text = rope.slice(..);
         assert_eq!(
             view.text_pos_at_screen_coords(&text, 41, 40 + 1, 4),
+            Some(4)
+        );
+    }
+
+    #[test]
+    fn test_text_pos_at_screen_coords_with_spacer_gutters() {
+        let mut view = View::new(
+            DocumentId::default(),
+            vec![
+                GutterType::Diagnostics,
+                GutterType::Spacer,
+                GutterType::LineNumbers,
+                GutterType::Spacer,
+            ],
+        );
+        view.area = Rect::new(40, 40, 40, 40);
+        let rope = Rope::from_str("abc\n\tdef");
+        let text = rope.slice(..);
+        assert_eq!(
+            view.text_pos_at_screen_coords(&text, 41, 40 + 1 + 1 + 5 + 1, 4),
+            Some(4)
+        );
+    }
+
+    #[test]
+    fn test_text_pos_at_screen_coords_without_last_spacer_gutters() {
+        let mut view = View::new(
+            DocumentId::default(),
+            vec![
+                GutterType::Diagnostics,
+                GutterType::Spacer,
+                GutterType::LineNumbers,
+            ],
+        );
+        view.area = Rect::new(40, 40, 40, 40);
+        let rope = Rope::from_str("abc\n\tdef");
+        let text = rope.slice(..);
+        assert_eq!(
+            view.text_pos_at_screen_coords(&text, 41, 40 + 1 + 1 + 5, 4),
             Some(4)
         );
     }
