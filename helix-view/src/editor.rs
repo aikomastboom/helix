@@ -189,7 +189,7 @@ pub struct Config {
     pub line_number: LineNumber,
     /// Highlight the lines cursors are currently on. Defaults to false.
     pub cursorline: bool,
-    /// Gutters. Default ["diagnostics", "line-numbers"]
+    /// Gutters. Default ["diagnostics", "line-numbers", "spacer"]
     pub gutters: Vec<GutterType>,
     /// Middle click paste support. Defaults to true.
     pub middle_click_paste: bool,
