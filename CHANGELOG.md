@@ -1,4 +1,4 @@
-# 22.05-aiko (2022-08-15)
+# 22.05-aiko (2022-08-16)
 
 - [issues/2824](https://github.com/helix-editor/helix/issues/2824)
   cargo install --git https://github.com/euclio/mdpls
@@ -23,6 +23,7 @@ name = "rust"
 '<' = '>'
 ```
 
+- [pull/3288](https://github.com/helix-editor/helix/pull/3288) https://github.com/aikomastboom/helix/tree/revert-extra-gutter-offset
 - [pull/3178](https://github.com/helix-editor/helix/pull/3178) https://github.com/groves/helix/tree/autosave_on_focus_lost
 - [pull/3390](https://github.com/helix-editor/helix/pull/3390) https://github.com/groves/helix/tree/update-crossterm-0.25
 - [pull/3285](https://github.com/helix-editor/helix/pull/3285) https://github.com/kevinastock/helix/tree/gruvbox-contrast
@@ -39,6 +40,7 @@ name = "rust"
 - [pull/2412](https://github.com/helix-editor/helix/pull/2412) https://github.com/pickfire/helix/tree/find-file
 - [pull/2832](https://github.com/helix-editor/helix/pull/2832) ~~https://github.com/A-Walrus/helix/tree/master~~
 
+- [discussions/1511](https://github.com/helix-editor/helix/discussions/1511#discussioncomment-3357634) If it helps, I mapped ZZ:
 - [issues/3157](https://github.com/helix-editor/helix/issues/3157)
       thread 'main' panicked at 'assertion failed: self.is_char_boundary(n)', 
       /rustc/fe5b13d681f25ee6474be29d748c65adcd91f69e/library/alloc/src/string.rs:1725:29
@@ -111,7 +113,7 @@ Commands:
 - `:set-language` to set the buffers language ([#1866](https://github.com/helix-editor/helix/pull/1866), [#1996](https://github.com/helix-editor/helix/pull/1996))
 - Command for picking files from the current working directory (`Space-F`) ([#1600](https://github.com/helix-editor/helix/pull/1600), [#2308](https://github.com/helix-editor/helix/pull/2308))
 - `:write!` which creates non-existent subdirectories ([#1839](https://github.com/helix-editor/helix/pull/1839))
-- Add `m` textobject that selects closest surrounding pair ([de15d70](https://github.com/helix-editor/helix/commit/de15d70), [76175db](https://github.com/helix-editor/helix/commit/76175db))
+- Add `m` textobject that selects the closest surrounding pair ([de15d70](https://github.com/helix-editor/helix/commit/de15d70), [76175db](https://github.com/helix-editor/helix/commit/76175db))
 - `:pipe` typable command for piping selections ([#1972](https://github.com/helix-editor/helix/pull/1972))
 - `extend_line_above` which extends to previous lines ([#2117](https://github.com/helix-editor/helix/pull/2117))
 - `set_line_ending` which replaces line endings ([#1871](https://github.com/helix-editor/helix/pull/1871))
