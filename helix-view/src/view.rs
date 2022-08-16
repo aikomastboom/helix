@@ -101,6 +101,7 @@ impl View {
     pub fn new(doc: DocumentId, gutter_types: Vec<crate::editor::GutterType>) -> Self {
         let mut gutters: Vec<(Gutter, usize)> = vec![];
         let mut gutter_offset = 0;
+        let mut last_gutter_is_spacer = false;
         use crate::editor::GutterType;
         for gutter_type in &gutter_types {
             let width = match gutter_type {
@@ -119,11 +120,12 @@ impl View {
                 },
                 width as usize,
             ));
+            last_gutter_is_spacer = matches!(gutter_type, GutterType::Spacer);
         }
-        // if !gutter_types.is_empty() {
-        // AM: undo change, no magically added space please, just add Spacer by default
-        // gutter_offset += 1;
-        // }
+        if last_gutter_is_spacer && !gutter_types.is_empty() {
+            // pop from gutters, but leave the offset.
+            gutters.pop();
+        }
         Self {
             id: ViewId::default(),
             doc,
@@ -343,9 +345,9 @@ impl View {
 mod tests {
     use super::*;
     use helix_core::Rope;
-    const OFFSET: u16 = 8; // 1 diagnostic + 5 linenr + 1 GitDiff + 1 gutter
-    const OFFSET_WITHOUT_LINE_NUMBERS: u16 = 2; // 1 diagnostic + 1 gutter
-                                                // const OFFSET: u16 = GUTTERS.iter().map(|(_, width)| *width as u16).sum();
+    const OFFSET: u16 = 8; // 1 diagnostic + 5 linenr + 1 GitDiff + 1 spacer
+    const OFFSET_WITHOUT_LINE_NUMBERS: u16 = 1; // 1 diagnostic
+
     use crate::editor::GutterType;
 
     #[test]
@@ -404,10 +406,7 @@ mod tests {
 
     #[test]
     fn test_text_pos_at_screen_coords_without_line_numbers_gutter() {
-        let mut view = View::new(
-            DocumentId::default(),
-            vec![GutterType::Diagnostics, GutterType::Spacer],
-        );
+        let mut view = View::new(DocumentId::default(), vec![GutterType::Diagnostics]);
         view.area = Rect::new(40, 40, 40, 40);
         let rope = Rope::from_str("abc\n\tdef");
         let text = rope.slice(..);
@@ -425,6 +424,45 @@ mod tests {
         let text = rope.slice(..);
         assert_eq!(
             view.text_pos_at_screen_coords(&text, 41, 40 + 1, 4),
+            Some(4)
+        );
+    }
+
+    #[test]
+    fn test_text_pos_at_screen_coords_with_spacer_gutters() {
+        let mut view = View::new(
+            DocumentId::default(),
+            vec![
+                GutterType::Diagnostics,
+                GutterType::Spacer,
+                GutterType::LineNumbers,
+                GutterType::Spacer,
+            ],
+        );
+        view.area = Rect::new(40, 40, 40, 40);
+        let rope = Rope::from_str("abc\n\tdef");
+        let text = rope.slice(..);
+        assert_eq!(
+            view.text_pos_at_screen_coords(&text, 41, 40 + 1 + 1 + 5 + 1, 4),
+            Some(4)
+        );
+    }
+
+    #[test]
+    fn test_text_pos_at_screen_coords_without_last_spacer_gutters() {
+        let mut view = View::new(
+            DocumentId::default(),
+            vec![
+                GutterType::Diagnostics,
+                GutterType::Spacer,
+                GutterType::LineNumbers,
+            ],
+        );
+        view.area = Rect::new(40, 40, 40, 40);
+        let rope = Rope::from_str("abc\n\tdef");
+        let text = rope.slice(..);
+        assert_eq!(
+            view.text_pos_at_screen_coords(&text, 41, 40 + 1 + 1 + 5, 4),
             Some(4)
         );
     }
