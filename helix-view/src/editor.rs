@@ -289,6 +289,8 @@ pub struct Config {
     pub default_line_ending: LineEndingConfig,
     /// Enables smart tab
     pub smart_tab: Option<SmartTabConfig>,
+    /// Lists the incrementer can cycle through.
+    pub increment_lists: Vec<Vec<String>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize, Eq, PartialOrd, Ord)]
@@ -843,6 +845,11 @@ impl Default for Config {
             workspace_lsp_roots: Vec::new(),
             default_line_ending: LineEndingConfig::default(),
             smart_tab: Some(SmartTabConfig::default()),
+            increment_lists: vec![
+                vec!["true".to_owned(), "false".to_owned()],
+                vec!["yes".to_owned(), "no".to_owned()],
+                vec!["on".to_owned(), "off".to_owned()],
+            ],
         }
     }
 }

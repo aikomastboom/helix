@@ -5536,6 +5536,7 @@ fn increment_impl(cx: &mut Context, increment_direction: IncrementDirection) {
     // If the register is `#` then increase or decrease the `amount` by 1 per element
     let increase_by = if cx.register == Some('#') { sign } else { 0 };
 
+    let config = &cx.editor.config();
     let (view, doc) = current!(cx.editor);
     let selection = doc.selection(view.id);
     let text = doc.text().slice(..);
@@ -5544,10 +5545,15 @@ fn increment_impl(cx: &mut Context, increment_direction: IncrementDirection) {
     let mut cumulative_length_diff: i128 = 0;
     let mut changes = vec![];
 
+    let incrementors = [
+        increment::integer(),
+        increment::date_time(),
+        increment::list(&config.increment_lists),
+    ];
     for range in selection {
         let selected_text: Cow<str> = range.fragment(text);
         let new_from = ((range.from() as i128) + cumulative_length_diff) as usize;
-        let incremented = [increment::integer, increment::date_time]
+        let incremented = incrementors
             .iter()
             .find_map(|incrementor| incrementor(selected_text.as_ref(), amount));
 
