@@ -293,6 +293,7 @@ These scopes are used for theming the editor interface:
 | `ui.statusline.separator`         | Separator character in statusline                                                              |
 | `ui.popup`                        | Documentation popups (e.g. Space + k)                                                          |
 | `ui.popup.info`                   | Prompt for multiple key options                                                                |
+| `ui.spinner`                      | Progress spinner in statusbars                                                                 |
 | `ui.window`                       | Borderlines separating splits                                                                  |
 | `ui.help`                         | Description box for commands                                                                   |
 | `ui.text`                         | Command prompts, popup text, etc.                                                              |

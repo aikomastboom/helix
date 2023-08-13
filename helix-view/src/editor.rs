@@ -18,6 +18,8 @@ use futures_util::{future, StreamExt};
 use helix_lsp::Call;
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
+pub const BRAILLE_SPINNER_STRINGS: [&str; 8] = ["⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"];
+
 use std::{
     borrow::Cow,
     cell::Cell,
@@ -276,6 +278,8 @@ pub struct Config {
     pub rulers: Vec<u16>,
     #[serde(default)]
     pub whitespace: WhitespaceConfig,
+    /// custom spinner frame
+    pub spinner: SpinnerConfig,
     /// Persistently display open buffers along the top
     pub bufferline: BufferLine,
     /// Vertical indent width guides.
@@ -735,6 +739,25 @@ impl Default for WhitespaceCharacters {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct SpinnerConfig {
+    pub frames: Vec<String>,
+    pub interval: u64,
+}
+
+impl Default for SpinnerConfig {
+    fn default() -> Self {
+        Self {
+            frames: BRAILLE_SPINNER_STRINGS
+                .into_iter()
+                .map(String::from)
+                .collect(),
+            interval: 80,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default, rename_all = "kebab-case")]
 pub struct IndentGuidesConfig {
     pub render: bool,
@@ -831,6 +854,7 @@ impl Default for Config {
             terminal: get_terminal_provider(),
             rulers: Vec::new(),
             whitespace: WhitespaceConfig::default(),
+            spinner: SpinnerConfig::default(),
             bufferline: BufferLine::default(),
             indent_guides: IndentGuidesConfig::default(),
             color_modes: false,

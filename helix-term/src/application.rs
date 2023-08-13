@@ -29,7 +29,7 @@ use crate::{
     config::Config,
     job::Jobs,
     keymap::Keymaps,
-    ui::{self, overlay::overlaid},
+    ui::{self, overlay::overlaid, ProgressSpinners, Spinner},
 };
 
 use log::{debug, error, warn};
@@ -114,6 +114,10 @@ impl Application {
         let theme_loader = std::sync::Arc::new(theme::Loader::new(&theme_parent_dirs));
 
         let true_color = config.editor.true_color || crate::true_color();
+        let spinner = Spinner::new(
+            config.editor.spinner.frames.clone(),
+            config.editor.spinner.interval,
+        );
         let theme = config
             .theme
             .as_ref()
@@ -153,7 +157,8 @@ impl Application {
         let keys = Box::new(Map::new(Arc::clone(&config), |config: &Config| {
             &config.keys
         }));
-        let editor_view = Box::new(ui::EditorView::new(Keymaps::new(keys)));
+        let progress_spinners = ProgressSpinners::new(spinner);
+        let editor_view = Box::new(ui::EditorView::new(Keymaps::new(keys), progress_spinners));
         compositor.push(editor_view);
 
         if args.load_tutor {
