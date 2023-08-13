@@ -139,6 +139,15 @@ The following statusline elements can be configured:
 
 [^2]: You may also have to activate them in the LSP config for them to appear, not just in Helix. Inlay hints in Helix are still being improved on and may be a little bit laggy/janky under some circumstances. Please report any bugs you see so we can fix them!
 
+### `[editor.spinner]` Section
+
+| Key    | Description | Default |
+| ------ | ----------- | ------- |
+| `frames` | List of strings comprising the frames to be used for the progress spinner[^1]. Set to `[]` to disable spinner display. | `["⣾", "⣽", "⣻", "⢿", "⡿", "⣟", "⣯", "⣷"]` |
+| `interval` | The minimum number of milliseconds to advance the progress spinner[^1] frame. Set to `0` to disable spinner display. | `80` |
+
+[^1]: By default, a progress spinner is shown in the statusline beside the file path.
+
 ### `[editor.cursor-shape]` Section
 
 Defines the shape of cursor in each mode.
