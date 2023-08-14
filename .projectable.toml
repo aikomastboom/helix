@@ -1,0 +1,29 @@
+#
+# helix
+# $ cargo install --path helix-term --locked
+# $ hx --grammar fetch
+# $ hx --grammar build
+#
+# markdown previewer
+# $ cargo install --git https://github.com/euclio/mdpls
+#
+# more tooling
+# $ cargo install projectable bacon bat git-delta
+#
+# https://github.com/dzfrias/projectable
+
+# https://github.com/dandavison/delta
+
+
+# https://github.com/dzfrias/projectable/blob/main/extras/CONFIG.md
+
+
+editor_cmd = "hx"
+
+[preview]
+preview_cmd = "bat --force-colorization --line-range 0:1000 {}"
+git_pager = "delta"
+
+
+[special_commands]
+"Cargo.toml" = ["cargo add {...}", "cargo remove {...}", "cargo build"]
