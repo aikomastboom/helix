@@ -7,10 +7,13 @@
 #  $ cat ~/.config/helix/languages.toml
 #  ```
 
+[language-server.markdown]
+command = "mdpls"
+config = { preview.auto = true,  preview.browser = "open" }
+
 [[language]]
 name = "markdown"
-language-server = { command = "mdpls" }
-config = {  markdown.preview.auto = true,  markdown.preview.browser = "open" }
+language-servers = ["markdown"]
 
 [[language]]
 name = "rust"
