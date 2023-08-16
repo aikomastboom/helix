@@ -1,0 +1,27 @@
+# add markdown viewer
+#
+#  - [issues/2824](https://github.com/helix-editor/helix/issues/2824)
+#  cargo install --git https://github.com/euclio/mdpls
+#
+#  ```shell
+#  $ cat ~/.config/helix/languages.toml
+#  ```
+
+[language-server.markdown]
+command = "mdpls"
+config = { preview.auto = true,  preview.browser = "open" }
+
+[[language]]
+name = "markdown"
+language-servers = ["markdown"]
+
+[[language]]
+name = "rust"
+
+[language.auto-pairs]
+'(' = ')'
+'{' = '}'
+'[' = ']'
+'"' = '"'
+'`' = '`'
+'<' = '>'

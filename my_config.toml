@@ -1,0 +1,45 @@
+# my config
+#
+# ```shell
+# $ cat ~/.config/helix/config.toml
+# ```
+
+theme = "monokai_pro_octagon"
+
+[editor]
+line-number = "relative"
+rulers = [80, 120]
+shell = ["/bin/zsh", "-c"]
+gutters = ["diagnostics", "line-numbers", "diff", "spacer"]
+
+increment-lists = [
+    ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"],
+    ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"],
+    ["ja", "nee"],
+    ["yes", "no"],
+    ["red", "yellow", "blue", "orange", "green"],
+    [":c", ":d", ":e", ":f", ":g", ":a", ":b"]
+]
+
+[editor.spinner]
+# frames = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█", "▇", "▆", "▅", "▄", "▃", "▁"]
+# https://github.com/sindresorhus/cli-spinners/pull/63
+# frames = ["⣼","⣹","⢻","⠿","⡟","⣏","⣧","⣶"]
+frames = ["⠁", "⠂", "⠄", "⡀", "⡈", "⡐", "⡠", "⣀", "⣁", "⣂", "⣄", "⣌", "⣔", "⣤", "⣥", "⣦", "⣮", "⣶", "⣷", "⣿", "⡿", "⠿", "⢟", "⠟", "⡛", "⠛", "⠫", "⢋", "⠋", "⠍", "⡉", "⠉", "⠑", "⠡", "⢁"]
+# frames = ["-", "\\", "|", "/"]
+
+[editor.cursor-shape]
+insert = "bar"
+normal = "block"
+select = "underline"
+
+[editor.statusline]
+left = ["spinner", "mode"]
+center = ["file-name"]
+right = ["diagnostics", "selections", "position", "file-encoding", "file-line-ending", "file-type"]
+
+[editor.indent-guides]
+render = true
+
+[keys.normal]
+Z = { Z = ':write-quit' }
