@@ -1,29 +1,59 @@
-#
+
 # helix
+
+# ```sh
 # $ cargo install --path helix-term --locked
 # $ hx --grammar fetch
 # $ hx --grammar build
+# ```
 #
-# markdown previewer
+# # markdown previewer
+# ```sh
 # $ cargo install --git https://github.com/euclio/mdpls
+# ```
 #
-# more tooling
-# $ cargo install projectable bacon bat git-delta
+# # more tooling
+# ```sh
+# $ cargo install projectable bacon bat git-delta gitui
+# $ go install pup
+# ```
 #
-# https://github.com/dzfrias/projectable
-
-# https://github.com/dandavison/delta
-
-
-# https://github.com/dzfrias/projectable/blob/main/extras/CONFIG.md
-
+# - [helix](https://github.com/aikomastboom/helix/)
+# - [projectable](https://github.com/dzfrias/projectable)
+# - [delta](https://github.com/dandavison/delta)
+# - [bat](https://github.com/sharkdp/bat)
+# - [bacon](https://github.com/Canop/bacon)
+# - [pup](https://github.com/ccamacho-d/pup/releases)
+# - [mdpls](https://github.com/euclio/mdpls)
+# - [nu](https://nushell.sh)
 
 editor_cmd = "hx"
 
 [preview]
-preview_cmd = "bat --force-colorization --line-range 0:1000 {}"
+preview_cmd = "bat --syntax-map='*.gleam:Rust' --force-colorization --line-range 0:1000 {}"
 git_pager = "delta"
-
 
 [special_commands]
 "Cargo.toml" = ["cargo add {...}", "cargo remove {...}", "cargo build"]
+"*.gleam" = ["Gleam.sh check", "Gleam.sh test"]
+
+# Gleam.sh
+#
+# $ cat ~/bin/Gleam.sh
+# #!/bin/bash
+#
+# if [ -f gleam.toml ]; then
+#   echo "1. found gleam.toml here ($(pwd)),"
+#   echo "1. running gleam $@"
+#   gleam $@
+# else
+#   if [ "$(pwd)" == "/" ]; then
+#     echo "3. no gleam project found"
+#     exit 1
+#   else
+#     echo "2. no gleam.toml here ($(pwd)),"
+#     echo "2. moving up and calling $0 $@"
+#     cd ..
+#     $0 $@
+#   fi
+# fi
