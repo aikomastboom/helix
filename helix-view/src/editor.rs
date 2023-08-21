@@ -465,10 +465,10 @@ pub enum StatusLineElement {
     /// The LSP activity spinner
     Spinner,
 
-    /// The base file name, including a dirty flag if it's unsaved
+    /// The file basename (the leaf of the open file's path)
     FileBaseName,
 
-    /// The relative file path, including a dirty flag if it's unsaved
+    /// The relative file path
     FileName,
 
     // The file modification indicator
@@ -1436,7 +1436,7 @@ impl Editor {
 
     // ??? possible use for integration tests
     pub fn open(&mut self, path: &Path, action: Action) -> Result<DocumentId, Error> {
-        let path = helix_core::path::get_canonicalized_path(path)?;
+        let path = helix_core::path::get_canonicalized_path(path);
         let id = self.document_by_path(&path).map(|doc| doc.id);
 
         let id = if let Some(id) = id {
