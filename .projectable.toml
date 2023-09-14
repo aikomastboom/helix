@@ -27,6 +27,8 @@
 # - [pup](https://github.com/ccamacho-d/pup/releases)
 # - [mdpls](https://github.com/euclio/mdpls)
 # - [nu](https://nushell.sh)
+# - [zoxide](https://github.com/ajeetdsouza/zoxide)
+# - [fzf](https://github.com/junegunn/fzf)
 
 editor_cmd = "hx"
 
