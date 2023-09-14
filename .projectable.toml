@@ -16,6 +16,7 @@
 # ```sh
 # $ cargo install projectable bacon bat git-delta gitui
 # $ go install pup
+# $ pacman -S entr
 # ```
 #
 # - [helix](https://github.com/aikomastboom/helix/)
@@ -30,7 +31,7 @@
 editor_cmd = "hx"
 
 [preview]
-preview_cmd = "bat --syntax-map='*.gleam:Rust' --force-colorization --line-range 0:1000 {}"
+preview_cmd = "bat --map-syntax='*.gleam:Rust' --force-colorization --line-range 0:1000 {}"
 git_pager = "delta"
 
 [special_commands]
