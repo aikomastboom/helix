@@ -25,3 +25,8 @@ name = "rust"
 '"' = '"'
 '`' = '`'
 '<' = '>'
+
+[[language]]
+name = "gleam"
+auto-format = true
+
