@@ -54,12 +54,12 @@
 | git-rebase | ✓ |  |  |  |
 | gleam | ✓ | ✓ |  | `gleam` |
 | glsl | ✓ | ✓ | ✓ |  |
-| go | ✓ | ✓ | ✓ | `gopls` |
+| go | ✓ | ✓ | ✓ | `gopls`, `golangci-lint-langserver` |
 | godot-resource | ✓ |  |  |  |
 | gomod | ✓ |  |  | `gopls` |
 | gotmpl | ✓ |  |  | `gopls` |
 | gowork | ✓ |  |  | `gopls` |
-| graphql | ✓ |  |  |  |
+| graphql | ✓ |  |  | `graphql-lsp` |
 | hare | ✓ |  |  |  |
 | haskell | ✓ | ✓ |  | `haskell-language-server-wrapper` |
 | haskell-persistent | ✓ |  |  |  |
@@ -76,6 +76,7 @@
 | jinja | ✓ |  |  |  |
 | jsdoc | ✓ |  |  |  |
 | json | ✓ |  | ✓ | `vscode-json-language-server` |
+| json5 | ✓ |  |  |  |
 | jsonnet | ✓ |  |  | `jsonnet-language-server` |
 | jsx | ✓ | ✓ | ✓ | `typescript-language-server` |
 | julia | ✓ | ✓ | ✓ | `julia` |
@@ -88,6 +89,7 @@
 | llvm | ✓ | ✓ | ✓ |  |
 | llvm-mir | ✓ | ✓ | ✓ |  |
 | llvm-mir-yaml | ✓ |  | ✓ |  |
+| lpf | ✓ |  |  |  |
 | lua | ✓ | ✓ | ✓ | `lua-language-server` |
 | make | ✓ |  |  |  |
 | markdoc | ✓ |  |  | `markdoc-ls` |
@@ -154,6 +156,7 @@
 | t32 | ✓ |  |  |  |
 | tablegen | ✓ | ✓ | ✓ |  |
 | task | ✓ |  |  |  |
+| templ | ✓ |  |  | `templ` |
 | tfvars | ✓ |  | ✓ | `terraform-ls` |
 | todotxt | ✓ |  |  |  |
 | toml | ✓ |  |  | `taplo` |
@@ -161,6 +164,7 @@
 | tsx | ✓ | ✓ | ✓ | `typescript-language-server` |
 | twig | ✓ |  |  |  |
 | typescript | ✓ | ✓ | ✓ | `typescript-language-server` |
+| typst | ✓ |  |  | `typst-lsp` |
 | ungrammar | ✓ |  |  |  |
 | unison | ✓ |  |  |  |
 | uxntal | ✓ |  |  |  |
@@ -178,6 +182,6 @@
 | wren | ✓ | ✓ | ✓ |  |
 | xit | ✓ |  |  |  |
 | xml | ✓ |  | ✓ |  |
-| yaml | ✓ |  | ✓ | `yaml-language-server` |
+| yaml | ✓ |  | ✓ | `yaml-language-server`, `ansible-language-server` |
 | yuck | ✓ |  |  |  |
 | zig | ✓ | ✓ | ✓ | `zls` |
